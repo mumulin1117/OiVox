@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "OiVox";
+"NSMicrophoneUsageDescription" = "OiVoxは本人確認、7秒音声クリップ、ボイスメッセージ、通話にマイクを使用します。";
+"NSCameraUsageDescription" = "OiVoxはプロフィール写真の撮影、本人確認、1対1のビデオ通話を開始するときにカメラを使用します。";
+"NSPhotoLibraryUsageDescription" = "OiVoxはアバター選択画面を開いたときだけ、写真ライブラリからプロフィール写真を選択できるようにします。";

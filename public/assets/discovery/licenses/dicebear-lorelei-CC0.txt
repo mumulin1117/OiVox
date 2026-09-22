@@ -1,0 +1,9 @@
+DiceBear Lorelei fixture avatars
+
+Source: https://www.dicebear.com/styles/lorelei/
+Original artwork: Lorelei by Lisa Wischofsky
+License: CC0 1.0 Universal Public Domain Dedication
+License details: https://creativecommons.org/publicdomain/zero/1.0/
+
+The downloaded files in ../avatars were generated from stable OiVox fixture seeds.
+They represent fictional local-review profiles and not real OiVox members.

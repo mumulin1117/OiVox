@@ -1,0 +1,886 @@
+<script setup>
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import arrowLeftIcon from '../assets/icons/arrow-left.svg'
+import cameraHeroIcon from '../assets/icons/camera-hero.svg'
+import cameraIcon from '../assets/icons/camera.svg'
+import checkGreenIcon from '../assets/icons/check-green.svg'
+import checkLargeIcon from '../assets/icons/check-large.svg'
+import micHeroIcon from '../assets/icons/mic-hero.svg'
+import micIcon from '../assets/icons/mic.svg'
+import shieldCheckIcon from '../assets/icons/shield-check.svg'
+import warningHeroIcon from '../assets/icons/warning-hero.svg'
+import portrait02 from '../assets/portraits/portrait-02.png'
+import portrait03 from '../assets/portraits/portrait-03.png'
+import portrait04 from '../assets/portraits/portrait-04.png'
+import portrait07 from '../assets/portraits/portrait-07.png'
+import portrait09 from '../assets/portraits/portrait-09.png'
+import { registrationContent, registrationInterests } from '../data/registrationContent'
+import { postRegistrationContent } from '../data/postRegistrationContent'
+import { languageOptions, useI18n } from '../i18n'
+import { nativeBridge } from '../nativeBridge'
+import { accountErrorMessageKey, oivoxAccountApi } from '../services/oivoxAccountApi'
+import { createLivenessChallenge, createOpaqueID, createRegistrationSubmissionID, resolveLivenessFixture } from '../services/livenessFlow'
+import { saveLocalSupportTicket, saveNotificationPreference, savePublishedVoiceClip } from '../services/localBusinessStore'
+
+const props = defineProps({ draft: { type: Object, required: true } })
+const emit = defineEmits(['back-to-auth', 'registered', 'authenticated', 'open-language'])
+const { locale, t } = useI18n()
+const copy = computed(() => registrationContent(locale.value))
+const postCopy = computed(() => postRegistrationContent(locale.value))
+const interestOptions = computed(() => registrationInterests(locale.value))
+
+const stage = ref('profile')
+const questionIndex = ref(0)
+const answers = reactive(props.draft.onboarding?.questionnaire?.length === 6 ? [...props.draft.onboarding.questionnaire] : Array(6).fill(''))
+const nickname = ref(props.draft.profile?.displayName || '')
+const presetAvatars = { 'portrait-02': portrait02, 'portrait-03': portrait03, 'portrait-04': portrait04, 'portrait-07': portrait07, 'portrait-09': portrait09 }
+const initialAvatarSource = ['preset', 'photoLibrary', 'camera'].includes(props.draft.profile?.avatarSource) ? props.draft.profile.avatarSource : ''
+const initialAvatarKey = initialAvatarSource === 'preset' && presetAvatars[props.draft.profile?.avatarKey] ? props.draft.profile.avatarKey : ''
+const initialLocalAssetID = ['photoLibrary', 'camera'].includes(initialAvatarSource) && /^avatar_[A-Za-z0-9_-]{8,100}$/.test(props.draft.profile?.localAssetID || '') ? props.draft.profile.localAssetID : ''
+const avatarStatus = ref(props.draft.profile?.avatarStatus === 'ready' && (initialAvatarKey || initialLocalAssetID) ? 'ready' : 'placeholder')
+const avatarSource = ref(avatarStatus.value === 'ready' ? initialAvatarSource : '')
+const avatarKey = ref(avatarStatus.value === 'ready' ? initialAvatarKey : '')
+const avatarLocalAssetID = ref(avatarStatus.value === 'ready' ? initialLocalAssetID : '')
+const avatarPreview = ref(initialAvatarKey ? presetAvatars[initialAvatarKey] : '')
+const selectedLanguages = ref(props.draft.profile?.spokenLanguages || [locale.value])
+const selectedInterests = ref(props.draft.onboarding?.interests || [])
+const error = ref('')
+const errorCode = ref('')
+const nicknameError = ref('')
+const avatarError = ref('')
+const profileAdvancing = ref(false)
+const busy = ref(false)
+const permissionNote = ref('')
+const completedUser = ref(null)
+const nicknameInput = ref(null)
+const photoInput = ref(null)
+let objectURL = ''
+let advanceTimer = 0
+let revealTimers = []
+let recordTimer = 0
+let recordingStartedAt = 0
+let registrationPromise = null
+const pageInstanceID = createOpaqueID('registration-page')
+const registrationSubmissionID = createRegistrationSubmissionID()
+const livenessAttempt = ref(null)
+const attemptNumber = ref(0)
+const visibleDigits = ref(['symbol', 'symbol', 'symbol'])
+const faceCount = ref(0)
+const livenessMessage = ref('')
+const supportCategory = ref('user_or_clip')
+const supportDetails = ref('')
+const supportDiagnostics = ref(true)
+const supportAttachmentIDs = ref([])
+const supportStatus = ref('')
+const voiceClip = ref(null)
+const voiceState = ref('idle')
+const secondsLeft = ref(7)
+const guidelineAccepted = ref(false)
+const isPlaying = ref(false)
+const notificationNote = ref('')
+
+const outerStep = computed(() => ({ profile: 2, questionnaire: 3, interests: 4, communication: 4, microphone: 5, camera: 6, verificationIntro: 7, verificationDigits: 7, processing: 7, verificationFailed: 7, registrationFailed: 7, submitting: 7 }[stage.value] || null))
+const currentQuestion = computed(() => copy.value.questions[questionIndex.value])
+const selectedInterestLabels = computed(() => interestOptions.value.filter(([id]) => selectedInterests.value.includes(id)).map(([, label]) => label))
+const questionLabel = (index) => copy.value.questions[index]?.options.find(([id]) => id === answers[index])?.[1] || '—'
+const canSubmitLiveness = computed(() => stage.value === 'verificationDigits' && livenessAttempt.value?.captureState === 'recording' && faceCount.value === 1 && visibleDigits.value.every((value) => Number.isInteger(value)))
+const faceMessage = computed(() => faceCount.value > 1 ? postCopy.value.multipleFaces : faceCount.value === 1 ? postCopy.value.singleFace : postCopy.value.noFace)
+const nicknameValid = computed(() => nickname.value.trim().length >= 1 && nickname.value.trim().length <= 32)
+const avatarReady = computed(() => avatarStatus.value === 'ready' && Boolean(avatarKey.value || avatarLocalAssetID.value) && Boolean(avatarPreview.value))
+
+function clearError() {
+  error.value = ''
+  errorCode.value = ''
+}
+
+function goBack() {
+  clearError()
+  if (stage.value === 'profile') return emit('back-to-auth', buildDraft())
+  if (stage.value === 'questionnaire') {
+    if (questionIndex.value > 0) questionIndex.value -= 1
+    else stage.value = 'profile'
+    return
+  }
+  const previous = {
+    interests: 'questionnaire', communication: 'interests', microphone: 'communication', camera: 'microphone',
+    verificationIntro: 'camera', verificationDigits: 'verificationIntro', verificationFailed: 'verificationDigits', submitting: 'verificationDigits',
+  }
+  if (stage.value === 'interests') questionIndex.value = 5
+  stage.value = previous[stage.value] || 'profile'
+}
+
+function buildDraft() {
+  return {
+    ...props.draft,
+    profile: {
+      displayName: nickname.value.trim(),
+      avatarStatus: avatarStatus.value,
+      avatarSource: avatarSource.value || null,
+      ...(avatarKey.value ? { avatarKey: avatarKey.value } : {}),
+      ...(avatarLocalAssetID.value ? { localAssetID: avatarLocalAssetID.value } : {}),
+      spokenLanguages: [...selectedLanguages.value],
+      preferredLanguage: locale.value,
+    },
+    onboarding: { questionnaire: [...answers], interests: [...selectedInterests.value] },
+  }
+}
+
+async function finishProfile() {
+  if (profileAdvancing.value || avatarStatus.value === 'processing') return
+  profileAdvancing.value = true
+  clearError()
+  nicknameError.value = nicknameValid.value ? '' : copy.value.nicknameRequired
+  avatarError.value = avatarReady.value ? '' : copy.value.avatarRequired
+  if (nicknameError.value || avatarError.value) {
+    if (nicknameError.value) {
+      await nextTick()
+      nicknameInput.value?.focus()
+    }
+    profileAdvancing.value = false
+    return
+  }
+  if (!selectedLanguages.value.length) selectedLanguages.value = [locale.value]
+  stage.value = 'questionnaire'
+  profileAdvancing.value = false
+}
+
+function toggleLanguage(code) {
+  const values = selectedLanguages.value
+  if (values.includes(code)) {
+    if (values.length > 1) selectedLanguages.value = values.filter((item) => item !== code)
+  } else selectedLanguages.value = [...values, code]
+}
+
+function chooseAnswer(value) {
+  window.clearTimeout(advanceTimer)
+  answers[questionIndex.value] = value
+  advanceQuestion()
+}
+
+function skipQuestion() {
+  window.clearTimeout(advanceTimer)
+  answers[questionIndex.value] = 'skipped'
+  advanceQuestion()
+}
+
+function advanceQuestion() {
+  if (questionIndex.value < 5) {
+    advanceTimer = window.setTimeout(() => { questionIndex.value += 1 }, 180)
+  } else {
+    advanceTimer = window.setTimeout(() => { stage.value = 'interests' }, 180)
+  }
+}
+
+function toggleInterest(id) {
+  clearError()
+  if (selectedInterests.value.includes(id)) selectedInterests.value = selectedInterests.value.filter((value) => value !== id)
+  else if (selectedInterests.value.length < 5) selectedInterests.value = [...selectedInterests.value, id]
+}
+
+function finishInterests() {
+  if (selectedInterests.value.length < 2) {
+    error.value = copy.value.chooseMore
+    return
+  }
+  stage.value = 'communication'
+}
+
+async function requestPermission(permission) {
+  if (busy.value) return
+  busy.value = true
+  permissionNote.value = ''
+  try {
+    const result = await nativeBridge.requestPermission(permission)
+    const granted = result?.granted === true || !nativeBridge.isNative
+    permissionNote.value = permission === 'microphone'
+      ? (granted ? copy.value.permissionGranted : copy.value.permissionSkipped)
+      : (granted ? copy.value.cameraGranted : copy.value.cameraSkipped)
+  } catch {
+    permissionNote.value = permission === 'microphone' ? copy.value.permissionSkipped : copy.value.cameraSkipped
+  } finally {
+    busy.value = false
+  }
+  window.setTimeout(() => { stage.value = permission === 'microphone' ? 'camera' : 'verificationIntro'; permissionNote.value = '' }, 260)
+}
+
+function skipPermission(permission) {
+  permissionNote.value = permission === 'microphone' ? copy.value.permissionSkipped : copy.value.cameraSkipped
+  window.setTimeout(() => { stage.value = permission === 'microphone' ? 'camera' : 'verificationIntro'; permissionNote.value = '' }, 180)
+}
+
+function clearNicknameError() {
+  nicknameError.value = ''
+  clearError()
+}
+
+function resetAvatar(status = 'placeholder') {
+  if (objectURL) URL.revokeObjectURL(objectURL)
+  objectURL = ''
+  avatarPreview.value = ''
+  avatarKey.value = ''
+  avatarLocalAssetID.value = ''
+  avatarSource.value = ''
+  avatarStatus.value = status
+}
+
+function avatarFailure(message) {
+  resetAvatar('failed')
+  avatarError.value = message
+}
+
+function cancelPhotoSelection() {
+  resetAvatar('placeholder')
+  avatarError.value = copy.value.avatarCancelled
+}
+
+async function openPhotoPicker() {
+  if (avatarStatus.value === 'processing') return
+  avatarError.value = ''
+  if (!nativeBridge.isNative) {
+    if (photoInput.value) photoInput.value.value = ''
+    photoInput.value?.click()
+    return
+  }
+  avatarStatus.value = 'processing'
+  try {
+    const result = await nativeBridge.chooseAvatar({
+      photoLibraryLabel: copy.value.chooseFromPhotos,
+      cameraLabel: copy.value.takePhoto,
+      cancelLabel: copy.value.cancel,
+    }, { pageInstanceID, timeout: 120000 })
+    if (result?.cancelled) {
+      cancelPhotoSelection()
+      return
+    }
+    if (!['photoLibrary', 'camera'].includes(result?.source) || !/^avatar_[A-Za-z0-9_-]{8,100}$/.test(result?.localAssetID || '') || !String(result?.previewDataURL || '').startsWith('data:image/')) throw new Error('Invalid avatar result')
+    if (objectURL) URL.revokeObjectURL(objectURL)
+    objectURL = ''
+    avatarPreview.value = result.previewDataURL
+    avatarLocalAssetID.value = result.localAssetID
+    avatarKey.value = ''
+    avatarSource.value = result.source
+    avatarStatus.value = 'ready'
+  } catch (pickerError) {
+    avatarFailure(pickerError.code === 'PERMISSION_DENIED' ? copy.value.avatarPermissionDenied : pickerError.code === 'AVATAR_DECODE_FAILED' ? copy.value.avatarDecodeFailed : copy.value.avatarProcessingFailed)
+  }
+}
+
+async function decodeBrowserAvatar(file) {
+  const bitmap = await createImageBitmap(file)
+  try {
+    if (!bitmap.width || !bitmap.height) throw new Error('Invalid image dimensions')
+    const size = Math.min(bitmap.width, bitmap.height)
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('Canvas unavailable')
+    context.drawImage(bitmap, (bitmap.width - size) / 2, (bitmap.height - size) / 2, size, size, 0, 0, 512, 512)
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.86))
+    if (!blob) throw new Error('Avatar crop failed')
+    return blob
+  } finally {
+    bitmap.close()
+  }
+}
+
+async function updatePhoto(event) {
+  const file = event.target.files?.[0]
+  if (!file) {
+    resetAvatar('placeholder')
+    avatarError.value = copy.value.avatarCancelled
+    return
+  }
+  avatarStatus.value = 'processing'
+  avatarError.value = ''
+  try {
+    if (!file.type.startsWith('image/')) throw new Error('Not an image')
+    const blob = await decodeBrowserAvatar(file)
+    if (objectURL) URL.revokeObjectURL(objectURL)
+    objectURL = URL.createObjectURL(blob)
+    avatarPreview.value = objectURL
+    avatarLocalAssetID.value = createOpaqueID('avatar_browser')
+    avatarKey.value = ''
+    avatarSource.value = 'photoLibrary'
+    avatarStatus.value = 'ready'
+  } catch {
+    avatarFailure(copy.value.avatarDecodeFailed)
+  }
+}
+
+function clearRevealTimers() {
+  revealTimers.forEach((timer) => window.clearTimeout(timer))
+  revealTimers = []
+}
+
+async function releaseLiveness() {
+  clearRevealTimers()
+  const sessionID = livenessAttempt.value?.mediaSessionID
+  if (sessionID) await nativeBridge.releaseLiveness(sessionID, { pageInstanceID }).catch(() => {})
+  if (livenessAttempt.value) {
+    livenessAttempt.value.mediaSessionID = null
+    livenessAttempt.value.captureState = 'released'
+  }
+}
+
+async function startNativeLiveness() {
+  if (!livenessAttempt.value || stage.value !== 'verificationDigits') return
+  await nextTick()
+  const target = document.querySelector('.digit-face')?.getBoundingClientRect()
+  if (!target) return
+  livenessAttempt.value.captureState = 'cameraStarting'
+  livenessMessage.value = faceMessage.value
+  try {
+    const result = await nativeBridge.startLiveness({
+      attemptID: livenessAttempt.value.id,
+      previewRect: { x: target.x, y: target.y, width: target.width, height: target.height },
+      cornerRadius: target.width / 2,
+      requireSingleFace: true,
+    }, { pageInstanceID, timeout: 20000 })
+    if (stage.value !== 'verificationDigits') return
+    livenessAttempt.value.mediaSessionID = result?.sessionID || null
+    livenessAttempt.value.captureState = 'recording'
+    faceCount.value = Number(result?.faceCount ?? (nativeBridge.isNative ? 0 : 1))
+    livenessMessage.value = faceMessage.value
+  } catch (nativeError) {
+    livenessAttempt.value.captureState = 'failed'
+    error.value = t(nativeError.code === 'PERMISSION_DENIED' ? 'permissionDenied' : 'requestFailed')
+  }
+}
+
+async function beginLivenessAttempt() {
+  if (busy.value) return
+  await releaseLiveness()
+  clearError()
+  attemptNumber.value += 1
+  const attempt = createLivenessChallenge()
+  attempt.attemptNumber = attemptNumber.value
+  livenessAttempt.value = attempt
+  visibleDigits.value = ['symbol', 'symbol', 'symbol']
+  faceCount.value = 0
+  livenessMessage.value = postCopy.value.noFace
+  stage.value = 'verificationDigits'
+  attempt.displayState = 'rolling'
+  attempt.digits.forEach((digit, index) => {
+    revealTimers.push(window.setTimeout(() => {
+      const next = [...visibleDigits.value]
+      next[index] = digit
+      visibleDigits.value = next
+      if (index === 2) {
+        attempt.displayState = 'revealed'
+        startNativeLiveness()
+      }
+    }, 420 + index * 420))
+  })
+}
+
+async function processLiveness() {
+  if (busy.value || !canSubmitLiveness.value) return
+  busy.value = true
+  clearError()
+  stage.value = 'processing'
+  livenessAttempt.value.submittedAt = new Date().toISOString()
+  try {
+    await nativeBridge.stopLiveness(livenessAttempt.value.mediaSessionID, { pageInstanceID, timeout: 10000 })
+    livenessAttempt.value.captureState = 'stopped'
+    await new Promise((resolve) => window.setTimeout(resolve, 350))
+    const fixture = resolveLivenessFixture(livenessAttempt.value)
+    Object.assign(livenessAttempt.value, fixture, { completedAt: new Date().toISOString() })
+    await releaseLiveness()
+    if (fixture.outcome === 'failed') stage.value = 'verificationFailed'
+    else await submitRegistration()
+  } catch (nativeError) {
+    error.value = t('requestFailed')
+    stage.value = 'verificationDigits'
+  } finally {
+    busy.value = false
+  }
+}
+
+async function submitRegistration() {
+  if (registrationPromise) return registrationPromise
+  busy.value = true
+  clearError()
+  stage.value = 'submitting'
+  registrationPromise = oivoxAccountApi.register({
+      email: props.draft.email,
+      password: props.draft.password,
+      ageRange: props.draft.ageRange,
+      acceptedTerms: props.draft.acceptedTerms === true,
+      termsVersion: props.draft.termsVersion,
+      profile: {
+        displayName: nickname.value.trim(),
+        avatarSource: avatarSource.value,
+        ...(avatarKey.value ? { avatarKey: avatarKey.value } : {}),
+        ...(avatarLocalAssetID.value ? { localAssetID: avatarLocalAssetID.value } : {}),
+        spokenLanguages: [...selectedLanguages.value],
+        preferredLanguage: locale.value,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+      },
+      onboarding: { questionnaire: [...answers], interests: [...selectedInterests.value] },
+      verification: {
+        status: 'passed', method: 'local-fixture', attemptID: livenessAttempt.value.id,
+        challengeID: livenessAttempt.value.challengeID, fixtureID: livenessAttempt.value.fixtureID,
+        completedAt: livenessAttempt.value.completedAt,
+      },
+    }, registrationSubmissionID)
+  try {
+    const result = await registrationPromise
+    completedUser.value = result.user
+    emit('registered', result.user)
+    stage.value = 'complete'
+  } catch (requestError) {
+    errorCode.value = requestError.code || 'REQUEST_FAILED'
+    error.value = errorCode.value === 'EMAIL_IN_USE' ? copy.value.emailInUse
+      : errorCode.value === 'AVATAR_REQUIRED' ? copy.value.avatarRequired
+        : errorCode.value === 'INVALID_DISPLAY_NAME' ? copy.value.nicknameRequired
+          : t(accountErrorMessageKey(errorCode.value))
+    stage.value = 'registrationFailed'
+    registrationPromise = null
+  } finally {
+    busy.value = false
+  }
+}
+
+function retryRegistration() {
+  if (!busy.value && livenessAttempt.value?.outcome === 'passed') submitRegistration()
+}
+
+async function attachSupportScreenshot() {
+  if (busy.value) return
+  busy.value = true
+  try {
+    const result = await nativeBridge.selectSupportScreenshot()
+    if (result?.assetID) supportAttachmentIDs.value = [result.assetID]
+  } finally {
+    busy.value = false
+  }
+}
+
+function submitSupportTicket() {
+  supportStatus.value = ''
+  if (!supportCategory.value || !supportDetails.value.trim()) {
+    supportStatus.value = postCopy.value.supportRequired
+    return
+  }
+  saveLocalSupportTicket({ category: supportCategory.value, details: supportDetails.value, attachmentAssetIDs: supportAttachmentIDs.value, includeDiagnostics: supportDiagnostics.value })
+  supportStatus.value = postCopy.value.supportSaved
+}
+
+function clearRecordTimer() {
+  window.clearInterval(recordTimer)
+  recordTimer = 0
+}
+
+async function finishVoiceRecording(result) {
+  clearRecordTimer()
+  const durationMs = Math.min(7000, Math.max(0, Number(result?.durationMs) || Date.now() - recordingStartedAt))
+  voiceClip.value = { id: createOpaqueID('clip'), localAssetID: result?.assetID || voiceClip.value?.localAssetID, durationMs, status: 'ready', createdAt: new Date().toISOString() }
+  voiceState.value = 'ready'
+  secondsLeft.value = Math.max(0, Math.ceil((7000 - durationMs) / 1000))
+}
+
+async function toggleVoiceRecording() {
+  if (busy.value) return
+  clearError()
+  if (voiceState.value === 'recording') {
+    busy.value = true
+    try { await finishVoiceRecording(await nativeBridge.stopVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID })) }
+    catch { error.value = postCopy.value.recordingFailed; voiceState.value = 'idle' }
+    finally { busy.value = false }
+    return
+  }
+  busy.value = true
+  const assetID = createOpaqueID('voice')
+  try {
+    const result = await nativeBridge.startVoiceRecording(assetID, { pageInstanceID })
+    voiceClip.value = { id: createOpaqueID('clip'), localAssetID: result?.assetID || assetID, durationMs: 0, status: 'recording', createdAt: new Date().toISOString() }
+    voiceState.value = 'recording'
+    secondsLeft.value = 7
+    recordingStartedAt = Date.now()
+    clearRecordTimer()
+    recordTimer = window.setInterval(async () => {
+      secondsLeft.value = Math.max(0, 7 - Math.floor((Date.now() - recordingStartedAt) / 1000))
+      if (secondsLeft.value === 0 && voiceState.value === 'recording') await toggleVoiceRecording()
+    }, 200)
+  } catch (nativeError) {
+    error.value = nativeError.code === 'PERMISSION_DENIED' ? postCopy.value.microphoneRequired : postCopy.value.recordingFailed
+  } finally {
+    busy.value = false
+  }
+}
+
+async function cancelVoiceRecording() {
+  clearRecordTimer()
+  if (voiceClip.value?.localAssetID) await nativeBridge.discardVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID }).catch(() => {})
+  voiceClip.value = null
+  voiceState.value = 'idle'
+  secondsLeft.value = 7
+  stage.value = 'complete'
+}
+
+async function togglePlayback() {
+  if (!voiceClip.value?.localAssetID || busy.value) return
+  busy.value = true
+  try {
+    if (isPlaying.value) await nativeBridge.pauseVoice(voiceClip.value.localAssetID, { pageInstanceID })
+    else await nativeBridge.playVoice(voiceClip.value.localAssetID, { pageInstanceID })
+    isPlaying.value = !isPlaying.value
+  } catch { error.value = t('requestFailed') }
+  finally { busy.value = false }
+}
+
+async function recordAgain() {
+  if (busy.value) return
+  busy.value = true
+  try { if (voiceClip.value?.localAssetID) await nativeBridge.discardVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID }) }
+  finally {
+    voiceClip.value = null
+    voiceState.value = 'idle'
+    secondsLeft.value = 7
+    guidelineAccepted.value = false
+    isPlaying.value = false
+    busy.value = false
+    clearError()
+    stage.value = 'voiceRecord'
+  }
+}
+
+async function publishVoice() {
+  if (busy.value || !guidelineAccepted.value || !voiceClip.value) return
+  busy.value = true
+  clearError()
+  voiceState.value = 'publishing'
+  try {
+    if (globalThis.__OIVOX_PUBLISH_FIXTURE__ === 'failure') throw new Error('Injected publish failure')
+    const result = await nativeBridge.publishVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID, timeout: 20000 })
+    voiceClip.value = savePublishedVoiceClip({ ...voiceClip.value, localAssetID: result?.assetID || voiceClip.value.localAssetID })
+    voiceState.value = 'published'
+    stage.value = 'notification'
+  } catch {
+    voiceState.value = 'publishFailed'
+    error.value = postCopy.value.publishFailed
+  } finally { busy.value = false }
+}
+
+function finishOnboarding() {
+  emit('authenticated', completedUser.value)
+}
+
+async function allowNotifications() {
+  if (busy.value) return
+  busy.value = true
+  try {
+    const result = await nativeBridge.requestNotifications()
+    saveNotificationPreference({ onboardingChoice: 'allow_tapped', systemStatus: result?.status || (result?.granted ? 'authorized' : 'denied'), requestedAt: new Date().toISOString() })
+    if (!result?.granted) notificationNote.value = postCopy.value.notificationDenied
+  } catch {
+    saveNotificationPreference({ onboardingChoice: 'allow_tapped', systemStatus: 'denied', requestedAt: new Date().toISOString() })
+    notificationNote.value = postCopy.value.notificationDenied
+  } finally {
+    busy.value = false
+    finishOnboarding()
+  }
+}
+
+function skipNotifications() {
+  saveNotificationPreference({ onboardingChoice: 'not_now', systemStatus: 'notDetermined' })
+  finishOnboarding()
+}
+
+function returnToAccount() {
+  emit('back-to-auth', buildDraft())
+}
+
+function returnToProfile() {
+  registrationPromise = null
+  if (errorCode.value === 'AVATAR_REQUIRED') {
+    resetAvatar('failed')
+    avatarError.value = copy.value.avatarRequired
+  }
+  if (errorCode.value === 'INVALID_DISPLAY_NAME') nicknameError.value = copy.value.nicknameRequired
+  clearError()
+  stage.value = 'profile'
+}
+
+onMounted(async () => {
+  if (!nativeBridge.isNative || avatarStatus.value !== 'ready' || !avatarLocalAssetID.value || avatarPreview.value) return
+  avatarStatus.value = 'processing'
+  try {
+    const result = await nativeBridge.loadAvatarPreview(avatarLocalAssetID.value, { pageInstanceID })
+    if (!String(result?.previewDataURL || '').startsWith('data:image/')) throw new Error('Missing preview')
+    avatarPreview.value = result.previewDataURL
+    avatarStatus.value = 'ready'
+  } catch {
+    avatarFailure(copy.value.avatarProcessingFailed)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.clearTimeout(advanceTimer)
+  clearRevealTimers()
+  clearRecordTimer()
+  nativeBridge.cancelPage(pageInstanceID)
+  releaseLiveness()
+  if (voiceState.value === 'recording' && voiceClip.value?.localAssetID) nativeBridge.stopVoiceRecording(voiceClip.value.localAssetID).catch(() => {})
+  if (objectURL) URL.revokeObjectURL(objectURL)
+})
+
+const removeNativeListener = nativeBridge.onEvent((event) => {
+  if (event?.sessionID && event.sessionID !== livenessAttempt.value?.mediaSessionID) return
+  if (event?.type === 'liveness.faceCountChanged') {
+    faceCount.value = Number(event.faceCount || 0)
+    if (livenessAttempt.value) livenessAttempt.value.faceState = faceCount.value === 1 ? 'single' : faceCount.value > 1 ? 'multiple' : 'none'
+    livenessMessage.value = faceMessage.value
+  }
+  if (event?.type === 'voice.recordingFinished' && voiceState.value === 'recording') finishVoiceRecording(event)
+  if (event?.type === 'media.interrupted') {
+    releaseLiveness()
+    if (voiceState.value === 'recording') {
+      clearRecordTimer()
+      voiceState.value = 'idle'
+      error.value = postCopy.value.recordingFailed
+    }
+  }
+})
+
+function handleVisibilityChange() {
+  if (!document.hidden) return
+  releaseLiveness()
+  if (voiceState.value === 'recording' && voiceClip.value?.localAssetID) nativeBridge.stopVoiceRecording(voiceClip.value.localAssetID).then(finishVoiceRecording).catch(() => {})
+}
+
+document.addEventListener('visibilitychange', handleVisibilityChange)
+onBeforeUnmount(() => {
+  removeNativeListener()
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+})
+</script>
+
+<template>
+  <main class="registration-screen app-screen" :class="`registration-${stage}`">
+    <template v-if="!['complete', 'communication', 'verificationDigits', 'processing', 'submitting', 'support', 'voiceRecord', 'voicePreview', 'notification'].includes(stage)">
+      <header class="flow-nav" :class="{ 'flow-nav-text': stage === 'questionnaire' || stage === 'interests' }">
+        <button v-if="stage === 'questionnaire' || stage === 'interests'" class="flow-back-label" type="button" :disabled="busy" @click="goBack">
+          <img :src="arrowLeftIcon" alt=""><span>{{ copy.back }}</span>
+        </button>
+        <button v-else class="flow-back" type="button" :aria-label="copy.back" :disabled="busy" @click="goBack"><img :src="arrowLeftIcon" alt=""></button>
+        <strong>{{ stage === 'questionnaire' || stage === 'interests' ? copy.step(outerStep) : 'OiVox' }}</strong>
+        <button v-if="stage === 'questionnaire'" class="flow-nav-action" type="button" @click="skipQuestion">{{ copy.skip }}</button>
+        <button v-else-if="stage === 'interests'" class="flow-nav-action" type="button" @click="finishInterests">{{ copy.done }}</button>
+        <span v-else class="flow-step">{{ outerStep ? copy.step(outerStep) : '' }}</span>
+      </header>
+      <div v-if="outerStep" class="flow-progress" aria-hidden="true"><span :style="{ width: `${outerStep / 7 * 100}%` }" /></div>
+    </template>
+
+    <header v-else-if="stage === 'communication'" class="preview-nav">
+      <button class="flow-back" type="button" :aria-label="copy.back" @click="goBack"><img :src="arrowLeftIcon" alt=""></button>
+      <strong>{{ copy.communicationTitle }}</strong><span />
+    </header>
+
+    <section v-if="stage === 'profile'" class="flow-page flow-profile">
+      <div class="flow-scroll">
+        <h1>{{ copy.profileTitle }}</h1>
+        <p class="flow-lead">{{ copy.profileSubtitle }}</p>
+        <div class="profile-identity">
+          <div class="avatar-field" :class="{ invalid: avatarError }">
+          <div class="avatar-editor" :class="{ empty: !avatarReady, processing: avatarStatus === 'processing' }">
+            <img v-if="avatarPreview" :src="avatarPreview" alt="">
+            <span v-else class="avatar-placeholder" aria-hidden="true"><img :src="cameraIcon" alt=""></span>
+            <button type="button" :aria-label="copy.photoAction" :disabled="avatarStatus === 'processing'" @click="openPhotoPicker"><span v-if="avatarStatus === 'processing'" class="button-spinner"/><img v-else :src="cameraIcon" alt=""></button>
+            <input ref="photoInput" type="file" accept="image/*" hidden @change="updatePhoto" @cancel="cancelPhotoSelection">
+          </div>
+          <p v-if="avatarError" class="field-error avatar-field-error" role="alert">{{ avatarError }}</p>
+          </div>
+          <div class="profile-name-field">
+            <label class="flow-label" for="registration-nickname">{{ copy.nickname }}</label>
+            <div class="flow-input-wrap" :class="{ invalid: nicknameError }">
+              <input id="registration-nickname" ref="nicknameInput" v-model="nickname" class="flow-input" maxlength="32" autocomplete="nickname" :placeholder="copy.nicknamePlaceholder" :aria-invalid="Boolean(nicknameError)" @input="clearNicknameError">
+              <span class="field-count">{{ nickname.length }}/32</span>
+            </div>
+            <p v-if="nicknameError" class="field-error" role="alert">{{ nicknameError }}</p>
+          </div>
+        </div>
+        <span class="flow-label languages-label">{{ copy.languages }}</span>
+        <div class="choice-chips language-chips">
+          <button v-for="language in languageOptions" :key="language.code" type="button" :class="{ selected: selectedLanguages.includes(language.code) }" :aria-pressed="selectedLanguages.includes(language.code)" @click="toggleLanguage(language.code)">{{ language.nativeName }}</button>
+        </div>
+        <aside class="privacy-note"><img :src="shieldCheckIcon" alt=""><div><strong>{{ copy.privacyTitle }}</strong><p>{{ copy.privacyBody }}</p></div></aside>
+        <p v-if="error" class="flow-error" role="alert">{{ error }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" :disabled="profileAdvancing || avatarStatus === 'processing'" @click="finishProfile">{{ copy.continue }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'questionnaire'" class="flow-page question-page">
+      <div class="flow-scroll">
+        <div class="question-progress-row">
+          <div class="question-subprogress" aria-hidden="true"><span :style="{ width: `${(questionIndex + 1) / 6 * 100}%` }" /></div>
+          <span>{{ questionIndex + 1 }}/6</span>
+        </div>
+        <div class="question-meta"><strong>{{ copy.question(questionIndex + 1) }}</strong></div>
+        <h1>{{ currentQuestion.title }}</h1>
+        <div class="question-options">
+          <button v-for="([value, label], index) in currentQuestion.options" :key="value" type="button" :class="{ selected: answers[questionIndex] === value }" @click="chooseAnswer(value)">
+            <span>{{ String.fromCharCode(65 + index) }}</span><strong>{{ label }}</strong><i aria-hidden="true">✓</i>
+          </button>
+        </div>
+        <p class="question-note">{{ copy.questionNote }}</p>
+      </div>
+    </section>
+
+    <section v-else-if="stage === 'interests'" class="flow-page interests-page">
+      <div class="flow-scroll">
+        <h1>{{ copy.interestTitle }}</h1>
+        <div class="selected-summary">
+          <div><span>{{ copy.selected }}</span><strong>{{ selectedInterests.length }}/5</strong></div>
+          <div class="selected-tags"><span v-for="label in selectedInterestLabels" :key="label">{{ label }}</span><p v-if="!selectedInterestLabels.length">{{ copy.chooseMore }}</p></div>
+        </div>
+        <div class="interest-cloud">
+          <button v-for="([id, label]) in interestOptions" :key="id" type="button" :class="{ selected: selectedInterests.includes(id) }" :aria-pressed="selectedInterests.includes(id)" @click="toggleInterest(id)">{{ label }}</button>
+        </div>
+        <p v-if="error" class="flow-error" role="alert">{{ error }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" @click="finishInterests">{{ copy.buildProfile }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'communication'" class="flow-page communication-page">
+      <div class="flow-scroll">
+        <article class="profile-polaroid">
+          <img :src="avatarPreview" alt="">
+          <div><strong>{{ copy.helloWorld }}</strong><span>{{ nickname }}</span></div>
+        </article>
+        <div class="communication-grid">
+          <article><span>{{ copy.iSpeak }}</span><strong>{{ selectedLanguages.map(code => languageOptions.find(item => item.code === code)?.nativeName).join(' · ') }}</strong></article>
+          <article><span>{{ copy.reply }}</span><strong>{{ questionLabel(3) }}</strong></article>
+          <article><span>{{ copy.online }}</span><strong>{{ questionLabel(4) }}</strong></article>
+        </div>
+        <article class="curiosity-card"><span>{{ copy.curiousAbout }}</span><h3>{{ questionLabel(0) }}</h3><p>{{ selectedInterestLabels.join(' · ') }}</p></article>
+        <p class="profile-preview-note">{{ copy.communicationSubtitle }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" @click="stage = 'microphone'">{{ copy.continue }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'microphone' || stage === 'camera'" class="flow-page permission-page">
+      <div class="flow-scroll permission-content">
+        <div class="permission-art" :class="stage" aria-hidden="true">
+          <template v-if="stage === 'microphone'">
+            <span class="permission-wave wave-left"><i v-for="height in [18, 36, 55, 26]" :key="height" :style="{ height: `${height}px` }" /></span>
+            <span class="permission-icon-circle"><img :src="micHeroIcon" alt=""></span>
+            <span class="permission-wave wave-right"><i v-for="height in [26, 55, 36, 18]" :key="height" :style="{ height: `${height}px` }" /></span>
+          </template>
+          <template v-else>
+            <span class="camera-hero-card"><img :src="cameraHeroIcon" alt=""></span>
+            <span class="camera-shield"><img :src="shieldCheckIcon" alt=""></span>
+          </template>
+        </div>
+        <h1>{{ stage === 'microphone' ? copy.micTitle : copy.cameraTitle }}</h1>
+        <p class="flow-lead">{{ stage === 'microphone' ? copy.micBody : copy.cameraBody }}</p>
+        <ul class="permission-list">
+          <li v-for="benefit in (stage === 'microphone' ? copy.micBenefits : copy.cameraBenefits)" :key="benefit"><img :src="checkGreenIcon" alt=""><span>{{ benefit }}</span></li>
+        </ul>
+        <p v-if="permissionNote" class="permission-status" role="status">{{ permissionNote }}</p>
+      </div>
+      <footer class="flow-footer permission-actions">
+        <button class="flow-primary icon-primary" type="button" :disabled="busy" @click="requestPermission(stage)"><img :src="stage === 'microphone' ? micIcon : cameraIcon" alt="">{{ stage === 'microphone' ? copy.allowMic : copy.allowCamera }}</button>
+        <button class="flow-secondary" type="button" :disabled="busy" @click="skipPermission(stage)">{{ stage === 'microphone' ? copy.notNow : copy.skipForNow }}</button>
+      </footer>
+    </section>
+
+    <section v-else-if="stage === 'verificationIntro'" class="flow-page verification-intro">
+      <div class="flow-scroll permission-content">
+        <div class="liveness-art" aria-hidden="true"><strong>3••</strong><span><img :src="micIcon" alt=""></span></div>
+        <h1>{{ copy.verifyTitle }}</h1><p class="flow-lead">{{ copy.verifyBody }}</p>
+        <p class="verification-privacy">{{ copy.verifyPrivacy }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" @click="beginLivenessAttempt">{{ copy.startCheck }}</button></footer>
+    </section>
+
+    <section v-else-if="['verificationDigits', 'processing', 'submitting'].includes(stage)" class="flow-page digits-page">
+      <div class="flow-scroll digits-content">
+        <div class="digit-prompt" :aria-label="visibleDigits.join(' ')">
+          <span v-for="(value, index) in visibleDigits" :key="index" class="digit-slot" :class="{ rolling: value === 'symbol' }">
+            <img v-if="value === 'symbol'" :src="checkGreenIcon" alt="">
+            <strong v-else>{{ value }}</strong>
+          </span>
+        </div>
+        <div class="digit-face" aria-label="Camera preview"><span class="camera-preview-placeholder"/><b>{{ copy.recording }}</b></div>
+        <div class="voice-wave" aria-hidden="true"><i v-for="n in 31" :key="n" :style="{ height: `${8 + ((n * 13) % 30)}px` }" /></div>
+        <h1>{{ stage === 'submitting' ? copy.creating : stage === 'processing' ? postCopy.processing : copy.digitsTitle }}</h1>
+        <p>{{ stage === 'verificationDigits' ? faceMessage : postCopy.simulatedCheck }}</p>
+        <p v-if="error" class="flow-error dark" role="alert">{{ error }}</p>
+      </div>
+      <footer class="flow-footer dark-footer">
+        <button v-if="stage === 'verificationDigits'" class="flow-primary light" type="button" :disabled="!canSubmitLiveness || busy" @click="processLiveness">{{ copy.saidAll }}</button>
+        <div v-if="stage === 'verificationDigits' && !busy" class="digits-secondary-actions"><button type="button" @click="releaseLiveness(); stage = 'verificationIntro'">{{ copy.cancel }}</button><button type="button" @click="releaseLiveness(); stage = 'verificationFailed'">{{ copy.couldntHear }}</button></div>
+        <button v-else class="flow-primary light" type="button" disabled><span class="button-spinner dark" />{{ stage === 'submitting' ? copy.creating : postCopy.processing }}</button>
+      </footer>
+    </section>
+
+    <section v-else-if="stage === 'registrationFailed'" class="flow-page failed-page">
+      <div class="flow-scroll permission-content"><div class="failure-mark" aria-hidden="true"><img :src="warningHeroIcon" alt=""></div><h1>{{ copy.submitError }}</h1><p class="flow-lead" role="alert">{{ error }}</p></div>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" :disabled="busy" @click="retryRegistration">{{ copy.tryAgain }}</button><button v-if="errorCode === 'EMAIL_IN_USE'" class="flow-secondary" type="button" @click="returnToAccount">{{ copy.returnToAccount }}</button><button v-else-if="['AVATAR_REQUIRED', 'INVALID_DISPLAY_NAME'].includes(errorCode)" class="flow-secondary" type="button" @click="returnToProfile">{{ copy.returnToProfile }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'verificationFailed'" class="flow-page failed-page">
+      <div class="flow-scroll permission-content">
+        <div class="failure-mark" aria-hidden="true"><img :src="warningHeroIcon" alt=""></div>
+        <h1>{{ copy.failedTitle }}</h1><p class="flow-lead">{{ copy.failedBody }}</p>
+        <ul class="permission-list failure-tips"><li v-for="tip in copy.tipItems" :key="tip"><img :src="checkGreenIcon" alt=""><span>{{ tip }}</span></li></ul>
+      </div>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" @click="beginLivenessAttempt">{{ copy.tryAgain }}</button><button class="flow-secondary" type="button" @click="stage = 'support'">{{ copy.contactSupport }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'support'" class="flow-page support-page">
+      <header class="standalone-nav"><button type="button" @click="stage = 'verificationFailed'">{{ postCopy.supportCancel }}</button><strong>{{ postCopy.supportTitle }}</strong><span /></header>
+      <div class="flow-scroll support-content">
+        <label class="support-label">{{ postCopy.supportAbout }}</label>
+        <select v-model="supportCategory" class="support-select"><option v-for="(label, index) in postCopy.supportCategories" :key="label" :value="['user_or_clip','purchase','account','bug','other'][index]">{{ label }}</option></select>
+        <label class="support-label" for="support-details">{{ postCopy.supportDetails }}</label>
+        <textarea id="support-details" v-model="supportDetails" class="support-textarea" maxlength="1000" :placeholder="postCopy.supportPlaceholder" />
+        <p class="support-private"><img :src="shieldCheckIcon" alt="">{{ postCopy.supportPrivate }}</p>
+        <button class="support-row" type="button" :disabled="busy" @click="attachSupportScreenshot"><span>{{ postCopy.supportAttach }}</span><strong>{{ supportAttachmentIDs.length ? '1' : postCopy.supportAdd }}</strong></button>
+        <button class="support-row" type="button" :aria-pressed="supportDiagnostics" @click="supportDiagnostics = !supportDiagnostics"><span>{{ postCopy.supportDiagnostics }}<small>{{ postCopy.supportNoAudio }}</small></span><i :class="{ active: supportDiagnostics }" /></button>
+        <p class="local-disclosure">{{ postCopy.supportSimulated }}</p><p v-if="supportStatus" class="flow-error" role="status">{{ supportStatus }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" @click="submitSupportTicket">{{ postCopy.supportSubmit }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'complete'" class="flow-page complete-page">
+      <div class="complete-content">
+        <div class="complete-mark" aria-hidden="true"><img :src="checkLargeIcon" alt=""></div>
+        <h1>{{ copy.completeTitle(nickname) }}</h1><p>{{ copy.completeBody }}</p>
+        <div class="complete-community"><span class="avatar-stack" aria-hidden="true"><img v-for="(image, index) in [portrait09, portrait07, portrait02, portrait04]" :key="image" :src="image" alt="" :style="{ zIndex: 4 - index }"></span><strong>{{ copy.completeCommunity }}</strong></div>
+      </div>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" @click="stage = 'voiceRecord'">{{ copy.record7 }}</button><button class="flow-secondary" type="button" @click="emit('open-language', completedUser)">{{ copy.languageSettings }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'voiceRecord'" class="flow-page voice-record-page">
+      <header class="standalone-nav"><button class="flow-back" type="button" :aria-label="copy.back" @click="cancelVoiceRecording"><img :src="arrowLeftIcon" alt=""></button><strong>OiVox</strong><span /></header>
+      <div class="voice-record-content">
+        <p class="record-kicker">{{ postCopy.secondsLeft }}</p><strong class="record-count">{{ secondsLeft }}</strong>
+        <h1>{{ postCopy.recordTitle }}</h1><p>{{ postCopy.recordHint }}</p>
+        <button class="record-control" :class="{ active: voiceState === 'recording' }" type="button" :disabled="busy" @click="toggleVoiceRecording"><span /></button>
+        <strong class="record-status">{{ voiceState === 'recording' ? postCopy.recording : postCopy.tapRecord }}</strong>
+        <p v-if="error" class="flow-error" role="alert">{{ error }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" :disabled="voiceState !== 'ready'" @click="stage = 'voicePreview'">{{ postCopy.listenBack }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'voicePreview'" class="flow-page voice-preview-page">
+      <header class="standalone-nav"><button class="flow-back" type="button" :aria-label="copy.back" @click="stage = 'voiceRecord'"><img :src="arrowLeftIcon" alt=""></button><strong>OiVox</strong><span /></header>
+      <div class="flow-scroll preview-content">
+        <h1>{{ postCopy.previewTitle }}</h1><p>{{ postCopy.previewBody }}</p>
+        <button class="play-control" type="button" :disabled="busy" @click="togglePlayback"><span :class="{ pause: isPlaying }" />{{ isPlaying ? postCopy.pause : postCopy.play }}</button>
+        <button class="record-again" type="button" :disabled="busy" @click="recordAgain">{{ postCopy.recordAgain }}</button><p class="retake-note">{{ postCopy.retakeNote }}</p>
+        <button class="guideline-row" type="button" :aria-pressed="guidelineAccepted" @click="guidelineAccepted = !guidelineAccepted"><span :class="{ checked: guidelineAccepted }"><img v-if="guidelineAccepted" :src="checkGreenIcon" alt=""></span><p>{{ postCopy.guidelinesPrefix }} <strong>{{ postCopy.guidelines }}</strong> {{ postCopy.guidelinesSuffix }}</p></button>
+        <p class="local-disclosure">{{ postCopy.localPublishNote }}</p><p v-if="error" class="flow-error" role="alert">{{ error }}</p>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary" type="button" :disabled="busy || !guidelineAccepted" @click="publishVoice"><span v-if="busy" class="button-spinner" />{{ voiceState === 'publishFailed' ? postCopy.publishRetry : busy ? postCopy.publishing : postCopy.publish }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'notification'" class="flow-page notification-page">
+      <div class="notification-content"><div class="notification-mark"><img :src="checkLargeIcon" alt=""></div><h1>{{ postCopy.notificationTitle }}</h1><p>{{ postCopy.notificationBody }}</p><ul><li v-for="benefit in postCopy.notificationBenefits" :key="benefit"><img :src="checkGreenIcon" alt=""><span>{{ benefit }}</span></li></ul><p v-if="notificationNote" class="flow-error" role="status">{{ notificationNote }}</p></div>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" :disabled="busy" @click="allowNotifications">{{ postCopy.allowNotifications }}</button><button class="flow-secondary" type="button" :disabled="busy" @click="skipNotifications">{{ postCopy.notNow }}</button></footer>
+    </section>
+  </main>
+</template>

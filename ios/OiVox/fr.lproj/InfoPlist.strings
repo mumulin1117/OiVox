@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "OiVox";
+"NSMicrophoneUsageDescription" = "OiVox utilise le microphone pour la vérification, les clips de sept secondes, les messages vocaux et les appels.";
+"NSCameraUsageDescription" = "OiVox utilise la caméra pour prendre une photo de profil, lancer une vérification ou un appel vidéo individuel.";
+"NSPhotoLibraryUsageDescription" = "OiVox vous permet de choisir une photo de profil dans votre photothèque uniquement après avoir ouvert le sélecteur d’avatar.";

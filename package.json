@@ -1,0 +1,23 @@
+{
+  "name": "oivox",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "vitest run",
+    "server:dev": "node --env-file-if-exists=server/.env server/src/server.js",
+    "server:test": "node --test server/test/*.test.js"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "latest",
+    "vite": "latest",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "jsdom": "latest",
+    "vitest": "latest"
+  }
+}

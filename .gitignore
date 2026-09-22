@@ -1,0 +1,10 @@
+node_modules/
+.pnpm-store/
+dist/
+.DS_Store
+ios/DerivedData/
+server/data/*.json
+server/data/*.tmp
+server/.env
+*.xcuserstate
+xcuserdata/
