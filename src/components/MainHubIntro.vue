@@ -7,7 +7,7 @@ const props = defineProps({
   previewMode: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['complete'])
+const emit = defineEmits(['ready', 'complete'])
 const overlay = ref(null)
 const phase = ref('idle')
 const animations = new Set()
@@ -282,6 +282,7 @@ onMounted(() => {
   if (query.addEventListener) query.addEventListener('change', handleMotionPreference)
   else query.addListener(handleMotionPreference)
   reducedMotionQuery = query
+  emit('ready')
   play()
 })
 

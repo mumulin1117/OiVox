@@ -11,16 +11,21 @@ export function createOpaqueID(prefix) {
   return `${prefix}_${Date.now()}_${fallbackSequence}`
 }
 
-export function createLivenessChallenge(randomValues) {
+export function createLivenessChallenge(randomValues, previousDigits = []) {
   const values = new Uint32Array(3)
   if (randomValues) randomValues(values)
   else if (platformCrypto()?.getRandomValues) platformCrypto().getRandomValues(values)
   else throw new Error('Secure random values are unavailable.')
 
+  const digits = Array.from(values, (value) => value % 10)
+  if (digits.length === previousDigits.length && digits.every((digit, index) => digit === previousDigits[index])) {
+    digits[digits.length - 1] = (digits[digits.length - 1] + 1) % 10
+  }
+
   return {
     id: createOpaqueID('liv'),
     challengeID: createOpaqueID('challenge'),
-    digits: Array.from(values, (value) => value % 10),
+    digits,
     displayState: 'symbols',
     captureState: 'idle',
     faceState: 'unknown',

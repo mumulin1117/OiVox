@@ -45,6 +45,7 @@ export const discoveryPeople = Object.freeze(Object.fromEntries(discoveryMediaPa
     mediaPairID: media.pairingID,
     displayName,
     countryCode: media.countryCode,
+    countryLabel: media.countryLabel,
     flagAsset: discoveryFlagAssets[media.countryCode],
     languages: spokenLanguages,
     spokenLanguages,

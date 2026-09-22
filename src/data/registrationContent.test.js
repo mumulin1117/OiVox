@@ -29,6 +29,9 @@ describe('seven-step registration copy', () => {
     expect(copy.chooseFromPhotos).toBeTruthy()
     expect(copy.takePhoto).toBeTruthy()
     expect(copy.returnToProfile).toBeTruthy()
+    expect(copy.voiceEarthTitle).toBeTruthy()
+    expect(copy.recordToUnlock).toBeTruthy()
+    expect(copy.voiceEarthLockedBody).toBeTruthy()
     expect(registrationInterests(locale)).toHaveLength(12)
   })
 

@@ -14,7 +14,8 @@ import { attachProfileAvatarPreview } from './services/profileAvatar'
 const { t } = useI18n()
 const screen = ref('welcome')
 const user = ref(null)
-const restoring = ref(false)
+const restoring = ref(true)
+const mainHubIntroRequested = ref(false)
 const registrationDraft = ref(null)
 let removeContentInteractionGuard = () => {}
 let removeKeyboardViewport = () => {}
@@ -25,16 +26,16 @@ onMounted(async () => {
 
   syncNativeLanguage().catch(() => {})
 
-  if (await oivoxAccountApi.hasSession()) {
-    restoring.value = true
-    try {
+  try {
+    if (await oivoxAccountApi.hasSession()) {
       user.value = await attachProfileAvatarPreview(await oivoxAccountApi.getProfile())
+      mainHubIntroRequested.value = true
       screen.value = 'authenticated'
-    } catch {
-      await oivoxAccountApi.logout().catch(() => {})
-    } finally {
-      restoring.value = false
     }
+  } catch {
+    await oivoxAccountApi.logout().catch(() => {})
+  } finally {
+    restoring.value = false
   }
 })
 
@@ -49,6 +50,7 @@ function authenticated(profile) {
     if (user.value?.id === profile?.id) user.value = hydrated
   })
   registrationDraft.value = null
+  mainHubIntroRequested.value = true
   screen.value = 'authenticated'
   window.dispatchEvent(new CustomEvent('oivox:authenticated', { detail: { user: profile } }))
 }
@@ -76,12 +78,6 @@ function registered(profile) {
   window.dispatchEvent(new CustomEvent('oivox:registered', { detail: { user: profile } }))
 }
 
-function openLanguage(profile) {
-  if (profile) user.value = profile
-  registrationDraft.value = null
-  screen.value = 'language'
-}
-
 function profileUpdated(profile) {
   user.value = profile
   attachProfileAvatarPreview(profile).then((hydrated) => {
@@ -95,13 +91,33 @@ async function logout() {
   registrationDraft.value = null
   screen.value = 'welcome'
 }
+
+function openLanguage() {
+  screen.value = 'language'
+}
+
+function closeLanguage() {
+  screen.value = 'authenticated'
+}
+
+function completeMainHubIntro() {
+  mainHubIntroRequested.value = false
+}
 </script>
 
 <template>
   <div v-if="restoring" class="app-loading" role="status" :aria-label="t('restoringSession')"><span /></div>
   <WelcomeScreen v-else-if="screen === 'welcome'" @open-auth="screen = 'auth'" />
   <AuthScreen v-else-if="screen === 'auth'" :initial-draft="registrationDraft" @back="cancelAuth" @authenticated="authenticated" @begin-registration="beginRegistration" />
-  <RegistrationFlow v-else-if="screen === 'registration' && registrationDraft" :draft="registrationDraft" @back-to-auth="returnToAuth" @registered="registered" @authenticated="authenticated" @open-language="openLanguage" />
-  <LanguageScreen v-else-if="screen === 'language'" @back="screen = 'authenticated'" />
-  <MainHub v-else :user="user" @open-language="screen = 'language'" @profile-updated="profileUpdated" @logout="logout" />
+  <RegistrationFlow v-else-if="screen === 'registration' && registrationDraft" :draft="registrationDraft" @back-to-auth="returnToAuth" @registered="registered" @authenticated="authenticated" />
+  <LanguageScreen v-else-if="screen === 'language'" @back="closeLanguage" />
+  <MainHub
+    v-else
+    :user="user"
+    :play-intro="mainHubIntroRequested"
+    @intro-complete="completeMainHubIntro"
+    @open-language="openLanguage"
+    @profile-updated="profileUpdated"
+    @logout="logout"
+  />
 </template>

@@ -1,6 +1,64 @@
 const pending = new Map()
 const eventListeners = new Set()
 let sequence = 0
+let browserPlayback = null
+let browserPlaybackTimer = 0
+
+function emitBrowserPlayback(type, state) {
+  if (!browserPlayback) return
+  eventListeners.forEach((listener) => listener({
+    type,
+    assetID: browserPlayback.assetID,
+    state,
+    currentTimeMs: Math.round(browserPlayback.currentTimeMs),
+    durationMs: browserPlayback.durationMs,
+    simulated: true,
+  }))
+}
+
+function stopBrowserPlaybackTimer() {
+  window.clearInterval(browserPlaybackTimer)
+  browserPlaybackTimer = 0
+}
+
+function startBrowserPlayback(payload) {
+  const durationMs = Math.max(1, Number(payload.durationMs) || 7000)
+  if (!browserPlayback || browserPlayback.assetID !== payload.assetID) {
+    stopBrowserPlaybackTimer()
+    browserPlayback = { assetID: payload.assetID, durationMs, currentTimeMs: 0, lastTick: Date.now() }
+  }
+  browserPlayback.durationMs = durationMs
+  browserPlayback.lastTick = Date.now()
+  stopBrowserPlaybackTimer()
+  browserPlaybackTimer = window.setInterval(() => {
+    if (!browserPlayback) return
+    const now = Date.now()
+    browserPlayback.currentTimeMs = Math.min(browserPlayback.durationMs, browserPlayback.currentTimeMs + now - browserPlayback.lastTick)
+    browserPlayback.lastTick = now
+    if (browserPlayback.currentTimeMs >= browserPlayback.durationMs) {
+      stopBrowserPlaybackTimer()
+      browserPlayback.currentTimeMs = 0
+      emitBrowserPlayback('voice.playbackEnded', 'ended')
+      return
+    }
+    emitBrowserPlayback('voice.playbackProgress', 'playing')
+  }, 100)
+  return { assetID: browserPlayback.assetID, state: 'playing', currentTimeMs: browserPlayback.currentTimeMs, durationMs: browserPlayback.durationMs, simulated: true }
+}
+
+function pauseBrowserPlayback() {
+  stopBrowserPlaybackTimer()
+  emitBrowserPlayback('voice.playbackProgress', 'paused')
+  return { assetID: browserPlayback?.assetID, state: 'paused', currentTimeMs: browserPlayback?.currentTimeMs || 0, durationMs: browserPlayback?.durationMs || 0, simulated: true }
+}
+
+function stopBrowserPlayback() {
+  stopBrowserPlaybackTimer()
+  const result = { assetID: browserPlayback?.assetID, state: 'stopped', currentTimeMs: 0, durationMs: browserPlayback?.durationMs || 0, simulated: true }
+  emitBrowserPlayback('voice.playbackStopped', 'stopped')
+  browserPlayback = null
+  return result
+}
 
 function bridgeError(code, message, details = {}) {
   const error = new Error(message || code || 'Native request failed')
@@ -16,7 +74,9 @@ function browserFallback(service, method, payload) {
   if (service === 'VoiceRecorder' && method === 'start') return { assetID: `browser-voice-${Date.now()}`, started: true, simulated: true }
   if (service === 'VoiceRecorder' && method === 'stop') return { assetID: payload.assetID, durationMs: 7000, simulated: true }
   if (service === 'VoiceRecorder' && ['discard', 'publish'].includes(method)) return { assetID: payload.assetID, published: method === 'publish', simulated: true }
-  if (service === 'VoicePlayback') return { state: method, simulated: true }
+  if (service === 'VoicePlayback' && method === 'play') return startBrowserPlayback(payload)
+  if (service === 'VoicePlayback' && method === 'pause') return pauseBrowserPlayback()
+  if (service === 'VoicePlayback' && method === 'stop') return stopBrowserPlayback()
   if (service === 'Notification' && method === 'requestAuthorization') return { granted: false, status: 'denied', simulated: true }
   if (service === 'Notification') return { status: 'notDetermined', simulated: true }
   if (service === 'PhotoPicker') return { assetID: null, cancelled: true, simulated: true }
@@ -77,8 +137,9 @@ export const nativeBridge = {
   stopVoiceRecording: (assetID, options) => callNative('VoiceRecorder', 'stop', { assetID }, options),
   discardVoiceRecording: (assetID, options) => callNative('VoiceRecorder', 'discard', { assetID }, options),
   publishVoiceRecording: (assetID, options) => callNative('VoiceRecorder', 'publish', { assetID }, options),
-  playVoice: (assetID, options) => callNative('VoicePlayback', 'play', { assetID }, options),
+  playVoice: (assetID, options = {}) => callNative('VoicePlayback', 'play', { assetID, durationMs: options.durationMs }, options),
   pauseVoice: (assetID, options) => callNative('VoicePlayback', 'pause', { assetID }, options),
+  stopVoice: (assetID, options) => callNative('VoicePlayback', 'stop', { assetID }, options),
   requestNotifications: () => callNative('Notification', 'requestAuthorization'),
   getNotificationStatus: () => callNative('Notification', 'getAuthorizationStatus'),
   selectSupportScreenshot: () => callNative('PhotoPicker', 'selectSupportScreenshot'),

@@ -29,6 +29,7 @@ describe('Main Hub Voice Earth intro contract', () => {
     expect(component).toContain("document.addEventListener('visibilitychange', handleVisibilityChange)")
     expect(component).toContain("document.visibilityState === 'hidden'")
     expect(component).toContain("emit('complete')")
+    expect(component).toContain("emit('ready')")
   })
 
   it('hands animated words and people to exact homepage targets', () => {

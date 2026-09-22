@@ -65,8 +65,9 @@ final class NativeBridge: NSObject, WKScriptMessageHandler {
             return try media.publishVoice(assetID: assetID)
         case ("VoicePlayback", "play"):
             guard let assetID = payload["assetID"] as? String else { throw BridgeError(.invalidPayload) }
-            try media.playVoice(assetID: assetID); return ["assetID": assetID, "state": "playing"]
-        case ("VoicePlayback", "pause"): media.pauseVoice(); return ["state": "paused"]
+            return try media.playVoice(assetID: assetID)
+        case ("VoicePlayback", "pause"): return media.pauseVoice()
+        case ("VoicePlayback", "stop"): return media.stopVoicePlayback()
         case ("Notification", "getAuthorizationStatus"):
             let settings = await UNUserNotificationCenter.current().notificationSettings()
             return ["status": notificationStatus(settings.authorizationStatus)]
@@ -399,6 +400,8 @@ private final class NativeMediaCoordinator: NSObject, @unchecked Sendable, AVCap
     private var lastFaceCount = -1
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
+    private var audioPlayerAssetID: String?
+    private var playbackProgressTimer: Timer?
     private var voiceURLs: [String: URL] = [:]
     private var recordingStartedAt: Date?
 
@@ -457,7 +460,31 @@ private final class NativeMediaCoordinator: NSObject, @unchecked Sendable, AVCap
     @MainActor func stopVoice(assetID: String) throws -> [String: Any] { guard voiceURLs[assetID] != nil else { throw BridgeError(.assetNotFound) }; let elapsed = min(7_000, Int((Date().timeIntervalSince(recordingStartedAt ?? Date())) * 1000)); audioRecorder?.stop(); audioRecorder = nil; recordingStartedAt = nil; try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation); return ["assetID": assetID, "durationMs": elapsed] }
     @MainActor func discardVoice(assetID: String) { if audioRecorder?.url == voiceURLs[assetID] { audioRecorder?.stop(); audioRecorder = nil }; if let url = voiceURLs.removeValue(forKey: assetID) { try? FileManager.default.removeItem(at: url) } }
     @MainActor func publishVoice(assetID: String) throws -> [String: Any] { guard let source = voiceURLs[assetID], FileManager.default.fileExists(atPath: source.path) else { throw BridgeError(.assetNotFound) }; let folder = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("OiVoxVoice", isDirectory: true); try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true); let destination = folder.appendingPathComponent("\(assetID).m4a"); if FileManager.default.fileExists(atPath: destination.path) { try FileManager.default.removeItem(at: destination) }; try FileManager.default.moveItem(at: source, to: destination); voiceURLs[assetID] = destination; return ["assetID": assetID, "published": true] }
-    @MainActor func playVoice(assetID: String) throws {
+    @MainActor private func playbackSnapshot(state: String) -> [String: Any] {
+        [
+            "assetID": audioPlayerAssetID ?? "",
+            "state": state,
+            "currentTimeMs": Int((audioPlayer?.currentTime ?? 0) * 1000),
+            "durationMs": Int((audioPlayer?.duration ?? 0) * 1000)
+        ]
+    }
+    @MainActor private func startPlaybackProgressTimer() {
+        playbackProgressTimer?.invalidate()
+        playbackProgressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.audioPlayer?.isPlaying == true else { return }
+                self.emitEvent(["type": "voice.playbackProgress"].merging(self.playbackSnapshot(state: "playing")) { _, new in new })
+            }
+        }
+    }
+    @MainActor func playVoice(assetID: String) throws -> [String: Any] {
+        if audioPlayerAssetID == assetID, let player = audioPlayer {
+            if player.currentTime >= player.duration { player.currentTime = 0 }
+            guard player.play() else { throw BridgeError(.recordingFailed, "Playback failed.") }
+            startPlaybackProgressTimer()
+            return playbackSnapshot(state: "playing")
+        }
+        _ = stopVoicePlayback()
         let url: URL
         if let cached = voiceURLs[assetID] {
             url = cached
@@ -469,11 +496,13 @@ private final class NativeMediaCoordinator: NSObject, @unchecked Sendable, AVCap
             voiceURLs[assetID] = persisted
             url = persisted
         }
-        let player = try AVAudioPlayer(contentsOf: url); player.delegate = self; player.prepareToPlay(); guard player.play() else { throw BridgeError(.recordingFailed, "Playback failed.") }; audioPlayer = player
+        let player = try AVAudioPlayer(contentsOf: url); player.delegate = self; player.prepareToPlay(); guard player.play() else { throw BridgeError(.recordingFailed, "Playback failed.") }; audioPlayer = player; audioPlayerAssetID = assetID; startPlaybackProgressTimer(); return playbackSnapshot(state: "playing")
     }
-    @MainActor func pauseVoice() { audioPlayer?.pause() }
+    @MainActor func pauseVoice() -> [String: Any] { audioPlayer?.pause(); playbackProgressTimer?.invalidate(); playbackProgressTimer = nil; let snapshot = playbackSnapshot(state: "paused"); emitEvent(["type": "voice.playbackProgress"].merging(snapshot) { _, new in new }); return snapshot }
+    @MainActor func stopVoicePlayback() -> [String: Any] { let durationMs = Int((audioPlayer?.duration ?? 0) * 1000); let assetID = audioPlayerAssetID; audioPlayer?.stop(); audioPlayer?.currentTime = 0; playbackProgressTimer?.invalidate(); playbackProgressTimer = nil; audioPlayer = nil; audioPlayerAssetID = nil; let snapshot: [String: Any] = ["assetID": assetID ?? "", "state": "stopped", "currentTimeMs": 0, "durationMs": durationMs]; if assetID != nil { emitEvent(["type": "voice.playbackStopped"].merging(snapshot) { _, new in new }) }; return snapshot }
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) { let durationMs = Int(player.duration * 1000); DispatchQueue.main.async { [weak self] in guard let self else { return }; let assetID = self.audioPlayerAssetID; self.playbackProgressTimer?.invalidate(); self.playbackProgressTimer = nil; player.currentTime = 0; self.audioPlayer = nil; self.audioPlayerAssetID = nil; self.emitEvent(["type": "voice.playbackEnded", "assetID": assetID ?? "", "state": "ended", "currentTimeMs": 0, "durationMs": durationMs]) } }
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) { guard flag, let entry = voiceURLs.first(where: { $0.value == recorder.url }) else { return }; let duration = min(7_000, Int(recorder.currentTime * 1000)); DispatchQueue.main.async { self.audioRecorder = nil; self.recordingStartedAt = nil; self.emitEvent(["type": "voice.recordingFinished", "assetID": entry.key, "durationMs": duration]) } }
-    @objc private func didEnterBackground() { Task { @MainActor in releaseLiveness(); if let recorder = audioRecorder, let entry = voiceURLs.first(where: { $0.value == recorder.url }) { _ = try? stopVoice(assetID: entry.key) }; audioPlayer?.stop(); emitEvent(["type": "media.interrupted", "reason": "background"]) } }
+    @objc private func didEnterBackground() { Task { @MainActor in releaseLiveness(); if let recorder = audioRecorder, let entry = voiceURLs.first(where: { $0.value == recorder.url }) { _ = try? stopVoice(assetID: entry.key) }; _ = stopVoicePlayback(); emitEvent(["type": "media.interrupted", "reason": "background"]) } }
 }
 
 private enum KeychainStore {

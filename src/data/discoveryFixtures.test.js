@@ -27,6 +27,7 @@ describe('discovery fixture assets', () => {
       }
       expect(person.voiceClip.durationMs).toBeGreaterThan(0)
       expect(person.voiceClip.durationMs).toBeLessThanOrEqual(7000)
+      expect(person.countryLabel).toBeTruthy()
       expect(person.voiceClip.source).toBe('local-dataset-fixture')
       expect(person.voiceClip.mediaPairID).toBe(person.mediaPairID)
     }

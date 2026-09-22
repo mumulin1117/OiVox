@@ -9,6 +9,8 @@ describe('post-registration localization', () => {
       const copy = postRegistrationContent(locale)
       expect(Object.keys(copy).sort()).toEqual(keys)
       expect(copy.notificationBenefits).toHaveLength(3)
+      expect(copy.voiceEarthRegions).toHaveLength(4)
+      expect(copy.voiceEarthPrivacy).toBeTruthy()
       expect(Object.values(copy).every((value) => Array.isArray(value) || typeof value === 'string')).toBe(true)
     }
   })

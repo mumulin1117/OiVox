@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import arrowLeftIcon from '../assets/icons/arrow-left.svg'
 import cameraHeroIcon from '../assets/icons/camera-hero.svg'
 import cameraIcon from '../assets/icons/camera.svg'
@@ -14,6 +14,7 @@ import portrait03 from '../assets/portraits/portrait-03.png'
 import portrait04 from '../assets/portraits/portrait-04.png'
 import portrait07 from '../assets/portraits/portrait-07.png'
 import portrait09 from '../assets/portraits/portrait-09.png'
+import { discoveryPeople, firstDayFreeDiscoveryIDs } from '../data/discoveryFixtures'
 import { registrationContent, registrationInterests } from '../data/registrationContent'
 import { postRegistrationContent } from '../data/postRegistrationContent'
 import { languageOptions, useI18n } from '../i18n'
@@ -21,9 +22,10 @@ import { nativeBridge } from '../nativeBridge'
 import { accountErrorMessageKey, oivoxAccountApi } from '../services/oivoxAccountApi'
 import { createLivenessChallenge, createOpaqueID, createRegistrationSubmissionID, resolveLivenessFixture } from '../services/livenessFlow'
 import { saveLocalSupportTicket, saveNotificationPreference, savePublishedVoiceClip } from '../services/localBusinessStore'
+import { EMPTY_VOICE_PLAYBACK_STATE, voicePlaybackService } from '../services/voicePlaybackService'
 
 const props = defineProps({ draft: { type: Object, required: true } })
-const emit = defineEmits(['back-to-auth', 'registered', 'authenticated', 'open-language'])
+const emit = defineEmits(['back-to-auth', 'registered', 'authenticated'])
 const { locale, t } = useI18n()
 const copy = computed(() => registrationContent(locale.value))
 const postCopy = computed(() => postRegistrationContent(locale.value))
@@ -76,8 +78,11 @@ const voiceClip = ref(null)
 const voiceState = ref('idle')
 const secondsLeft = ref(7)
 const guidelineAccepted = ref(false)
-const isPlaying = ref(false)
+const playbackState = ref({ ...EMPTY_VOICE_PLAYBACK_STATE })
+const isPlaying = computed(() => playbackState.value.id === voiceClip.value?.id && playbackState.value.status === 'playing')
 const notificationNote = ref('')
+const voiceRecordReturnStage = ref('complete')
+const lockedVoices = Object.freeze(firstDayFreeDiscoveryIDs.slice(0, 6).map((id) => discoveryPeople[id]))
 
 const outerStep = computed(() => ({ profile: 2, questionnaire: 3, interests: 4, communication: 4, microphone: 5, camera: 6, verificationIntro: 7, verificationDigits: 7, processing: 7, verificationFailed: 7, registrationFailed: 7, submitting: 7 }[stage.value] || null))
 const currentQuestion = computed(() => copy.value.questions[questionIndex.value])
@@ -91,6 +96,19 @@ const avatarReady = computed(() => avatarStatus.value === 'ready' && Boolean(ava
 function clearError() {
   error.value = ''
   errorCode.value = ''
+}
+
+function beginVoiceRecording(returnStage = 'complete') {
+  if (busy.value) return
+  clearError()
+  voiceRecordReturnStage.value = returnStage
+  stage.value = 'voiceRecord'
+}
+
+function skipFirstVoice() {
+  if (busy.value) return
+  clearError()
+  stage.value = 'voiceEarthLocked'
 }
 
 function goBack() {
@@ -350,28 +368,35 @@ async function startNativeLiveness() {
 
 async function beginLivenessAttempt() {
   if (busy.value) return
-  await releaseLiveness()
-  clearError()
-  attemptNumber.value += 1
-  const attempt = createLivenessChallenge()
-  attempt.attemptNumber = attemptNumber.value
-  livenessAttempt.value = attempt
-  visibleDigits.value = ['symbol', 'symbol', 'symbol']
-  faceCount.value = 0
-  livenessMessage.value = postCopy.value.noFace
-  stage.value = 'verificationDigits'
-  attempt.displayState = 'rolling'
-  attempt.digits.forEach((digit, index) => {
-    revealTimers.push(window.setTimeout(() => {
-      const next = [...visibleDigits.value]
-      next[index] = digit
-      visibleDigits.value = next
-      if (index === 2) {
-        attempt.displayState = 'revealed'
-        startNativeLiveness()
-      }
-    }, 420 + index * 420))
-  })
+  busy.value = true
+  try {
+    const previousDigits = livenessAttempt.value?.digits || []
+    await releaseLiveness()
+    clearError()
+    registrationPromise = null
+    attemptNumber.value += 1
+    const attempt = createLivenessChallenge(undefined, previousDigits)
+    attempt.attemptNumber = attemptNumber.value
+    livenessAttempt.value = attempt
+    visibleDigits.value = ['symbol', 'symbol', 'symbol']
+    faceCount.value = 0
+    livenessMessage.value = postCopy.value.noFace
+    stage.value = 'verificationDigits'
+    attempt.displayState = 'rolling'
+    attempt.digits.forEach((digit, index) => {
+      revealTimers.push(window.setTimeout(() => {
+        const next = [...visibleDigits.value]
+        next[index] = digit
+        visibleDigits.value = next
+        if (index === 2) {
+          attempt.displayState = 'revealed'
+          startNativeLiveness()
+        }
+      }, 420 + index * 420))
+    })
+  } finally {
+    busy.value = false
+  }
 }
 
 async function processLiveness() {
@@ -442,10 +467,6 @@ async function submitRegistration() {
   }
 }
 
-function retryRegistration() {
-  if (!busy.value && livenessAttempt.value?.outcome === 'passed') submitRegistration()
-}
-
 async function attachSupportScreenshot() {
   if (busy.value) return
   busy.value = true
@@ -512,20 +533,23 @@ async function toggleVoiceRecording() {
 
 async function cancelVoiceRecording() {
   clearRecordTimer()
+  voicePlaybackService.stop()
   if (voiceClip.value?.localAssetID) await nativeBridge.discardVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID }).catch(() => {})
   voiceClip.value = null
   voiceState.value = 'idle'
   secondsLeft.value = 7
-  stage.value = 'complete'
+  stage.value = voiceRecordReturnStage.value
 }
 
 async function togglePlayback() {
   if (!voiceClip.value?.localAssetID || busy.value) return
   busy.value = true
   try {
-    if (isPlaying.value) await nativeBridge.pauseVoice(voiceClip.value.localAssetID, { pageInstanceID })
-    else await nativeBridge.playVoice(voiceClip.value.localAssetID, { pageInstanceID })
-    isPlaying.value = !isPlaying.value
+    await voicePlaybackService.play({
+      id: voiceClip.value.id,
+      nativeAssetID: voiceClip.value.localAssetID,
+      durationMs: voiceClip.value.durationMs,
+    }, (state) => { playbackState.value = state })
   } catch { error.value = t('requestFailed') }
   finally { busy.value = false }
 }
@@ -533,13 +557,14 @@ async function togglePlayback() {
 async function recordAgain() {
   if (busy.value) return
   busy.value = true
+  voicePlaybackService.stop()
   try { if (voiceClip.value?.localAssetID) await nativeBridge.discardVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID }) }
   finally {
     voiceClip.value = null
     voiceState.value = 'idle'
     secondsLeft.value = 7
     guidelineAccepted.value = false
-    isPlaying.value = false
+    playbackState.value = { ...EMPTY_VOICE_PLAYBACK_STATE }
     busy.value = false
     clearError()
     stage.value = 'voiceRecord'
@@ -551,6 +576,7 @@ async function publishVoice() {
   busy.value = true
   clearError()
   voiceState.value = 'publishing'
+  voicePlaybackService.stop()
   try {
     if (globalThis.__OIVOX_PUBLISH_FIXTURE__ === 'failure') throw new Error('Injected publish failure')
     const result = await nativeBridge.publishVoiceRecording(voiceClip.value.localAssetID, { pageInstanceID, timeout: 20000 })
@@ -620,10 +646,18 @@ onBeforeUnmount(() => {
   window.clearTimeout(advanceTimer)
   clearRevealTimers()
   clearRecordTimer()
+  voicePlaybackService.dispose()
   nativeBridge.cancelPage(pageInstanceID)
   releaseLiveness()
   if (voiceState.value === 'recording' && voiceClip.value?.localAssetID) nativeBridge.stopVoiceRecording(voiceClip.value.localAssetID).catch(() => {})
   if (objectURL) URL.revokeObjectURL(objectURL)
+})
+
+watch(stage, (nextStage, previousStage) => {
+  if (previousStage === 'voicePreview' && nextStage !== 'voicePreview') {
+    voicePlaybackService.stop()
+    playbackState.value = { ...EMPTY_VOICE_PLAYBACK_STATE }
+  }
 })
 
 const removeNativeListener = nativeBridge.onEvent((event) => {
@@ -659,7 +693,7 @@ onBeforeUnmount(() => {
 
 <template>
   <main class="registration-screen app-screen" :class="`registration-${stage}`">
-    <template v-if="!['complete', 'communication', 'verificationDigits', 'processing', 'submitting', 'support', 'voiceRecord', 'voicePreview', 'notification'].includes(stage)">
+    <template v-if="!['complete', 'communication', 'verificationDigits', 'processing', 'submitting', 'support', 'voiceEarthLocked', 'voiceRecord', 'voicePreview', 'notification'].includes(stage)">
       <header class="flow-nav" :class="{ 'flow-nav-text': stage === 'questionnaire' || stage === 'interests' }">
         <button v-if="stage === 'questionnaire' || stage === 'interests'" class="flow-back-label" type="button" :disabled="busy" @click="goBack">
           <img :src="arrowLeftIcon" alt=""><span>{{ copy.back }}</span>
@@ -792,7 +826,7 @@ onBeforeUnmount(() => {
         <h1>{{ copy.verifyTitle }}</h1><p class="flow-lead">{{ copy.verifyBody }}</p>
         <p class="verification-privacy">{{ copy.verifyPrivacy }}</p>
       </div>
-      <footer class="flow-footer"><button class="flow-primary" type="button" @click="beginLivenessAttempt">{{ copy.startCheck }}</button></footer>
+      <footer class="flow-footer"><button class="flow-primary" type="button" :disabled="busy" @click="beginLivenessAttempt">{{ copy.startCheck }}</button></footer>
     </section>
 
     <section v-else-if="['verificationDigits', 'processing', 'submitting'].includes(stage)" class="flow-page digits-page">
@@ -818,7 +852,7 @@ onBeforeUnmount(() => {
 
     <section v-else-if="stage === 'registrationFailed'" class="flow-page failed-page">
       <div class="flow-scroll permission-content"><div class="failure-mark" aria-hidden="true"><img :src="warningHeroIcon" alt=""></div><h1>{{ copy.submitError }}</h1><p class="flow-lead" role="alert">{{ error }}</p></div>
-      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" :disabled="busy" @click="retryRegistration">{{ copy.tryAgain }}</button><button v-if="errorCode === 'EMAIL_IN_USE'" class="flow-secondary" type="button" @click="returnToAccount">{{ copy.returnToAccount }}</button><button v-else-if="['AVATAR_REQUIRED', 'INVALID_DISPLAY_NAME'].includes(errorCode)" class="flow-secondary" type="button" @click="returnToProfile">{{ copy.returnToProfile }}</button></footer>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" :disabled="busy" @click="beginLivenessAttempt">{{ copy.tryAgain }}</button><button v-if="errorCode === 'EMAIL_IN_USE'" class="flow-secondary" type="button" @click="returnToAccount">{{ copy.returnToAccount }}</button><button v-else-if="['AVATAR_REQUIRED', 'INVALID_DISPLAY_NAME'].includes(errorCode)" class="flow-secondary" type="button" @click="returnToProfile">{{ copy.returnToProfile }}</button></footer>
     </section>
 
     <section v-else-if="stage === 'verificationFailed'" class="flow-page failed-page">
@@ -827,7 +861,7 @@ onBeforeUnmount(() => {
         <h1>{{ copy.failedTitle }}</h1><p class="flow-lead">{{ copy.failedBody }}</p>
         <ul class="permission-list failure-tips"><li v-for="tip in copy.tipItems" :key="tip"><img :src="checkGreenIcon" alt=""><span>{{ tip }}</span></li></ul>
       </div>
-      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" @click="beginLivenessAttempt">{{ copy.tryAgain }}</button><button class="flow-secondary" type="button" @click="stage = 'support'">{{ copy.contactSupport }}</button></footer>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" :disabled="busy" @click="beginLivenessAttempt">{{ copy.tryAgain }}</button><button class="flow-secondary" type="button" :disabled="busy" @click="stage = 'support'">{{ copy.contactSupport }}</button></footer>
     </section>
 
     <section v-else-if="stage === 'support'" class="flow-page support-page">
@@ -851,7 +885,38 @@ onBeforeUnmount(() => {
         <h1>{{ copy.completeTitle(nickname) }}</h1><p>{{ copy.completeBody }}</p>
         <div class="complete-community"><span class="avatar-stack" aria-hidden="true"><img v-for="(image, index) in [portrait09, portrait07, portrait02, portrait04]" :key="image" :src="image" alt="" :style="{ zIndex: 4 - index }"></span><strong>{{ copy.completeCommunity }}</strong></div>
       </div>
-      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" @click="stage = 'voiceRecord'">{{ copy.record7 }}</button><button class="flow-secondary" type="button" @click="emit('open-language', completedUser)">{{ copy.languageSettings }}</button></footer>
+      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" @click="beginVoiceRecording('complete')">{{ copy.record7 }}</button><button class="flow-secondary" type="button" @click="skipFirstVoice">{{ copy.skip }}</button></footer>
+    </section>
+
+    <section v-else-if="stage === 'voiceEarthLocked'" class="flow-page voice-earth-locked-page">
+      <div class="voice-earth-locked-scroll">
+        <button class="voice-earth-locked-back" type="button" :aria-label="copy.back" :disabled="busy" @click="stage = 'complete'"><img :src="arrowLeftIcon" alt=""></button>
+        <h1>{{ copy.voiceEarthTitle }}</h1>
+        <div class="locked-earth-visual" aria-hidden="true">
+          <div class="locked-earth-globe">
+            <div class="locked-earth-surface">
+              <span v-for="index in 6" :key="index" :class="`locked-earth-land locked-earth-land-${index}`" />
+            </div>
+            <span class="locked-earth-shade" />
+            <span class="locked-earth-glint" />
+          </div>
+          <span
+            v-for="(voice, index) in lockedVoices"
+            :key="voice.id"
+            class="locked-earth-avatar"
+            :class="`locked-earth-avatar-${index + 1}`"
+          ><img :src="voice.avatarAsset" alt=""></span>
+          <div class="locked-earth-card">
+            <span class="locked-earth-shield"><img :src="shieldCheckIcon" alt=""></span>
+            <strong>{{ copy.recordToUnlock }}</strong>
+            <p>{{ copy.voiceEarthLockedBody }}</p>
+          </div>
+        </div>
+        <ul class="locked-earth-benefits">
+          <li v-for="benefit in copy.micBenefits" :key="benefit"><img :src="checkGreenIcon" alt=""><span>{{ benefit }}</span></li>
+        </ul>
+      </div>
+      <footer class="flow-footer"><button class="flow-primary icon-primary" type="button" :disabled="busy" @click="beginVoiceRecording('voiceEarthLocked')"><img :src="micIcon" alt="">{{ copy.record7 }}</button></footer>
     </section>
 
     <section v-else-if="stage === 'voiceRecord'" class="flow-page voice-record-page">

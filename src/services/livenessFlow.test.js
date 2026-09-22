@@ -19,6 +19,11 @@ describe('liveness fixtures', () => {
     expect(challenge.digits).toEqual([1, 2, 3])
   })
 
+  it('changes a repeated challenge while preserving secure random generation semantics', () => {
+    const challenge = createLivenessChallenge((values) => values.set([1, 2, 3]), [1, 2, 3])
+    expect(challenge.digits).toEqual([1, 2, 4])
+  })
+
   it('uses repeatable results by attempt number for retry testing', () => {
     expect(resolveLivenessFixture({ attemptNumber: 1 }, ['failure', 'success']).outcome).toBe('failed')
     expect(resolveLivenessFixture({ attemptNumber: 2 }, ['failure', 'success']).outcome).toBe('passed')

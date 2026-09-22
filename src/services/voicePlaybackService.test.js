@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createVoicePlaybackService } from './voicePlaybackService'
+import { createVoicePlaybackService, voicePlaybackProgress, voicePlaybackRemainingMs } from './voicePlaybackService'
 
 function fakeAudio(instances) {
   const listeners = {}
@@ -72,5 +72,57 @@ describe('voice playback service', () => {
     expect(() => releasedAudio.listeners.ended()).not.toThrow()
     expect(() => releasedAudio.listeners.error()).not.toThrow()
     expect(service.getCurrentID()).toBe(null)
+  })
+
+  it('freezes time and waveform progress while paused', async () => {
+    const instances = []
+    const states = []
+    const clip = { id: 'one', asset: 'one.wav', durationMs: 3200 }
+    const service = createVoicePlaybackService({ audioFactory: () => fakeAudio(instances) })
+    await service.play(clip, (state) => states.push(state))
+    instances[0].currentTime = 1.25
+    instances[0].listeners.timeupdate()
+    await service.play(clip, (state) => states.push(state))
+    instances[0].listeners.timeupdate()
+    const paused = states.at(-1)
+    expect(paused.status).toBe('paused')
+    expect(paused.currentTimeMs).toBe(1250)
+    expect(voicePlaybackProgress(paused, clip)).toBeCloseTo(1.25 / 3.2)
+    expect(voicePlaybackRemainingMs(paused, clip)).toBe(1950)
+  })
+
+  it('returns ended clips to zero progress and displays the full duration', async () => {
+    const instances = []
+    const states = []
+    const clip = { id: 'one', asset: 'one.wav', durationMs: 3200 }
+    const service = createVoicePlaybackService({ audioFactory: () => fakeAudio(instances) })
+    await service.play(clip, (state) => states.push(state))
+    instances[0].currentTime = 3.2
+    instances[0].listeners.ended()
+    const ended = states.at(-1)
+    expect(ended).toMatchObject({ status: 'ended', currentTimeMs: 0, durationMs: 3200 })
+    expect(voicePlaybackProgress(ended, clip)).toBe(0)
+    expect(voicePlaybackRemainingMs(ended, clip)).toBe(3200)
+  })
+
+  it('uses the same pause and ended contract for native voice assets', async () => {
+    let nativeListener = null
+    const nativeAdapter = {
+      isNative: true,
+      onEvent(listener) { nativeListener = listener; return () => { nativeListener = null } },
+      playVoice: async () => ({ currentTimeMs: 0, durationMs: 2800 }),
+      pauseVoice: async () => ({ currentTimeMs: 900, durationMs: 2800 }),
+      stopVoice: async () => ({ currentTimeMs: 0, durationMs: 2800 }),
+    }
+    const states = []
+    const clip = { id: 'native-one', nativeAssetID: 'voice_native_one', durationMs: 2800 }
+    const service = createVoicePlaybackService({ nativeAdapter })
+    await service.play(clip, (state) => states.push(state))
+    nativeListener({ type: 'voice.playbackProgress', assetID: 'voice_native_one', state: 'playing', currentTimeMs: 900, durationMs: 2800 })
+    await service.play(clip, (state) => states.push(state))
+    expect(states.at(-1)).toMatchObject({ status: 'paused', currentTimeMs: 900 })
+    nativeListener({ type: 'voice.playbackEnded', assetID: 'voice_native_one', currentTimeMs: 2800, durationMs: 2800 })
+    expect(states.at(-1)).toMatchObject({ status: 'ended', currentTimeMs: 0, durationMs: 2800 })
+    expect(voicePlaybackRemainingMs(states.at(-1), clip)).toBe(2800)
   })
 })

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import arrowLeftIcon from '../assets/icons/arrow-left.svg'
 import pauseIcon from '../assets/icons/hub-pause.svg'
 import playIcon from '../assets/icons/hub-play.svg'
@@ -23,13 +23,14 @@ import { useI18n } from '../i18n'
 import { nativeBridge } from '../nativeBridge'
 import { resolveAccountAvatar, resolveAccountCoinBalance } from '../services/accountPresentation'
 import { createSocialStore } from '../services/socialStore'
-import { voicePlaybackService } from '../services/voicePlaybackService'
+import { EMPTY_VOICE_PLAYBACK_STATE, formatVoiceDuration, voicePlaybackProgress, voicePlaybackRemainingMs, voicePlaybackService } from '../services/voicePlaybackService'
 import EditProfilePanel from './EditProfilePanel.vue'
 
 const props = defineProps({
   entry: { type: String, required: true },
   initialUserId: { type: String, default: '' },
   user: { type: Object, default: null },
+  animateEntry: { type: Boolean, default: false },
 })
 const emit = defineEmits(['close', 'open-language', 'logout', 'profile-updated'])
 const { locale } = useI18n()
@@ -49,10 +50,17 @@ const error = ref('')
 const notice = ref('')
 const reportReason = ref('spam')
 const confirmBlock = ref(false)
-const audioState = ref({ id: null, status: 'idle' })
+const audioState = ref({ ...EMPTY_VOICE_PLAYBACK_STATE })
+const audioBusyID = ref('')
 const chatScroller = ref(null)
 const retryAction = ref(null)
 const recordingAssetID = ref('')
+const entrySurface = ref(null)
+const entryPhase = ref(props.animateEntry && props.entry === 'profile' && !props.initialUserId ? 'pending' : 'ready')
+let profileEntryAnimation = null
+let profileEntryFrame = 0
+let profileEntryMotionQuery = null
+let disposed = false
 const publicPeople = Object.freeze(Object.fromEntries(Object.entries(discoveryPeople).map(([id, value]) => [id, toPublicSocialProfile(value)])))
 const operationID = (prefix) => `${prefix}-${globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`
 const person = (id) => publicPeople[id]
@@ -82,6 +90,7 @@ const ownProfile = computed(() => ({
 }))
 const isOwnProfile = computed(() => props.entry === 'profile' && !props.initialUserId && screen.value === 'profile')
 const ownVoicePlaying = computed(() => audioState.value.id === ownVoiceClip.value?.id && audioState.value.status === 'playing')
+const ownVoicePaused = computed(() => audioState.value.id === ownVoiceClip.value?.id && audioState.value.status === 'paused')
 const relationship = (id) => snapshot.value.relationshipsByUserID[id]
 const friends = computed(() => Object.values(publicPeople).filter((item) => relationship(item.id)?.friendshipStatus === 'friends' && relationship(item.id)?.blockStatus === 'none'))
 const incomingRequests = computed(() => snapshot.value.friendRequests.filter((item) => item.direction === 'incoming' && item.status === 'pending'))
@@ -187,21 +196,33 @@ function discardRecording() {
   recordingAssetID.value = ''
   nativeBridge.discardVoiceRecording(assetID).catch(() => {})
 }
-function toggleVoice(message, fallbackClip) {
-  if (message?.nativeAssetID && nativeBridge.isNative) {
-    voicePlaybackService.stop()
-    if (audioState.value.id === message.id && audioState.value.status === 'playing') {
-      nativeBridge.pauseVoice(message.nativeAssetID).catch(() => {})
-      audioState.value = { id: message.id, status: 'paused' }
-    } else {
-      nativeBridge.playVoice(message.nativeAssetID).then(() => { audioState.value = { id: message.id, status: 'playing' } }).catch(() => { error.value = copy.value.somethingWrong })
-    }
-    return
+function playableClip(message, fallbackClip) {
+  if (message) return {
+    id: message.id,
+    asset: message.voiceAsset,
+    nativeAssetID: message.nativeAssetID,
+    durationMs: message.durationMs || 7000,
   }
-  const asset = message?.voiceAsset || fallbackClip?.asset
-  const id = message?.id || fallbackClip?.id
-  if (!asset) return
-  voicePlaybackService.play({ id, asset }, (value) => { audioState.value = value }).catch(() => { error.value = copy.value.somethingWrong })
+  return fallbackClip
+}
+function voiceStatus(id) { return audioState.value.id === id ? audioState.value.status : 'idle' }
+function voiceIsActive(id) { return ['playing', 'paused'].includes(voiceStatus(id)) }
+function voiceIsPlaying(id) { return voiceStatus(id) === 'playing' }
+function voiceIsPaused(id) { return voiceStatus(id) === 'paused' }
+function voiceProgress(clip) { return voicePlaybackProgress(audioState.value, clip) }
+function voiceRemaining(clip) { return formatVoiceDuration(voicePlaybackRemainingMs(audioState.value, clip)) }
+async function toggleVoice(message, fallbackClip) {
+  const clip = playableClip(message, fallbackClip)
+  if (!clip?.id || audioBusyID.value) return
+  audioBusyID.value = clip.id
+  clearFeedback()
+  try {
+    await voicePlaybackService.play(clip, (value) => { audioState.value = value })
+  } catch {
+    error.value = copy.value.somethingWrong
+  } finally {
+    audioBusyID.value = ''
+  }
 }
 function toggleOwnVoice() {
   if (!ownVoiceClip.value) { notice.value = copy.value.noPublishedVoice; return }
@@ -226,14 +247,67 @@ function blockSelected() {
 }
 function unblock(userID) { run(async () => { store.unblockUser(userID, operationID('unblock')) }) }
 
-function stopHiddenAudio() { if (document.visibilityState === 'hidden') { voicePlaybackService.stop(); discardRecording() } }
+function stopHiddenAudio() {
+  if (document.visibilityState !== 'hidden') return
+  voicePlaybackService.stop()
+  discardRecording()
+  if (entryPhase.value !== 'ready') completeProfileEntry()
+}
+function completeProfileEntry() {
+  profileEntryAnimation?.cancel()
+  profileEntryAnimation = null
+  entryPhase.value = 'ready'
+}
+async function runProfileEntry() {
+  if (entryPhase.value === 'ready') return
+  await nextTick()
+  if (disposed || document.hidden || profileEntryMotionQuery?.matches || !entrySurface.value) {
+    completeProfileEntry()
+    return
+  }
+  profileEntryFrame = window.requestAnimationFrame(() => {
+    if (disposed || !entrySurface.value) return
+    entryPhase.value = 'opening'
+    profileEntryAnimation = entrySurface.value.animate([
+      { clipPath: 'circle(0% at 50% 43%)', opacity: .12, transform: 'scale(.92)', filter: 'blur(8px)' },
+      { clipPath: 'circle(27% at 50% 43%)', opacity: .94, transform: 'scale(.975)', filter: 'blur(1px)', offset: .5 },
+      { clipPath: 'circle(150% at 50% 43%)', opacity: 1, transform: 'scale(1)', filter: 'blur(0)' },
+    ], { duration: 720, easing: 'cubic-bezier(.18,.76,.2,1)', fill: 'forwards' })
+    profileEntryAnimation.finished.catch(() => {}).finally(() => {
+      if (!disposed) completeProfileEntry()
+    })
+  })
+}
+function handleProfileEntryMotion(event) { if (event.matches && entryPhase.value !== 'ready') completeProfileEntry() }
+function handleProfileEntryViewport() { if (entryPhase.value !== 'ready') completeProfileEntry() }
 document.addEventListener('visibilitychange', stopHiddenAudio)
-onBeforeUnmount(() => { document.removeEventListener('visibilitychange', stopHiddenAudio); discardRecording(); unsubscribe(); voicePlaybackService.dispose() })
+onMounted(() => {
+  profileEntryMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  window.addEventListener('resize', handleProfileEntryViewport)
+  window.visualViewport?.addEventListener('resize', handleProfileEntryViewport)
+  if (profileEntryMotionQuery.addEventListener) profileEntryMotionQuery.addEventListener('change', handleProfileEntryMotion)
+  else profileEntryMotionQuery.addListener(handleProfileEntryMotion)
+  runProfileEntry()
+})
+onBeforeUnmount(() => {
+  disposed = true
+  window.cancelAnimationFrame(profileEntryFrame)
+  profileEntryAnimation?.cancel()
+  if (profileEntryMotionQuery?.removeEventListener) profileEntryMotionQuery.removeEventListener('change', handleProfileEntryMotion)
+  else profileEntryMotionQuery?.removeListener(handleProfileEntryMotion)
+  window.removeEventListener('resize', handleProfileEntryViewport)
+  window.visualViewport?.removeEventListener('resize', handleProfileEntryViewport)
+  document.removeEventListener('visibilitychange', stopHiddenAudio)
+  discardRecording()
+  unsubscribe()
+  voicePlaybackService.dispose()
+})
 </script>
 
 <template>
   <EditProfilePanel v-if="screen === 'edit-profile'" :user="props.user" @cancel="closeProfileEditor" @saved="applyProfileUpdate" @open-language="emit('open-language')" />
-  <main v-else class="social-screen app-screen" :class="`social-${screen}`">
+  <main v-else class="social-screen app-screen" :class="[`social-${screen}`, `is-profile-entry-${entryPhase}`]" :aria-busy="entryPhase !== 'ready' ? 'true' : undefined">
+    <div ref="entrySurface" class="social-profile-entry-surface" :inert="entryPhase !== 'ready'">
     <header v-if="isOwnProfile" class="social-nav own-profile-nav">
       <button class="social-icon-button" type="button" :aria-label="copy.back" @click="goBack">
         <img :src="arrowLeftIcon" alt="">
@@ -280,7 +354,13 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', stopHid
         <img class="large-avatar" :src="person(pendingRequest.fromUserID || pendingRequest.toUserID).avatarAsset" alt="">
         <h2>{{ person(pendingRequest.fromUserID || pendingRequest.toUserID).displayName }}</h2>
         <p class="country-line"><img :src="person(pendingRequest.fromUserID || pendingRequest.toUserID).flagAsset" alt=""> {{ person(pendingRequest.fromUserID || pendingRequest.toUserID).countryCode }}</p>
-        <button class="voice-pill" type="button" @click="toggleVoice(null, person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip)"><span class="play-triangle" /> <i /><i /><i /><i /><i /> {{ Math.round(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip.durationMs / 100) / 10 }}s</button>
+        <button
+          class="voice-pill"
+          :class="{ playing: voiceIsPlaying(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip.id), paused: voiceIsPaused(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip.id), active: voiceIsActive(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip.id) }"
+          type="button"
+          :disabled="Boolean(audioBusyID)"
+          @click="toggleVoice(null, person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip)"
+        ><span class="play-triangle" :class="{ pause: voiceIsPlaying(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip.id) }" /><span class="wave-bars audio-progress-wave" :style="{ '--voice-progress': voiceProgress(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip) }"><i /><i /><i /><i /><i /></span><b>{{ voiceRemaining(person(pendingRequest.fromUserID || pendingRequest.toUserID).voiceClip) }}</b></button>
         <blockquote>{{ pendingRequest.note }}</blockquote>
         <button class="text-link" type="button" @click="openProfile(pendingRequest.fromUserID || pendingRequest.toUserID)">{{ copy.viewProfile }}</button>
       </article>
@@ -319,7 +399,7 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', stopHid
       <div class="message-stream">
         <article v-for="messageItem in (currentThread?.messages || [])" :key="messageItem.id" class="message-bubble" :class="{ mine: messageItem.senderID === accountID, voice: messageItem.type === 'voice' }">
           <p v-if="messageItem.type === 'text'">{{ messageItem.text }}</p>
-          <button v-else type="button" @click="toggleVoice(messageItem)"><span class="play-triangle" /><span class="wave-bars"><i /><i /><i /><i /><i /></span><b>{{ Math.round((messageItem.durationMs || 7000) / 100) / 10 }}s</b></button>
+          <button v-else type="button" :class="{ playing: voiceIsPlaying(messageItem.id), paused: voiceIsPaused(messageItem.id), active: voiceIsActive(messageItem.id) }" :disabled="Boolean(audioBusyID)" @click="toggleVoice(messageItem)"><span class="play-triangle" :class="{ pause: voiceIsPlaying(messageItem.id) }" /><span class="wave-bars audio-progress-wave" :style="{ '--voice-progress': voiceProgress(playableClip(messageItem)) }"><i /><i /><i /><i /><i /></span><b>{{ voiceRemaining(playableClip(messageItem)) }}</b></button>
         </article>
       </div>
       <p class="local-demo-note">{{ copy.localDemo }}</p>
@@ -349,13 +429,13 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', stopHid
         <button class="own-profile-edit" type="button" @click="handleOwnProfileAction('edit')"><img :src="profileEditIcon" alt="">{{ copy.edit }}</button>
       </div>
 
-      <article class="own-profile-voice-card">
+      <article class="own-profile-voice-card" :class="{ playing: ownVoicePlaying, paused: ownVoicePaused, active: ownVoicePlaying || ownVoicePaused }">
         <button class="own-profile-play" type="button" :aria-label="ownVoicePlaying ? copy.pause : copy.play" :disabled="!ownVoiceClip" @click="toggleOwnVoice">
           <img :src="ownVoicePlaying ? pauseIcon : playIcon" alt="">
         </button>
         <div class="own-profile-voice-copy">
-          <span class="own-profile-voice-heading"><strong>{{ copy.mySevenSeconds }}</strong><small>0:07 · {{ copy.published }}</small></span>
-          <span class="own-profile-wave" aria-hidden="true"><i v-for="(height, index) in [7, 15, 22, 12, 25, 18, 9, 20, 14, 23, 11, 18, 8]" :key="index" :style="{ height: `${height}px` }" /></span>
+          <span class="own-profile-voice-heading"><strong>{{ copy.mySevenSeconds }}</strong><small>{{ voiceRemaining(ownVoiceClip) }} · {{ copy.published }}</small></span>
+          <span class="own-profile-wave audio-progress-wave" :style="{ '--voice-progress': voiceProgress(ownVoiceClip) }" aria-hidden="true"><i v-for="(height, index) in [7, 15, 22, 12, 25, 18, 9, 20, 14, 23, 11, 18, 8]" :key="index" :style="{ height: `${height}px` }" /></span>
         </div>
         <button class="own-profile-rerecord" type="button" @click="handleOwnProfileAction('record')"><img :src="profileRerecordIcon" alt="">{{ copy.reRecord }}</button>
       </article>
@@ -378,7 +458,7 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', stopHid
 
     <section v-else-if="screen === 'profile' && selectedPerson" class="social-scroll profile-page">
       <article class="profile-hero"><img :src="selectedPerson.avatarAsset" alt=""><div><h2>{{ selectedPerson.displayName }}</h2><p v-if="selectedPerson.countryCode"><img :src="selectedPerson.flagAsset" alt=""> {{ selectedPerson.countryCode }}</p></div></article>
-      <button v-if="selectedPerson.voiceClip" class="profile-voice" type="button" @click="toggleVoice(null, selectedPerson.voiceClip)"><span class="play-triangle" /><span class="wave-bars"><i /><i /><i /><i /><i /><i /></span><b>{{ Math.round(selectedPerson.voiceClip.durationMs / 100) / 10 }}s</b></button>
+      <button v-if="selectedPerson.voiceClip" class="profile-voice" :class="{ playing: voiceIsPlaying(selectedPerson.voiceClip.id), paused: voiceIsPaused(selectedPerson.voiceClip.id), active: voiceIsActive(selectedPerson.voiceClip.id) }" type="button" :disabled="Boolean(audioBusyID)" @click="toggleVoice(null, selectedPerson.voiceClip)"><span class="play-triangle" :class="{ pause: voiceIsPlaying(selectedPerson.voiceClip.id) }" /><span class="wave-bars audio-progress-wave" :style="{ '--voice-progress': voiceProgress(selectedPerson.voiceClip) }"><i /><i /><i /><i /><i /><i /></span><b>{{ voiceRemaining(selectedPerson.voiceClip) }}</b></button>
       <article v-if="selectedPerson.aboutMe" class="profile-section"><h3>{{ copy.about }}</h3><p>{{ selectedPerson.aboutMe }}</p></article>
       <article v-if="selectedPerson.languages" class="profile-section"><h3>{{ copy.languages }}</h3><div class="tag-list"><span v-for="item in selectedPerson.languages" :key="item">{{ item.toUpperCase() }}</span></div></article>
       <article v-if="selectedPerson.interests" class="profile-section"><h3>{{ copy.interests }}</h3><div class="tag-list"><span v-for="item in selectedPerson.interests" :key="item">{{ item.replaceAll('_', ' ') }}</span></div></article>
@@ -409,5 +489,6 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', stopHid
       <button class="wide-button primary" type="button" @click="notice = copy.videoDemo">{{ copy.continueVideo }}</button>
       <p class="local-demo-note">{{ copy.videoDemo }}</p>
     </section>
+    </div>
   </main>
 </template>
