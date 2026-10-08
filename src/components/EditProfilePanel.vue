@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import cameraIcon from '../assets/icons/camera.svg'
 import checkGreenIcon from '../assets/icons/check-green.svg'
 import profileChevronIcon from '../assets/icons/profile-chevron.svg'
 import profileNoteShieldIcon from '../assets/icons/profile-note-shield.svg'
@@ -9,14 +10,18 @@ import portrait04 from '../assets/portraits/portrait-04.png'
 import portrait07 from '../assets/portraits/portrait-07.png'
 import portrait09 from '../assets/portraits/portrait-09.png'
 import { discoveryFlagAssets } from '../data/discoveryFixtures'
+import { avatarFrameByID, resolveAvatarFrameID } from '../data/avatarFrameCatalog'
 import { profileEditContent } from '../data/profileEditContent'
 import { registrationInterests } from '../data/registrationContent'
 import { languageOptions, useI18n } from '../i18n'
 import { nativeBridge } from '../nativeBridge'
 import { oivoxAccountApi } from '../services/oivoxAccountApi'
+import { updateLocalAccountProfile } from '../services/accountUserCache'
+import AvatarFramePanel from './AvatarFramePanel.vue'
+import CoinStoreScreen from './CoinStoreScreen.vue'
 
-const props = defineProps({ user: { type: Object, required: true } })
-const emit = defineEmits(['cancel', 'saved', 'open-language'])
+const props = defineProps({ user: { type: Object, required: true }, coinBalance: { type: Number, default: 0 } })
+const emit = defineEmits(['cancel', 'saved', 'open-language', 'coin-balance-changed'])
 const { locale } = useI18n()
 const copy = computed(() => profileEditContent(locale.value))
 const interestOptions = computed(() => registrationInterests(locale.value))
@@ -31,6 +36,8 @@ const original = Object.freeze({
   avatarSource: props.user.profile?.avatarSource || 'preset',
   avatarKey: props.user.profile?.avatarKey || 'portrait-09',
   localAssetID: props.user.profile?.localAssetID || '',
+  avatarFrameID: resolveAvatarFrameID(props.user.profile),
+  avatarFrameLabel: String(props.user.profile?.avatarFrameLabel || ''),
 })
 const form = reactive({
   displayName: original.displayName,
@@ -52,11 +59,18 @@ const busy = ref(false)
 const avatarBusy = ref(false)
 const message = ref('')
 const messageKind = ref('status')
+const activePanel = ref('editor')
+const panelTransitionDirection = ref('forward')
+const walletBalance = ref(props.coinBalance)
+const pendingFrameSelectionID = ref('')
+const avatarFrame = reactive({ id: original.avatarFrameID, label: original.avatarFrameLabel, changed: false })
 
 const selectedLanguageName = computed(() => languageOptions.find((item) => item.code === locale.value)?.nativeName || 'English')
 const countryCode = computed(() => props.user.profile?.countryCode || '')
 const countryFlag = computed(() => discoveryFlagAssets[countryCode.value] || '')
-const hasAvatarFrame = computed(() => Boolean(String(props.user.profile?.avatarFrameLabel || '').trim()))
+const selectedFrame = computed(() => avatarFrameByID(avatarFrame.id))
+const hasAvatarFrame = computed(() => selectedFrame.value.id !== 'none')
+const avatarFrameStyle = computed(() => hasAvatarFrame.value ? { '--avatar-frame-ring': selectedFrame.value.ring } : {})
 const trimmedName = computed(() => form.displayName.trim())
 const normalizedHandle = computed(() => `@${form.handle.trim().replace(/^@+/, '').toLowerCase()}`)
 const handleValid = computed(() => /^@[a-z0-9_]{3,24}$/.test(normalizedHandle.value))
@@ -66,7 +80,8 @@ const hasChanges = computed(() => trimmedName.value !== original.displayName.tri
   || form.aboutMe.trim() !== original.aboutMe.trim()
   || !arraysEqual(form.spokenLanguages, original.spokenLanguages)
   || !arraysEqual(form.interests, original.interests)
-  || avatar.changed)
+  || avatar.changed
+  || avatarFrame.changed)
 
 function showMessage(value, kind = 'status') {
   message.value = value
@@ -138,7 +153,41 @@ async function changePhoto() {
 
 function openFrames() {
   if (busy.value || avatarBusy.value) return
-  showMessage(copy.value.frameUnavailable)
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  message.value = ''
+  pendingFrameSelectionID.value = ''
+  panelTransitionDirection.value = 'forward'
+  activePanel.value = 'frames'
+}
+
+function openFrameStore(payload) {
+  pendingFrameSelectionID.value = payload?.selectedFrameID || avatarFrame.id
+  panelTransitionDirection.value = 'forward'
+  activePanel.value = 'coin-store'
+}
+
+function selectFrame(value) {
+  avatarFrame.id = avatarFrameByID(value?.id).id
+  avatarFrame.label = String(value?.label || '')
+  avatarFrame.changed = avatarFrame.id !== original.avatarFrameID
+  panelTransitionDirection.value = 'back'
+  activePanel.value = 'editor'
+}
+
+function closeFrameStore() {
+  panelTransitionDirection.value = 'back'
+  activePanel.value = 'frames'
+}
+
+function closeFrames() {
+  panelTransitionDirection.value = 'back'
+  activePanel.value = 'editor'
+}
+
+function updateWalletBalance(value) {
+  if (!Number.isSafeInteger(value) || value < 0) return
+  walletBalance.value = value
+  emit('coin-balance-changed', value)
 }
 
 function openLanguage() {
@@ -173,14 +222,17 @@ async function save() {
     return
   }
   const patch = buildPatch()
-  if (!Object.keys(patch).length) {
+  if (!Object.keys(patch).length && !avatarFrame.changed) {
     showMessage(copy.value.noChanges)
     return
   }
   busy.value = true
   try {
-    const updatedUser = await oivoxAccountApi.updateProfile(patch)
-    emit('saved', updatedUser)
+    const updatedUser = Object.keys(patch).length ? await oivoxAccountApi.updateProfile(patch) : props.user
+    const mergedUser = avatarFrame.changed
+      ? updateLocalAccountProfile(updatedUser, { avatarFrameID: avatarFrame.id, avatarFrameLabel: avatarFrame.label })
+      : updatedUser
+    emit('saved', mergedUser)
   } catch {
     showMessage(copy.value.saveFailed, 'error')
   } finally {
@@ -202,7 +254,27 @@ onBeforeUnmount(() => nativeBridge.cancelPage(pageInstanceID))
 </script>
 
 <template>
-  <main class="profile-edit-screen app-screen">
+  <Transition :name="`ios-page-${panelTransitionDirection}`">
+  <CoinStoreScreen
+    v-if="activePanel === 'coin-store'"
+    :account-id="props.user.id || props.user.userID"
+    :initial-balance="walletBalance"
+    @back="closeFrameStore"
+    @balance-changed="updateWalletBalance"
+  />
+  <AvatarFramePanel
+    v-else-if="activePanel === 'frames'"
+    :account-id="props.user.id || props.user.userID"
+    :avatar="avatar.preview"
+    :initial-balance="walletBalance"
+    :initial-frame-id="avatarFrame.id"
+    :initial-selection-id="pendingFrameSelectionID"
+    @back="closeFrames"
+    @selected="selectFrame"
+    @open-store="openFrameStore"
+    @balance-changed="updateWalletBalance"
+  />
+  <main v-else class="profile-edit-screen app-screen">
     <header class="profile-edit-nav">
       <button type="button" :disabled="busy" @click="emit('cancel')">{{ copy.cancel }}</button>
       <h1>{{ copy.title }}</h1>
@@ -213,13 +285,18 @@ onBeforeUnmount(() => nativeBridge.cancelPage(pageInstanceID))
 
     <section class="profile-edit-scroll">
       <article class="profile-edit-photo-card">
-        <span class="profile-edit-avatar-ring" :class="{ framed: hasAvatarFrame }"><img :src="avatar.preview" alt=""></span>
+        <span class="profile-edit-avatar-ring" :class="{ framed: hasAvatarFrame }" :style="avatarFrameStyle">
+          <img :src="avatar.preview" alt="">
+          <button class="profile-edit-camera-button" type="button" :aria-label="copy.change" :disabled="busy || avatarBusy" @click="changePhoto">
+            <span v-if="avatarBusy" class="button-spinner" aria-hidden="true" />
+            <img v-else :src="cameraIcon" alt="">
+          </button>
+        </span>
         <div>
           <h2>{{ copy.profilePhoto }}</h2>
           <p>{{ copy.photoHint }}</p>
           <span class="profile-edit-photo-actions">
-            <button type="button" :disabled="busy || avatarBusy" @click="changePhoto">{{ avatarBusy ? copy.saving : copy.change }}</button>
-            <button class="secondary" type="button" :disabled="busy || avatarBusy" @click="openFrames">{{ copy.frame }}</button>
+            <button type="button" :disabled="busy || avatarBusy" @click="openFrames">{{ copy.changeFrame }}</button>
           </span>
         </div>
       </article>
@@ -266,7 +343,6 @@ onBeforeUnmount(() => nativeBridge.cancelPage(pageInstanceID))
         <div class="profile-edit-readonly-row country-row">
           <span><strong>{{ copy.country }}</strong><small>{{ copy.countryHint }}</small></span>
           <b class="profile-edit-country" dir="ltr"><img v-if="countryFlag" :src="countryFlag" alt="">{{ countryCode || '—' }}</b>
-          <img :src="profileChevronIcon" alt="">
         </div>
         <button class="profile-edit-readonly-row language-row" type="button" @click="openLanguage">
           <span><strong>{{ copy.appLanguage }}</strong><small>{{ copy.interfaceOnly }}</small></span>
@@ -278,4 +354,5 @@ onBeforeUnmount(() => nativeBridge.cancelPage(pageInstanceID))
       <p class="profile-edit-privacy-note"><img :src="profileNoteShieldIcon" alt=""><span>{{ copy.editNote }}</span></p>
     </section>
   </main>
+  </Transition>
 </template>

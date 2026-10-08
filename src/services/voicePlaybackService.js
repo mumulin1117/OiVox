@@ -119,7 +119,8 @@ export function createVoicePlaybackService({ audioFactory = () => new Audio(), n
     declaredDurationMs = finiteMilliseconds(clip.durationMs)
     audio = audioFactory()
     audio.preload = 'metadata'
-    audio.src = clip.asset
+    audio.playsInline = true
+    audio.src = typeof document === 'undefined' ? clip.asset : new URL(clip.asset, document.baseURI).href
     const activeAudio = audio
     audio.addEventListener?.('loadedmetadata', () => {
       if (audio === activeAudio) emit(currentStatus, { durationMs: activeAudio.duration * 1000 })
@@ -138,11 +139,14 @@ export function createVoicePlaybackService({ audioFactory = () => new Audio(), n
   }
 
   async function play(clip, onState) {
-    if (!clip?.id || (!clip.asset && !clip.nativeAssetID)) throw new Error('VOICE_ASSET_REQUIRED')
+    const playableClip = clip?.localAssetID && !clip.nativeAssetID
+      ? { ...clip, nativeAssetID: clip.localAssetID }
+      : clip
+    if (!playableClip?.id || (!playableClip.asset && !playableClip.nativeAssetID)) throw new Error('VOICE_ASSET_REQUIRED')
     listener = onState
     try {
-      if (clip.nativeAssetID && (!clip.asset || nativeAdapter?.isNative)) await playNative(clip)
-      else await playBrowserAudio(clip)
+      if (playableClip.nativeAssetID && (!playableClip.asset || nativeAdapter?.isNative)) await playNative(playableClip)
+      else await playBrowserAudio(playableClip)
     } catch (error) {
       emit('error')
       release()

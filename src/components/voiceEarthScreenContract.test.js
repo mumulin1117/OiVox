@@ -6,7 +6,7 @@ describe('unlocked Voice Earth transition contract', () => {
   const component = readFileSync(resolve(process.cwd(), 'src/components/VoiceEarthScreen.vue'), 'utf8')
   const css = readFileSync(resolve(process.cwd(), 'src/styles.css'), 'utf8')
 
-  it('uses the live seven-person data for source extraction and final Earth avatars', () => {
+  it('uses every earned voice for source extraction and final Earth avatars', () => {
     expect(component).toContain('props.voices.forEach((voice) =>')
     expect(component).toContain('document.querySelector(`[data-earth-source="${voice.id}"]`)')
     expect(component).toContain('v-for="(voice, index) in voices"')
@@ -14,6 +14,11 @@ describe('unlocked Voice Earth transition contract', () => {
     expect(component).toContain(':src="voice.flagAsset"')
     expect(component).toContain(':data-voice-earth-traveler="voice.id"')
     expect(component).toContain(':data-voice-earth-anchor="voice.id"')
+    expect(component).toContain("'is-crowded': voices.length > 7")
+    expect(component).toContain("'is-dense': voices.length > 12")
+    expect(component).toContain('earthPoint(index)')
+    expect(css).toContain('.voice-earth-transition.is-crowded .voice-earth-traveler')
+    expect(css).toContain('.voice-earth-transition.is-dense .voice-earth-traveler')
   })
 
   it('runs explicit forward and reverse phases instead of timer-chained navigation', () => {
@@ -25,9 +30,11 @@ describe('unlocked Voice Earth transition contract', () => {
     expect(component).not.toContain('setTimeout')
   })
 
-  it('shortens both seven-avatar transition directions by two seconds', () => {
-    expect(component).toContain('enter: 690ms extraction + 300ms reveal + 450ms settle = 1440ms (previously 3440ms)')
-    expect(component).toContain('exit: 390ms lift + 260ms reveal + 394ms return = 1044ms (previously 3044ms)')
+  it('keeps compact transition timings for the expanded avatar set', () => {
+    expect(component).toContain('function stagingPoints()')
+    expect(component).toContain('const target = earthPoint(index)')
+    expect(component).toContain('index * 137.5')
+    expect(component).not.toContain('const columnCount = Math.min(6')
     expect(component).toContain('extract: Object.freeze({ duration: 480, stagger: 35 })')
     expect(component).toContain('settle: Object.freeze({ duration: 330, stagger: 20 })')
     expect(component).toContain('lift: Object.freeze({ duration: 300, stagger: 15 })')
@@ -78,6 +85,8 @@ describe('unlocked Voice Earth transition contract', () => {
     expect(component).toContain('formatVoiceDuration(playbackRemaining)')
     expect(component).toContain('@click="selectVoice(voice.id)"')
     expect(component).toContain('@click="openSelectedProfile"')
+    expect(component).toContain('class="voice-earth-preview-audio"')
+    expect(component.match(/@click="toggleSelectedVoice"/g)).toHaveLength(2)
     expect(component).toContain(':disabled="playbackBusy || phase !== \'earth\'"')
     expect(component).toContain('stopVoicePlayback()')
   })

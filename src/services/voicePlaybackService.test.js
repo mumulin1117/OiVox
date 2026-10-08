@@ -125,4 +125,35 @@ describe('voice playback service', () => {
     expect(states.at(-1)).toMatchObject({ status: 'ended', currentTimeMs: 0, durationMs: 2800 })
     expect(voicePlaybackRemainingMs(states.at(-1), clip)).toBe(2800)
   })
+
+  it('plays legacy self-recordings that only persisted localAssetID', async () => {
+    const nativeCalls = []
+    const nativeAdapter = {
+      isNative: true,
+      onEvent: () => () => {},
+      playVoice: async (assetID) => { nativeCalls.push(assetID); return { currentTimeMs: 0, durationMs: 6100 } },
+      stopVoice: async () => ({}),
+    }
+    const service = createVoicePlaybackService({ nativeAdapter })
+
+    await service.play({ id: 'clip-legacy', localAssetID: 'profile_voice_legacy1', durationMs: 6100 }, () => {})
+
+    expect(nativeCalls).toEqual(['profile_voice_legacy1'])
+    expect(service.getCurrentID()).toBe('clip-legacy')
+  })
+
+  it('prefers a bundled native asset in WKWebView while browsers keep the local URL', async () => {
+    const instances = []
+    const nativeCalls = []
+    const nativeAdapter = {
+      isNative: true,
+      onEvent: () => () => {},
+      playVoice: async (assetID) => { nativeCalls.push(assetID); return { currentTimeMs: 0, durationMs: 6900 } },
+      stopVoice: async () => ({}),
+    }
+    const service = createVoicePlaybackService({ audioFactory: () => fakeAudio(instances), nativeAdapter })
+    await service.play({ id: 'fixture-one', asset: './fixture.wav', nativeAssetID: 'voice-14-france-2', durationMs: 6900 }, () => {})
+    expect(nativeCalls).toEqual(['voice-14-france-2'])
+    expect(instances).toHaveLength(0)
+  })
 })

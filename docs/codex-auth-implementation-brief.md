@@ -48,7 +48,7 @@
 
 - 只显示邮箱、密码和登录按钮；
 - 完全不渲染 `Your age` 标题、说明、年龄卡片和年龄容器；
-- 调用 `POST /oivox/v1/auth/login`；
+- 调用 `POST /oivox/v2/orbit/enter`；
 - `ACCOUNT_NOT_FOUND` 明确提示账号不存在并提供切换到 Sign up 的入口，绝不自动注册；
 - `INVALID_PASSWORD` 明确提示密码错误。
 
@@ -61,7 +61,7 @@
 - 页面顶部显示 `Step 1 of 7`；
 - 校验成功后只创建运行期内存草稿并进入 Step 2，不调用注册接口；
 - 密码不得写入浏览器持久化、URL 或日志；
-- 只有 Step 7 真人验证成功后，才调用一次 `POST /oivox/v1/auth/register`；
+- 只有 Step 7 真人验证成功后，才调用一次 `POST /oivox/v2/orbit/seed`；
 - `EMAIL_IN_USE` 在最终提交后明确提示邮箱已注册，并允许返回 Step 1 或切换登录。
 
 ### 4. 数据与成功交接

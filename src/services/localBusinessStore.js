@@ -17,6 +17,15 @@ function writeList(key, value) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
+function normalizePublishedVoiceClip(clip) {
+  if (!clip || typeof clip !== 'object') return null
+  const nativeAssetID = String(clip.nativeAssetID || clip.localAssetID || '').trim()
+  return {
+    ...clip,
+    ...(nativeAssetID ? { localAssetID: nativeAssetID, nativeAssetID } : {}),
+  }
+}
+
 export function saveLocalSupportTicket(ticket) {
   const now = new Date().toISOString()
   const value = {
@@ -39,20 +48,30 @@ export function saveLocalSupportTicket(ticket) {
   return value
 }
 
-export function savePublishedVoiceClip(clip) {
+export function savePublishedVoiceClip(clip, { accountID } = {}) {
+  const ownerID = String(accountID || '').trim()
+  const nativeAssetID = String(clip.nativeAssetID || clip.localAssetID || '').trim()
   const now = new Date().toISOString()
   const value = {
     id: clip.id || createOpaqueID('clip'),
-    localAssetID: clip.localAssetID,
+    ...(ownerID ? { accountID: ownerID } : {}),
+    localAssetID: nativeAssetID,
+    nativeAssetID,
     durationMs: Math.min(7000, Math.max(0, Number(clip.durationMs) || 0)),
     status: 'published_local',
     isSimulatedPublication: true,
     createdAt: clip.createdAt || now,
     publishedAt: now,
   }
-  const clips = readList(CLIP_KEY).filter((item) => item.id !== value.id)
+  const clips = readList(CLIP_KEY).filter((item) => ownerID ? item.accountID !== ownerID : item.id !== value.id)
   writeList(CLIP_KEY, [value, ...clips].slice(0, 50))
   return value
+}
+
+export function loadPublishedVoiceClip(accountID) {
+  const ownerID = String(accountID || '').trim()
+  if (!ownerID) return null
+  return normalizePublishedVoiceClip(readList(CLIP_KEY).find((item) => item?.accountID === ownerID && item?.status === 'published_local'))
 }
 
 export function saveNotificationPreference(preference) {

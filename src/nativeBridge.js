@@ -67,8 +67,16 @@ function bridgeError(code, message, details = {}) {
   return error
 }
 
+function hasNativeHandler() {
+  return Boolean(
+    window.__OIVOX_NATIVE_BRIDGE__?.available === true
+    && window.webkit?.messageHandlers?.oivox,
+  )
+}
+
 function browserFallback(service, method, payload) {
-  if (service === 'Permission') return { granted: true, status: 'authorized', simulated: true }
+  if (service === 'Permission' && method === 'openSettings') return { opened: false, status: 'unsupported', simulated: true }
+  if (service === 'Permission') return { granted: false, status: 'unsupported', simulated: true }
   if (service === 'Liveness' && method === 'startFrontCapture') return { sessionID: `browser-liveness-${Date.now()}`, faceCount: 1, simulated: true }
   if (service === 'Liveness') return { released: true, simulated: true }
   if (service === 'VoiceRecorder' && method === 'start') return { assetID: `browser-voice-${Date.now()}`, started: true, simulated: true }
@@ -81,6 +89,9 @@ function browserFallback(service, method, payload) {
   if (service === 'Notification') return { status: 'notDetermined', simulated: true }
   if (service === 'PhotoPicker') return { assetID: null, cancelled: true, simulated: true }
   if (service === 'AvatarPicker') return method === 'loadPreview' ? null : { cancelled: true, simulated: true }
+  if (service === 'Safety' && method === 'reportUser') return { reported: true, simulated: true }
+  if (service === 'Safety' && method === 'blockUser') return { blocked: true, simulated: true }
+  if (service === 'Safety' && method === 'unblockUser') return { blocked: false, simulated: true }
   return null
 }
 
@@ -124,12 +135,15 @@ window.OiVoxNative = {
 }
 
 export const nativeBridge = {
-  isNative: Boolean(window.webkit?.messageHandlers?.oivox),
+  get isNative() {
+    return hasNativeHandler()
+  },
   call: callNative,
-  getLanguage: () => callNative('Language', 'get'),
+  getLanguage: (options) => callNative('Language', 'get', {}, options),
   setLanguage: (language) => callNative('Language', 'set', { language }),
-  requestPermission: (permission) => callNative('Permission', 'request', { permission }),
-  getPermissionStatus: (permission) => callNative('Permission', 'getStatus', { permission }),
+  requestPermission: (permission, options) => callNative('Permission', 'request', { permission }, options),
+  getPermissionStatus: (permission, options) => callNative('Permission', 'getStatus', { permission }, options),
+  openAppSettings: (options) => callNative('Permission', 'openSettings', {}, options),
   startLiveness: (payload, options) => callNative('Liveness', 'startFrontCapture', payload, options),
   stopLiveness: (sessionID, options) => callNative('Liveness', 'stopCapture', { sessionID }, options),
   releaseLiveness: (sessionID, options) => callNative('Liveness', 'release', { sessionID }, options),
@@ -140,15 +154,18 @@ export const nativeBridge = {
   playVoice: (assetID, options = {}) => callNative('VoicePlayback', 'play', { assetID, durationMs: options.durationMs }, options),
   pauseVoice: (assetID, options) => callNative('VoicePlayback', 'pause', { assetID }, options),
   stopVoice: (assetID, options) => callNative('VoicePlayback', 'stop', { assetID }, options),
-  requestNotifications: () => callNative('Notification', 'requestAuthorization'),
-  getNotificationStatus: () => callNative('Notification', 'getAuthorizationStatus'),
-  selectSupportScreenshot: () => callNative('PhotoPicker', 'selectSupportScreenshot'),
+  requestNotifications: (options) => callNative('Notification', 'requestAuthorization', {}, options),
+  getNotificationStatus: (options) => callNative('Notification', 'getAuthorizationStatus', {}, options),
+  selectSupportScreenshot: (options) => callNative('PhotoPicker', 'selectSupportScreenshot', {}, options),
   chooseAvatar: (labels, options) => callNative('AvatarPicker', 'choose', labels, options),
   loadAvatarPreview: (localAssetID, options) => callNative('AvatarPicker', 'loadPreview', { localAssetID }, options),
-  purchase: (productID) => callNative('Store', 'purchase', { productID }),
+  purchase: (productID, options) => callNative('Store', 'purchase', { productID }, options),
+  listProducts: (productIDs, options) => callNative('Store', 'listProducts', { productIDs }, options),
   restorePurchases: () => callNative('Store', 'restorePurchases'),
-  reportUser: (userID, reason) => callNative('Safety', 'reportUser', { userID, reason }),
-  blockUser: (userID) => callNative('Safety', 'blockUser', { userID }),
+  translateText: (text, sourceLanguage, targetLanguage, options) => callNative('Translation', 'translateText', { text, sourceLanguage, targetLanguage }, options),
+  reportUser: (userID, reason, context = {}, options) => callNative('Safety', 'reportUser', { ...context, userID, reason }, options),
+  blockUser: (userID, operationID = '', options) => callNative('Safety', 'blockUser', { userID, ...(operationID ? { operationID } : {}) }, options),
+  unblockUser: (userID, operationID = '', options) => callNative('Safety', 'unblockUser', { userID, ...(operationID ? { operationID } : {}) }, options),
   onEvent(listener) {
     eventListeners.add(listener)
     return () => eventListeners.delete(listener)

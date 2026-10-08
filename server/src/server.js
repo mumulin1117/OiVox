@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { AccountStore } from './store.js'
 import { createOiVoxApp } from './app.js'
 import { seedTestAccount } from './testAccount.js'
+import { OIVOX_SIGNAL_CONTRACT } from '../../src/services/oivoxSignalContract.js'
 
 const host = process.env.OIVOX_SERVER_HOST || '127.0.0.1'
 const port = Number(process.env.OIVOX_SERVER_PORT || 3102)
@@ -17,5 +18,5 @@ await seedTestAccount(store)
 const server = createOiVoxApp({ store, sessionHours, allowedOrigins })
 server.listen(port, host, () => {
   console.log(`OiVox account server: http://${host}:${port}`)
-  console.log(`Health check: http://${host}:${port}/health`)
+  console.log(`Health check: http://${host}:${port}${OIVOX_SIGNAL_CONTRACT.routes.pulse}`)
 })

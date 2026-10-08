@@ -39,6 +39,7 @@ export const discoveryMediaPairs = Object.freeze(rows.map(([
     gender,
     avatarAsset: discoveryAsset('avatars', `avatar-${assetNumber}-${assetSlug}.${avatarExtension}`),
     voiceAsset: discoveryAsset('audio', `voice-${assetNumber}-${assetSlug}.wav`),
+    nativeVoiceAssetID: `voice-${assetNumber}-${assetSlug}`,
     durationMs,
     transcript,
     source: Object.freeze({

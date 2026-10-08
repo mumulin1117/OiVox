@@ -3,14 +3,22 @@ import StoreKit
 @MainActor
 final class StoreService {
     private let allowedProductIDs = Set([
-        "com.oivox.coins.50",
-        "com.oivox.coins.250",
-        "com.oivox.coins.600",
+        "mwxeencdjybvgjcs", "onlalqehwglvxxap", "siudvsdvobihufhn", "ajegsghcdaipmmyu",
+        "ksajndfouauhfeiold", "uwnvihqdincfbzai", "oewifhuhwbbbcs", "ospifrcuvdmxofos",
+        "hsvnuavckiaolvbu", "uuerzkaujlakezbw",
     ])
 
+    func products(productIDs: [String]) async throws -> [String: Any] {
+        let requested = productIDs.filter { allowedProductIDs.contains($0) }
+        let products = try await Product.products(for: requested)
+        return ["products": products.map { product in
+            ["productID": product.id, "displayName": product.displayName, "displayPrice": product.displayPrice]
+        }]
+    }
+
     func purchase(productID: String) async throws -> [String: Any] {
-        guard allowedProductIDs.contains(productID) else { throw StoreError.unknownProduct }
-        guard let product = try await Product.products(for: [productID]).first else { throw StoreError.unavailable }
+        guard allowedProductIDs.contains(productID) else { throw StoreServiceError.unknownProduct }
+        guard let product = try await Product.products(for: [productID]).first else { throw StoreServiceError.unavailable }
 
         switch try await product.purchase() {
         case .success(let verification):
@@ -22,19 +30,19 @@ final class StoreService {
         case .userCancelled:
             return ["purchased": false, "cancelled": true]
         @unknown default:
-            throw StoreError.unavailable
+            throw StoreServiceError.unavailable
         }
     }
 
     private func verified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .verified(let value): return value
-        case .unverified: throw StoreError.failedVerification
+        case .unverified: throw StoreServiceError.failedVerification
         }
     }
 }
 
-private enum StoreError: LocalizedError {
+enum StoreServiceError: LocalizedError {
     case unknownProduct
     case unavailable
     case failedVerification

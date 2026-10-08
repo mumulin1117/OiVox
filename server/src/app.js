@@ -1,8 +1,18 @@
 import { randomUUID } from 'node:crypto'
 import { createServer } from 'node:http'
 import { createAccessToken, hashPassword, hashToken, verifyPassword } from './security.js'
+import {
+  OIVOX_SIGNAL_CONTRACT,
+  decodeLoginPayload,
+  decodeProfilePatch,
+  decodeRegistrationPayload,
+  encodeFaultEnvelope,
+  encodePublicUser,
+  encodePulseEnvelope,
+  encodeSessionEnvelope,
+} from '../../src/services/oivoxSignalContract.js'
 
-const TERMS_VERSION = '2026-09-oivox-local-v1'
+const TERMS_VERSION = '2026-09-oivox-legal-v2'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const SUPPORTED_LANGUAGES = new Set(['en', 'ar', 'he', 'tr', 'fr', 'de', 'ja', 'ko'])
 const AGE_RANGES = new Set(['17-24', '25-34', '35+'])
@@ -182,7 +192,7 @@ function validateRegistrationData(body) {
   const interestPatch = validateProfilePatch({ interests: body.onboarding.interests })
 
   assertOnly(body.verification, ['status', 'method', 'attemptID', 'challengeID', 'fixtureID', 'completedAt'])
-  if (body.verification.status !== 'passed' || !['local-fixture', 'local-simulator'].includes(body.verification.method)) throw new ApiError(400, 'VERIFICATION_REQUIRED', 'Complete the verification step before registering.')
+  if (body.verification.status !== 'passed' || !['local-fixture', 'local-simulator', 'local-dynamic-face'].includes(body.verification.method)) throw new ApiError(400, 'VERIFICATION_REQUIRED', 'Complete the verification step before registering.')
   for (const key of ['attemptID', 'challengeID', 'fixtureID']) {
     if (typeof body.verification[key] !== 'string' || !body.verification[key] || body.verification[key].length > 100) throw new ApiError(400, 'VERIFICATION_REQUIRED', 'Provide a valid local verification summary.')
   }
@@ -191,6 +201,8 @@ function validateRegistrationData(body) {
 }
 
 export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(), allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173', 'null'] }) {
+  const routes = OIVOX_SIGNAL_CONTRACT.routes
+  const signalHeaders = OIVOX_SIGNAL_CONTRACT.headers
   const loginAttempts = new Map()
   const server = createServer(async (request, response) => {
     const requestID = randomUUID()
@@ -208,16 +220,16 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
       if (origin && !allowedOrigins.includes(origin)) throw new ApiError(403, 'ORIGIN_NOT_ALLOWED', 'This origin is not allowed.')
       if (request.method === 'OPTIONS') {
         response.setHeader('access-control-allow-methods', 'GET,POST,PATCH,OPTIONS')
-        response.setHeader('access-control-allow-headers', 'authorization,content-type,idempotency-key')
+        response.setHeader('access-control-allow-headers', `authorization,content-type,${signalHeaders.seedRef}`)
         return send(204)
       }
       const path = new URL(request.url, 'http://localhost').pathname
-      if (request.method === 'GET' && path === '/health') return send(200, { ok: true, service: 'oivox-account-server' })
+      if (request.method === 'GET' && path === routes.pulse) return send(200, encodePulseEnvelope({ ok: true, service: 'oivox-account-server' }))
 
-      if (request.method === 'POST' && path === '/oivox/v1/auth/register') {
-        const body = await readJSON(request)
+      if (request.method === 'POST' && path === routes.seed) {
+        const body = decodeRegistrationPayload(await readJSON(request))
         const { email, password, profile, questionnaire } = validateRegistrationData(body)
-        const idempotencyKey = request.headers['idempotency-key'] || ''
+        const idempotencyKey = request.headers[signalHeaders.seedRef] || ''
         if (!/^[A-Za-z0-9_-]{8,100}$/.test(idempotencyKey)) throw new ApiError(400, 'IDEMPOTENCY_KEY_REQUIRED', 'Provide a valid registration idempotency key.')
         const result = await store.update(async (data) => {
           const previous = data.registrationResults.find((item) => item.key === idempotencyKey)
@@ -239,7 +251,7 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
               countryCode: '', timezone: profile.timezone || '', aboutMe: '',
               spokenLanguages: profile.spokenLanguages, preferredLanguage: profile.preferredLanguage, ageRange: body.ageRange, interests: profile.interests,
               curiousRegion: questionnaire[0], conversationTopic: questionnaire[2], replyPreference: questionnaire[3], onlineWindow: questionnaire[4], aiAssistance: questionnaire[5],
-              verified: true, verificationMethod: 'local-fixture', verifiedAt: timestamp,
+              verified: true, verificationMethod: body.verification.method, verifiedAt: timestamp,
             },
             createdAt: timestamp, updatedAt: timestamp,
           }
@@ -247,11 +259,11 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
           data.registrationResults.push({ key: idempotencyKey, email, userID: user.id, createdAt: timestamp })
           return { user: publicUser(user), ...createSession(data, user.id, sessionHours, now()) }
         })
-        return send(201, result)
+        return send(201, encodeSessionEnvelope(result))
       }
 
-      if (request.method === 'POST' && path === '/oivox/v1/auth/login') {
-        const body = await readJSON(request)
+      if (request.method === 'POST' && path === routes.enter) {
+        const body = decodeLoginPayload(await readJSON(request))
         assertOnly(body, ['email', 'password'])
         const email = normalizeEmail(body.email)
         const password = validatePassword(body.password)
@@ -265,16 +277,16 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
         if (!user) throw new ApiError(404, 'ACCOUNT_NOT_FOUND', 'No account exists for this email.')
         if (!await verifyPassword(password, user.passwordHash)) throw new ApiError(401, 'INVALID_PASSWORD', 'The password is incorrect.')
         const result = await store.update((data) => ({ user: publicUser(user), ...createSession(data, user.id, sessionHours, now()) }))
-        return send(200, result)
+        return send(200, encodeSessionEnvelope(result))
       }
 
-      if (request.method === 'GET' && path === '/oivox/v1/me/profile') {
+      if (request.method === 'GET' && path === routes.self) {
         const { user } = findSession(store.data, request, now())
-        return send(200, publicUser(user))
+        return send(200, encodePublicUser(publicUser(user)))
       }
 
-      if (request.method === 'PATCH' && path === '/oivox/v1/me/profile') {
-        const body = await readJSON(request)
+      if (request.method === 'PATCH' && path === routes.self) {
+        const body = decodeProfilePatch(await readJSON(request))
         const patch = validateProfilePatch(body)
         const current = findSession(store.data, request, now()).user
         const user = await store.update((data) => {
@@ -287,10 +299,10 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
           target.updatedAt = now().toISOString()
           return target
         })
-        return send(200, publicUser(user))
+        return send(200, encodePublicUser(publicUser(user)))
       }
 
-      if (request.method === 'POST' && path === '/oivox/v1/auth/logout') {
+      if (request.method === 'POST' && path === routes.leave) {
         const tokenHash = hashToken(bearerToken(request))
         await store.update((data) => { data.sessions = data.sessions.filter((session) => session.tokenHash !== tokenHash) })
         return send(204)
@@ -301,7 +313,7 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
       const status = error instanceof ApiError ? error.status : 500
       const code = error instanceof ApiError ? error.code : 'INTERNAL_ERROR'
       const message = error instanceof ApiError ? error.message : 'The local account server failed.'
-      send(status, { error: { code, message, requestId: requestID } })
+      send(status, encodeFaultEnvelope({ error: { code, message, requestId: requestID } }))
     }
   })
   return server

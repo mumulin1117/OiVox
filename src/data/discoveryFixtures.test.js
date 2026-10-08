@@ -30,6 +30,8 @@ describe('discovery fixture assets', () => {
       expect(person.countryLabel).toBeTruthy()
       expect(person.voiceClip.source).toBe('local-dataset-fixture')
       expect(person.voiceClip.mediaPairID).toBe(person.mediaPairID)
+      expect(Object.keys(person.voiceClip.translations)).toHaveLength(8)
+      expect(person.voiceClip.translations[person.voiceClip.transcriptLanguage]).toBe(person.voiceClip.transcript)
     }
     expect(new Set(Object.values(discoveryFlagAssets)).size).toBe(8)
   })
@@ -53,5 +55,11 @@ describe('discovery fixture assets', () => {
       expect(person.relationship.friendshipStatus).not.toBe('friends')
       expect(person.relationship.blockStatus).toBe('none')
     }
+  })
+
+  it('keeps simulated public like counts below ten', () => {
+    Object.values(discoveryPeople).forEach((person) => {
+      if (person.privacy.likesCount) expect(person.likesCount).toBeLessThan(10)
+    })
   })
 })

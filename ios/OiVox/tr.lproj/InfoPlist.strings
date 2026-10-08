@@ -2,3 +2,4 @@
 "NSMicrophoneUsageDescription" = "OiVox mikrofonu doğrulama, yedi saniyelik ses klipleri, sesli mesajlar ve aramalar için kullanır.";
 "NSCameraUsageDescription" = "OiVox kamerayı profil fotoğrafı çekerken, doğrulama veya bire bir görüntülü arama başlatırken kullanır.";
 "NSPhotoLibraryUsageDescription" = "OiVox yalnızca avatar seçiciyi açtığınızda arşivinizden profil fotoğrafı seçmenizi sağlar.";
+"NSLocalNetworkUsageDescription" = "OiVox, geliştirme ve cihaz testi sırasında yerel ağınızdaki hesap hizmetine bağlanır.";

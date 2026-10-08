@@ -20,7 +20,9 @@ describe('social module accessibility contracts', () => {
   it('implements the Version 1 sticker profile with local assets and RTL mirroring', () => {
     expect(component).toContain('own-profile-collage')
     expect(component).toContain("profile-star.svg")
-    expect(component).toContain('oivoxTestFixtures.profileSummary')
+    expect(component).toContain('resolveAccountProfileSummary')
+    expect(component).toContain('profileListenerUserIDs')
+    expect(component).not.toContain('oivoxTestFixtures.profileSummary')
     expect(css).toContain('Blue Lake “My profile · sticker style”, Version 1')
     expect(css).toContain('[dir="rtl"] .own-profile-polaroid')
     expect(css).toContain('.own-profile-menu > button')

@@ -6,19 +6,14 @@ const HARUTO_ID = 'user-media-17-japan-1'
 const EMRE_ID = 'user-media-04-turkey-1'
 const LAYLA_ID = 'user-media-01-arabic-1'
 const LUKAS_ID = 'user-media-15-germany-1'
+const NOAM_ID = 'user-media-08-israel-2'
 
 export const oivoxTestFixtures = {
-  profileSummary: Object.freeze({
-    countriesHeard: 9,
-    friendsCount: 12,
-    voicesCount: 48,
-    heardByCount: 34,
-    voiceClipsCount: 6,
-    coinBalance: 120,
-  }),
+  profileListenerUserIDs: Object.freeze([LAYLA_ID, HARUTO_ID, EMRE_ID, NOAM_ID]),
   profileVoiceClip: Object.freeze({
     id: 'voice-mia-profile-local',
     asset: discoveryPeople['user-media-14-france-2'].voiceClip.asset,
+    nativeAssetID: discoveryPeople['user-media-14-france-2'].voiceClip.nativeAssetID,
     durationMs: discoveryPeople['user-media-14-france-2'].voiceClip.durationMs,
     source: 'local-dataset-fixture',
     sourceMediaPairID: 'media-14-france-2',

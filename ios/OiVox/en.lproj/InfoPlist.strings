@@ -2,3 +2,4 @@
 "NSMicrophoneUsageDescription" = "OiVox uses the microphone for verification, seven-second voice clips, voice messages, and calls.";
 "NSCameraUsageDescription" = "OiVox uses the camera when you take a profile photo, start verification, or begin a one-to-one video call.";
 "NSPhotoLibraryUsageDescription" = "OiVox lets you choose a profile photo from your library only when you open the avatar picker.";
+"NSLocalNetworkUsageDescription" = "OiVox connects to the account service on your local network during development and device testing.";

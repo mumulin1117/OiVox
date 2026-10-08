@@ -108,17 +108,17 @@ async function runEntry() {
     waitFor(sourceTarget.animate([
       { opacity: 1, filter: 'blur(0) saturate(1)', transform: 'scale(1)' },
       { opacity: .05, filter: 'blur(3px) saturate(.62)', transform: 'scale(.84)' },
-    ], { duration: 340, easing: 'cubic-bezier(.2,.76,.22,1)', fill: 'forwards' })),
+    ], { duration: 200, easing: 'cubic-bezier(.2,.76,.22,1)', fill: 'forwards' })),
     waitFor(traveler.value.animate([
       { left: `${start.x}px`, top: `${start.y}px`, width: `${start.size}px`, height: `${start.size}px`, transform: 'translate(-50%, -50%) scale(.96)', opacity: 1 },
       { left: `${(start.x + lift.x) / 2}px`, top: `${Math.min(start.y, lift.y) - 38}px`, width: `${lift.size}px`, height: `${lift.size}px`, transform: 'translate(-50%, -50%) scale(1.14) rotate(4deg)', opacity: 1, offset: .55 },
       { left: `${lift.x}px`, top: `${lift.y}px`, width: `${lift.size}px`, height: `${lift.size}px`, transform: 'translate(-50%, -50%) scale(1) rotate(0)', opacity: 1 },
-    ], { duration: 620, easing: 'cubic-bezier(.18,.76,.2,1)', fill: 'forwards' })),
+    ], { duration: 260, easing: 'cubic-bezier(.18,.76,.2,1)', fill: 'forwards' })),
     waitFor(hubScroll.animate([
       { opacity: 1, filter: 'blur(0)', transform: 'scale(1)' },
       { opacity: 0, filter: 'blur(11px)', transform: 'scale(.985)' },
-    ], { delay: 150, duration: 460, easing: 'ease', fill: 'forwards' })),
-    waitFor(backdrop.value.animate([{ opacity: 0 }, { opacity: 1 }], { delay: 130, duration: 470, easing: 'ease', fill: 'forwards' })),
+    ], { delay: 70, duration: 190, easing: 'ease', fill: 'forwards' })),
+    waitFor(backdrop.value.animate([{ opacity: 0 }, { opacity: 1 }], { delay: 60, duration: 200, easing: 'ease', fill: 'forwards' })),
   ])
   if (disposed || token !== sequenceID) return
 
@@ -129,14 +129,14 @@ async function runEntry() {
     { left: `${(lift.x + landing.x) / 2}px`, top: `${landing.y - 58}px`, width: `${landing.size}px`, height: `${landing.size}px`, transform: 'translate(-50%, -50%) scale(1.08) rotate(-3deg)', opacity: 1, offset: .48 },
     { left: `${landing.x}px`, top: `${landing.y + 8}px`, width: `${landing.size}px`, height: `${landing.size}px`, transform: 'translate(-50%, -50%) scale(1.04) rotate(1deg)', opacity: 1, offset: .82 },
     { left: `${landing.x}px`, top: `${landing.y}px`, width: `${landing.size}px`, height: `${landing.size}px`, transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-  ], { duration: 620, easing: 'cubic-bezier(.2,.82,.22,1)', fill: 'forwards' }))
+  ], { duration: 240, easing: 'cubic-bezier(.2,.82,.22,1)', fill: 'forwards' }))
   if (disposed || token !== sequenceID) return
 
   phase.value = 'handing-off'
   await waitFor(traveler.value.animate([
     { transform: 'translate(-50%, -50%) scale(1)', opacity: 1, filter: 'blur(0)' },
     { transform: 'translate(-50%, -50%) scale(.78)', opacity: 0, filter: 'blur(3px)' },
-  ], { duration: 180, easing: 'ease-in', fill: 'forwards' }))
+  ], { duration: 70, easing: 'ease-in', fill: 'forwards' }))
   if (disposed || token !== sequenceID) return
   finish()
 }

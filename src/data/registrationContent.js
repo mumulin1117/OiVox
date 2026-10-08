@@ -15,16 +15,16 @@ export const interests = [
 const en = {
   back: 'Back', skip: 'Skip', continue: 'Continue', done: 'Done', step: (n) => `Step ${n} of 7`,
   profileTitle: 'Pick a nickname', profileSubtitle: 'A photo and nickname are required.', nickname: 'NICKNAME', nicknamePlaceholder: 'How should people know you?', languages: 'I SPEAK', photoAction: 'Choose a photo',
-  privacyTitle: 'Only what you choose is public', privacyBody: 'Your real name, email, and exact location stay private.', nicknameRequired: 'Enter a nickname between 1 and 32 characters.', avatarRequired: 'Choose a profile photo to continue.',
+  privacyTitle: 'Only what you choose is public', privacyBody: 'Others only ever see your nickname, country and time zone.', nicknameRequired: 'Enter a nickname between 1 and 32 characters.', avatarRequired: 'Choose a profile photo to continue.',
   avatarCancelled: 'No photo was selected. Choose a profile photo to continue.', avatarPermissionDenied: 'Photo access was not allowed. Try again or use the other source.', avatarDecodeFailed: 'That photo could not be opened. Choose another image.', avatarProcessingFailed: 'That photo could not be prepared. Please try again.', chooseFromPhotos: 'Choose from Photos', takePhoto: 'Take Photo', returnToProfile: 'Return to Step 2',
   question: (n) => `Question ${n} of 6`, questionNote: 'This only shapes your experience. You can change it later.',
   interestTitle: 'What do you like talking about?', interestSubtitle: 'Choose 2–5 interests to help OiVox shape your first conversations.', selected: 'SELECTED', chooseMore: 'Choose at least two interests.', buildProfile: 'Build My Profile',
   communicationTitle: 'Your profile', communicationSubtitle: 'A quick preview based on your answers.', iSpeak: 'I Speak', reply: 'Reply', online: 'Online', curiousAbout: 'CURIOUS ABOUT', editAnswers: 'Edit answers',
   micTitle: 'We need your mic for 7 seconds', micBody: 'Used only while you hold record — never in the background.', allowMic: 'Allow Microphone', notNow: 'Not now', permissionGranted: 'Microphone ready', permissionSkipped: 'You can enable it later in Settings.',
-  cameraTitle: 'Camera, only for the liveness check', cameraBody: 'We record a few seconds of you saying three numbers to confirm you’re a real person. Nothing else uses the camera.', allowCamera: 'Allow Camera', skipForNow: 'Skip for now', cameraGranted: 'Camera ready', cameraSkipped: 'You can enable it later in Settings.',
-  verifyTitle: 'Liveness check', verifyBody: 'We’ll show you 3 numbers in sequence. Look into the camera and say them out loud.', startCheck: 'Start check', verifyPrivacy: 'Used only to verify you’re real, then deleted automatically. It never appears on your profile.',
-  digitsTitle: 'Say these numbers', digitsBody: 'Speak clearly in one breath.', saidAll: 'I said all three', couldntHear: 'Couldn’t hear me?', cancel: 'Cancel',
-  failedTitle: 'Check failed', failedBody: 'The numbers were spoken incorrectly, or we couldn’t hear or see you clearly.', tips: 'QUICK TIPS', tipItems: ['Face the light', 'Keep the phone steady', 'Say all three numbers clearly'], tryAgain: 'Try again', contactSupport: 'Contact support',
+  cameraTitle: 'Camera, only for the liveness check', cameraBody: 'We analyze a few live camera frames to detect one naturally moving face. No verification video is saved.', allowCamera: 'Allow Camera', skipForNow: 'Skip for now', cameraGranted: 'Camera ready', cameraSkipped: 'You can enable it later in Settings.',
+  verifyTitle: 'Liveness check', verifyBody: 'Look into the camera and move naturally. The three numbers remain a simple on-screen prompt; your speech is not scored.', startCheck: 'Start check', verifyPrivacy: 'Only live face movement is checked. No verification photo or video appears on your profile.',
+  digitsTitle: 'Stay in the frame', digitsBody: 'Move naturally while reading the numbers. Only live face movement is checked.', saidAll: 'I said all three', couldntHear: 'Couldn’t hear me?', cancel: 'Cancel',
+  failedTitle: 'Check failed', failedBody: 'We could not detect one naturally moving face clearly.', tips: 'QUICK TIPS', tipItems: ['Face the light', 'Keep one face in the circle', 'Move naturally or change your expression'], tryAgain: 'Try again', contactSupport: 'Contact support',
   creating: 'Creating your account…', submitError: 'Your account was not created. Check the message and try again.', emailInUse: 'That email already has an account. Return to Step 1 or log in.', returnToAccount: 'Return to Step 1',
   completeKicker: 'REGISTRATION COMPLETE', completeTitle: (name) => `You’re in, ${name}`, completeBody: 'One 7-second clip unlocks the voice globe.', record7: 'Record my 7 seconds', voiceEarthTitle: 'Voice Earth', recordToUnlock: 'Record to unlock', voiceEarthLockedBody: 'Everyone here shared their voice first — that keeps Voice Earth kind and real.',
   questions,
@@ -33,7 +33,7 @@ const en = {
 const translations = {
   ar: {
     profileSubtitle: 'الصورة والاسم المستعار مطلوبان.', avatarRequired: 'اختر صورة للملف الشخصي للمتابعة.', avatarCancelled: 'لم يتم اختيار صورة. اختر صورة للملف الشخصي للمتابعة.', avatarPermissionDenied: 'لم يُسمح بالوصول إلى الصور. حاول مجددًا أو استخدم المصدر الآخر.', avatarDecodeFailed: 'تعذر فتح هذه الصورة. اختر صورة أخرى.', avatarProcessingFailed: 'تعذر تجهيز هذه الصورة. حاول مجددًا.', chooseFromPhotos: 'اختيار من الصور', takePhoto: 'التقاط صورة', returnToProfile: 'العودة إلى الخطوة 2',
-    back: 'رجوع', skip: 'تخطّي', continue: 'متابعة', done: 'تم', step: (n) => `الخطوة ${n} من 7`, profileTitle: 'اختر اسمًا مستعارًا', nickname: 'الاسم المستعار', nicknamePlaceholder: 'كيف تريد أن يعرفك الآخرون؟', languages: 'أتحدث', photoAction: 'اختر صورة', privacyTitle: 'لا يظهر إلا ما تختاره', privacyBody: 'يبقى اسمك الحقيقي وبريدك وموقعك الدقيق خاصًا.', nicknameRequired: 'أدخل اسمًا من 1 إلى 32 حرفًا.', question: (n) => `السؤال ${n} من 6`, questionNote: 'تُستخدم الإجابات لتخصيص تجربتك ويمكن تغييرها لاحقًا.', interestTitle: 'عمّ تحب التحدث؟', interestSubtitle: 'اختر من 2 إلى 5 اهتمامات لبدء محادثات مناسبة.', selected: 'المحدد', chooseMore: 'اختر اهتمامين على الأقل.', buildProfile: 'إنشاء ملفي', communicationTitle: 'ملفك الشخصي', communicationSubtitle: 'معاينة سريعة بناءً على إجاباتك.', iSpeak: 'أتحدث', reply: 'الرد', online: 'متصل', curiousAbout: 'مهتم بـ', editAnswers: 'تعديل الإجابات', micTitle: 'دع صوتك يسافر', micBody: 'يحتاج OiVox إلى الميكروفون للمقاطع والرسائل والمكالمات الصوتية.', allowMic: 'السماح بالميكروفون', notNow: 'ليس الآن', permissionGranted: 'الميكروفون جاهز', permissionSkipped: 'يمكنك تفعيله لاحقًا من الإعدادات.', cameraTitle: 'تواصل وجهًا لوجه', cameraBody: 'تُستخدم الكاميرا فقط عند بدء التحقق أو مكالمة فيديو فردية.', allowCamera: 'السماح بالكاميرا', skipForNow: 'تخطّي الآن', cameraGranted: 'الكاميرا جاهزة', cameraSkipped: 'يمكنك تفعيلها لاحقًا من الإعدادات.', verifyTitle: 'خطوة أخيرة للتحقق', verifyBody: 'اقرأ ثلاثة أرقام بصوت مرتفع. لا يرفع العرض المحلي التسجيل أو يحتفظ به.', startCheck: 'بدء التحقق', verifyPrivacy: 'لن تُضاف عينة التحقق إلى ملفك.', digitsTitle: 'انطق هذه الأرقام', digitsBody: 'تحدث بوضوح في نفس واحد.', saidAll: 'نطقت الأرقام الثلاثة', couldntHear: 'لم تسمعني؟', cancel: 'إلغاء', failedTitle: 'تعذر التحقق من هذه المحاولة', failedBody: 'لم يُرسل شيء. حاول في مكان هادئ وأبق وجهك داخل الدائرة.', tips: 'نصائح سريعة', tipItems: ['واجه الضوء', 'ثبّت الهاتف', 'انطق الأرقام الثلاثة بوضوح'], tryAgain: 'حاول مجددًا', contactSupport: 'اتصل بالدعم', creating: 'جارٍ إنشاء الحساب…', submitError: 'لم يُنشأ حسابك. تحقق من الرسالة وحاول مجددًا.', emailInUse: 'يوجد حساب بهذا البريد. ارجع إلى الخطوة الأولى أو سجّل الدخول.', returnToAccount: 'العودة للخطوة الأولى', completeKicker: 'اكتمل التسجيل', completeTitle: (name) => `أهلًا بك، ${name}`, completeBody: 'ملف OiVox جاهز. سجّل أول سبع ثوانٍ عندما تكون مستعدًا.', record7: 'سجّل 7 ثوانٍ', voiceEarthTitle: 'أرض الأصوات', recordToUnlock: 'سجّل لفتحها', voiceEarthLockedBody: 'شارك الجميع أصواتهم أولًا، وهذا ما يبقي أرض الأصوات لطيفة وحقيقية.',
+    back: 'رجوع', skip: 'تخطّي', continue: 'متابعة', done: 'تم', step: (n) => `الخطوة ${n} من 7`, profileTitle: 'اختر اسمًا مستعارًا', nickname: 'الاسم المستعار', nicknamePlaceholder: 'كيف تريد أن يعرفك الآخرون؟', languages: 'أتحدث', photoAction: 'اختر صورة', privacyTitle: 'لا يظهر إلا ما تختاره', privacyBody: 'لن يرى الآخرون سوى اسمك المستعار وبلدك ومنطقتك الزمنية.', nicknameRequired: 'أدخل اسمًا من 1 إلى 32 حرفًا.', question: (n) => `السؤال ${n} من 6`, questionNote: 'تُستخدم الإجابات لتخصيص تجربتك ويمكن تغييرها لاحقًا.', interestTitle: 'عمّ تحب التحدث؟', interestSubtitle: 'اختر من 2 إلى 5 اهتمامات لبدء محادثات مناسبة.', selected: 'المحدد', chooseMore: 'اختر اهتمامين على الأقل.', buildProfile: 'إنشاء ملفي', communicationTitle: 'ملفك الشخصي', communicationSubtitle: 'معاينة سريعة بناءً على إجاباتك.', iSpeak: 'أتحدث', reply: 'الرد', online: 'متصل', curiousAbout: 'مهتم بـ', editAnswers: 'تعديل الإجابات', micTitle: 'دع صوتك يسافر', micBody: 'يحتاج OiVox إلى الميكروفون للمقاطع والرسائل والمكالمات الصوتية.', allowMic: 'السماح بالميكروفون', notNow: 'ليس الآن', permissionGranted: 'الميكروفون جاهز', permissionSkipped: 'يمكنك تفعيله لاحقًا من الإعدادات.', cameraTitle: 'تواصل وجهًا لوجه', cameraBody: 'تُستخدم الكاميرا فقط عند بدء التحقق أو مكالمة فيديو فردية.', allowCamera: 'السماح بالكاميرا', skipForNow: 'تخطّي الآن', cameraGranted: 'الكاميرا جاهزة', cameraSkipped: 'يمكنك تفعيلها لاحقًا من الإعدادات.', verifyTitle: 'خطوة أخيرة للتحقق', verifyBody: 'اقرأ ثلاثة أرقام بصوت مرتفع. لا يرفع العرض المحلي التسجيل أو يحتفظ به.', startCheck: 'بدء التحقق', verifyPrivacy: 'لن تُضاف عينة التحقق إلى ملفك.', digitsTitle: 'انطق هذه الأرقام', digitsBody: 'تحدث بوضوح في نفس واحد.', saidAll: 'نطقت الأرقام الثلاثة', couldntHear: 'لم تسمعني؟', cancel: 'إلغاء', failedTitle: 'تعذر التحقق من هذه المحاولة', failedBody: 'لم يُرسل شيء. حاول في مكان هادئ وأبق وجهك داخل الدائرة.', tips: 'نصائح سريعة', tipItems: ['واجه الضوء', 'ثبّت الهاتف', 'انطق الأرقام الثلاثة بوضوح'], tryAgain: 'حاول مجددًا', contactSupport: 'اتصل بالدعم', creating: 'جارٍ إنشاء الحساب…', submitError: 'لم يُنشأ حسابك. تحقق من الرسالة وحاول مجددًا.', emailInUse: 'يوجد حساب بهذا البريد. ارجع إلى الخطوة الأولى أو سجّل الدخول.', returnToAccount: 'العودة للخطوة الأولى', completeKicker: 'اكتمل التسجيل', completeTitle: (name) => `أهلًا بك، ${name}`, completeBody: 'ملف OiVox جاهز. سجّل أول سبع ثوانٍ عندما تكون مستعدًا.', record7: 'سجّل 7 ثوانٍ', voiceEarthTitle: 'أرض الأصوات', recordToUnlock: 'سجّل لفتحها', voiceEarthLockedBody: 'شارك الجميع أصواتهم أولًا، وهذا ما يبقي أرض الأصوات لطيفة وحقيقية.',
   },
   he: {
     profileSubtitle: 'נדרשים תמונה וכינוי.', avatarRequired: 'יש לבחור תמונת פרופיל כדי להמשיך.', avatarCancelled: 'לא נבחרה תמונה. יש לבחור תמונת פרופיל כדי להמשיך.', avatarPermissionDenied: 'הגישה לתמונות לא אושרה. נסו שוב או בחרו מקור אחר.', avatarDecodeFailed: 'לא ניתן לפתוח את התמונה. בחרו תמונה אחרת.', avatarProcessingFailed: 'לא ניתן להכין את התמונה. נסו שוב.', chooseFromPhotos: 'בחירה מהתמונות', takePhoto: 'צילום תמונה', returnToProfile: 'חזרה לשלב 2', voiceEarthTitle: 'כדור הקולות', recordToUnlock: 'הקליטו כדי לפתוח', voiceEarthLockedBody: 'כולם כאן שיתפו קודם את קולם — כך כדור הקולות נשאר אמיתי ונעים.',
@@ -110,51 +110,74 @@ const localizedInterestLabels = {
   ko: ['음식과 요리', '여행', '영화', '음악', '사진', '스포츠', '책', '게임', '반려동물', '축제', '도시 생활', '언어'],
 }
 
+const localizedPrivacyBodies = {
+  en: 'Others only ever see your nickname, country and time zone.',
+  ar: 'لن يرى الآخرون سوى اسمك المستعار وبلدك ومنطقتك الزمنية.',
+  he: 'אחרים יראו רק את הכינוי, המדינה ואזור הזמן שלך.',
+  tr: 'Başkaları yalnızca takma adını, ülkeni ve saat dilimini görür.',
+  fr: 'Les autres ne voient que votre pseudo, votre pays et votre fuseau horaire.',
+  de: 'Andere sehen nur deinen Spitznamen, dein Land und deine Zeitzone.',
+  ja: '他の人に表示されるのは、ニックネーム、国、タイムゾーンだけです。',
+  ko: '다른 사람에게는 닉네임, 국가, 시간대만 표시됩니다.',
+}
+
 const localizedFlowExtras = {
   en: {
-    helloWorld: 'hello, world', digitWord: 'three', recording: 'REC', completeCommunity: '46 countries are listening today',
+    helloWorld: 'hello, world', digitWord: 'three', recording: 'REC', completeCommunity: '{voiceCount} voices from {countryCount} countries are ready to meet you',
     micBenefits: ['Only while you hold record', 'Never captured in the background', 'Re-record as many times as you like'],
-    cameraBenefits: ['Used only for the liveness check', 'Recording deleted right after', 'Never shown on your profile'],
+    cameraBenefits: ['Used only for the liveness check', 'No verification video is saved', 'Never shown on your profile'],
   },
   ar: {
-    helloWorld: 'مرحبًا بالعالم', digitWord: 'ثلاثة', recording: 'تسجيل', completeCommunity: 'يستمع اليوم أشخاص من 46 دولة',
+    helloWorld: 'مرحبًا بالعالم', digitWord: 'ثلاثة', recording: 'تسجيل', completeCommunity: '{voiceCount} صوتًا من {countryCount} دول جاهزة للتعرّف إليك',
     micBenefits: ['يُستخدم فقط أثناء الضغط للتسجيل', 'لا يُسجّل أبدًا في الخلفية', 'يمكنك إعادة التسجيل بلا حدود'],
-    cameraBenefits: ['تُستخدم فقط للتحقق من الحيوية', 'يُحذف التسجيل مباشرة بعد التحقق', 'لن يظهر التسجيل في ملفك'],
+    cameraBenefits: ['تُستخدم فقط للتحقق من الحيوية', 'لا يتم حفظ فيديو التحقق', 'لن يظهر شيء في ملفك'],
   },
   he: {
-    helloWorld: 'שלום, עולם', digitWord: 'שלוש', recording: 'הקלטה', completeCommunity: '46 מדינות מקשיבות היום',
+    helloWorld: 'שלום, עולם', digitWord: 'שלוש', recording: 'הקלטה', completeCommunity: '{voiceCount} קולות מ־{countryCount} מדינות מחכים להכיר אותך',
     micBenefits: ['פועל רק בזמן לחיצה על הקלטה', 'לעולם לא מקליט ברקע', 'אפשר להקליט מחדש ללא הגבלה'],
-    cameraBenefits: ['משמשת רק לבדיקת החיוּת', 'ההקלטה נמחקת מיד לאחר מכן', 'ההקלטה לא תוצג בפרופיל'],
+    cameraBenefits: ['משמשת רק לבדיקת החיוּת', 'סרטון האימות אינו נשמר', 'דבר לא יוצג בפרופיל'],
   },
   tr: {
-    helloWorld: 'merhaba, dünya', digitWord: 'üç', recording: 'KAYIT', completeCommunity: 'Bugün 46 ülke dinliyor',
+    helloWorld: 'merhaba, dünya', digitWord: 'üç', recording: 'KAYIT', completeCommunity: '{countryCount} ülkeden {voiceCount} ses seninle tanışmaya hazır',
     micBenefits: ['Yalnızca kayıt düğmesini tutarken kullanılır', 'Arka planda asla kayıt yapmaz', 'İstediğin kadar yeniden kaydedebilirsin'],
-    cameraBenefits: ['Yalnızca canlılık kontrolünde kullanılır', 'Kayıt hemen ardından silinir', 'Profilinde asla gösterilmez'],
+    cameraBenefits: ['Yalnızca canlılık kontrolünde kullanılır', 'Doğrulama videosu kaydedilmez', 'Profilinde asla gösterilmez'],
   },
   fr: {
-    helloWorld: 'bonjour, le monde', digitWord: 'trois', recording: 'REC', completeCommunity: '46 pays écoutent aujourd’hui',
+    helloWorld: 'bonjour, le monde', digitWord: 'trois', recording: 'REC', completeCommunity: '{voiceCount} voix de {countryCount} pays sont prêtes à vous rencontrer',
     micBenefits: ['Utilisé uniquement pendant l’enregistrement', 'Jamais activé en arrière-plan', 'Réenregistrez autant de fois que nécessaire'],
-    cameraBenefits: ['Utilisée uniquement pour le contrôle de présence', 'Enregistrement supprimé juste après', 'Jamais affiché sur votre profil'],
+    cameraBenefits: ['Utilisée uniquement pour le contrôle de présence', 'Aucune vidéo de vérification enregistrée', 'Jamais affichée sur votre profil'],
   },
   de: {
-    helloWorld: 'hallo, welt', digitWord: 'drei', recording: 'REC', completeCommunity: 'Heute hören 46 Länder zu',
+    helloWorld: 'hallo, welt', digitWord: 'drei', recording: 'REC', completeCommunity: '{voiceCount} Stimmen aus {countryCount} Ländern möchten dich kennenlernen',
     micBenefits: ['Nur beim Gedrückthalten der Aufnahme aktiv', 'Niemals im Hintergrund aufgezeichnet', 'Beliebig oft neu aufnehmen'],
-    cameraBenefits: ['Nur für die Echtheitsprüfung verwendet', 'Aufnahme wird direkt danach gelöscht', 'Niemals in deinem Profil sichtbar'],
+    cameraBenefits: ['Nur für die Echtheitsprüfung verwendet', 'Kein Prüfungsvideo wird gespeichert', 'Niemals in deinem Profil sichtbar'],
   },
   ja: {
-    helloWorld: 'こんにちは、世界', digitWord: 'さん', recording: '録音中', completeCommunity: '今日は46か国が聴いています',
+    helloWorld: 'こんにちは、世界', digitWord: 'さん', recording: '録音中', completeCommunity: '{countryCount}か国から{voiceCount}件の声があなたを待っています',
     micBenefits: ['録音ボタンを押している間だけ使用', 'バックグラウンドでは録音しません', '何度でも録り直せます'],
-    cameraBenefits: ['本人確認にのみ使用', '録画は確認後すぐに削除', 'プロフィールには表示されません'],
+    cameraBenefits: ['本人確認にのみ使用', '確認動画は保存されません', 'プロフィールには表示されません'],
   },
   ko: {
-    helloWorld: '안녕, 세상', digitWord: '삼', recording: '녹음', completeCommunity: '오늘 46개국이 듣고 있어요',
+    helloWorld: '안녕, 세상', digitWord: '삼', recording: '녹음', completeCommunity: '{countryCount}개국의 {voiceCount}개 목소리가 당신을 기다리고 있어요',
     micBenefits: ['녹음 버튼을 누르는 동안에만 사용', '백그라운드에서는 녹음하지 않음', '원하는 만큼 다시 녹음 가능'],
-    cameraBenefits: ['실제 사용자 확인에만 사용', '확인 직후 녹화 삭제', '프로필에는 절대 표시되지 않음'],
+    cameraBenefits: ['실제 사용자 확인에만 사용', '확인 영상은 저장하지 않음', '프로필에는 절대 표시되지 않음'],
   },
 }
 
 export function registrationContent(locale) {
   const copy = { ...en, ...localizedFlowExtras.en, ...(translations[locale] || {}), ...(localizedFlowExtras[locale] || {}) }
+  const releaseVerificationBody = {
+    en: 'Look into the camera and move naturally while reading the three numbers.',
+    ar: 'انظر إلى الكاميرا وتحرك بشكل طبيعي أثناء قراءة الأرقام الثلاثة.',
+    he: 'הביטו למצלמה וזוזו בטבעיות בזמן קריאת שלושת המספרים.',
+    tr: 'Kameraya bak ve üç sayıyı okurken doğal biçimde hareket et.',
+    fr: 'Regardez la caméra et bougez naturellement en lisant les trois chiffres.',
+    de: 'Sieh in die Kamera und bewege dich natürlich, während du die drei Zahlen liest.',
+    ja: 'カメラを見て、3つの数字を読みながら自然に動いてください。',
+    ko: '카메라를 바라보고 숫자 세 개를 읽으면서 자연스럽게 움직여 주세요.',
+  }
+  copy.verifyBody = releaseVerificationBody[locale] || releaseVerificationBody.en
+  copy.privacyBody = localizedPrivacyBodies[locale] || localizedPrivacyBodies.en
   if (localizedQuestions[locale]) copy.questions = questions.map((question, index) => ({
     ...question,
     title: localizedQuestions[locale][index],

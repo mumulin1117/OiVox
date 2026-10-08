@@ -9,9 +9,12 @@ import { EMPTY_VOICE_PLAYBACK_STATE, formatVoiceDuration, voicePlaybackProgress,
 const props = defineProps({
   voices: { type: Array, required: true },
   copy: { type: Object, required: true },
+  emptyTitle: { type: String, default: '' },
+  emptySubtitle: { type: String, default: '' },
+  getMoreLabel: { type: String, default: '' },
 })
 
-const emit = defineEmits(['close', 'open-profile'])
+const emit = defineEmits(['close', 'open-profile', 'get-more'])
 const root = ref(null)
 const earthPage = ref(null)
 const globe = ref(null)
@@ -51,16 +54,6 @@ const regionOptions = computed(() => regionDefinitions.map((region, index) => ({
   label: props.copy.voiceEarthRegions?.[index] || ['All', 'Middle East', 'Europe', 'East Asia'][index],
 })))
 
-const stagingPoints = Object.freeze([
-  { x: 19, y: 27 },
-  { x: 35, y: 22 },
-  { x: 53, y: 21 },
-  { x: 72, y: 26 },
-  { x: 72, y: 39 },
-  { x: 50, y: 44 },
-  { x: 29, y: 39 },
-])
-
 const earthPoints = Object.freeze([
   { x: 24, y: 39, depth: 'front' },
   { x: 40, y: 31, depth: 'back' },
@@ -69,11 +62,37 @@ const earthPoints = Object.freeze([
   { x: 67, y: 55, depth: 'back' },
   { x: 47, y: 60, depth: 'front' },
   { x: 30, y: 53, depth: 'front' },
+  { x: 14, y: 44, depth: 'back' },
+  { x: 86, y: 44, depth: 'front' },
+  { x: 17, y: 58, depth: 'front' },
+  { x: 83, y: 58, depth: 'back' },
+  { x: 36, y: 64, depth: 'front' },
+  { x: 62, y: 64, depth: 'front' },
+  { x: 14, y: 31, depth: 'back' },
+  { x: 86, y: 31, depth: 'front' },
+  { x: 31, y: 44, depth: 'front' },
+  { x: 50, y: 36, depth: 'back' },
+  { x: 69, y: 45, depth: 'front' },
+  { x: 40, y: 54, depth: 'front' },
+  { x: 60, y: 56, depth: 'back' },
 ])
 
-// Seven-avatar sequence totals:
-// enter: 690ms extraction + 300ms reveal + 450ms settle = 1440ms (previously 3440ms)
-// exit: 390ms lift + 260ms reveal + 394ms return = 1044ms (previously 3044ms)
+function stagingPoints() {
+  return props.voices.map((_, index) => {
+    const target = earthPoint(index)
+    const angle = (index * 137.5 - 90) * Math.PI / 180
+    const radius = 3.2 + (index % 4) * 1.15
+    return {
+      x: Math.min(91, Math.max(9, target.x + Math.cos(angle) * radius)),
+      y: Math.min(72, Math.max(27, target.y + Math.sin(angle) * radius * .72)),
+    }
+  })
+}
+
+function earthPoint(index) {
+  return earthPoints[index] || { x: 50, y: 50, depth: 'front' }
+}
+
 const voiceEarthTransitionTiming = Object.freeze({
   enter: Object.freeze({
     source: Object.freeze({ duration: 250, stagger: 50 }),
@@ -162,8 +181,8 @@ function sourcePoints() {
   return sourceTargets.map((target, index) => {
     if (target) return relativePoint(target.getBoundingClientRect())
     return {
-      x: fallback.width * (.2 + (index % 3) * .3),
-      y: fallback.height * (.26 + Math.floor(index / 3) * .2),
+      x: fallback.width * (.16 + (index % 4) * .23),
+      y: fallback.height * (.24 + (Math.floor(index / 4) % 4) * .14),
     }
   })
 }
@@ -172,7 +191,7 @@ function targetPoints() {
   const anchors = anchorNodes()
   return props.voices.map((_, index) => {
     const anchor = anchors[index]
-    return anchor ? relativePoint(anchor.getBoundingClientRect()) : percentagePoint(earthPoints[index])
+    return anchor ? relativePoint(anchor.getBoundingClientRect()) : percentagePoint(earthPoint(index))
   })
 }
 
@@ -312,7 +331,7 @@ async function enterEarth() {
   if (disposed || token !== sequenceID) return
   collectSourceTargets()
   const sources = sourcePoints()
-  const staged = stagingPoints.map(percentagePoint)
+  const staged = stagingPoints().map(percentagePoint)
   const targets = targetPoints()
 
   if (isReducedMotion()) {
@@ -359,7 +378,7 @@ async function closeEarth() {
 
   const token = ++sequenceID
   const targets = targetPoints()
-  const staged = stagingPoints.map(percentagePoint)
+  const staged = stagingPoints().map(percentagePoint)
   const sources = sourcePoints()
 
   phase.value = 'lifting'
@@ -493,7 +512,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section ref="root" class="voice-earth-transition" :class="`is-${phase}`" :aria-busy="phase !== 'earth' ? 'true' : undefined">
+  <section ref="root" class="voice-earth-transition" :class="[`is-${phase}`, { 'is-crowded': voices.length > 7, 'is-dense': voices.length > 12 }]" :aria-busy="phase !== 'earth' ? 'true' : undefined">
     <div ref="earthPage" class="voice-earth-unlocked-screen">
       <div class="voice-earth-unlocked-atmosphere voice-earth-unlocked-atmosphere-one" aria-hidden="true" />
       <div class="voice-earth-unlocked-atmosphere voice-earth-unlocked-atmosphere-two" aria-hidden="true" />
@@ -543,7 +562,7 @@ onBeforeUnmount(() => {
         v-for="(voice, index) in voices"
         :key="`anchor-${voice.id}`"
         class="voice-earth-anchor"
-        :style="{ '--voice-earth-x': `${earthPoints[index]?.x || 50}%`, '--voice-earth-y': `${earthPoints[index]?.y || 50}%` }"
+        :style="{ '--voice-earth-x': `${earthPoint(index).x}%`, '--voice-earth-y': `${earthPoint(index).y}%` }"
         :data-voice-earth-anchor="voice.id"
         aria-hidden="true"
       />
@@ -561,22 +580,25 @@ onBeforeUnmount(() => {
           @click="openSelectedProfile"
         >
           <img class="voice-earth-preview-avatar" :src="selectedVoice.avatarAsset" alt="">
-          <span class="voice-earth-preview-main">
-            <span class="voice-earth-preview-identity">
-              <strong>{{ selectedVoice.displayName }}</strong>
-              <img :src="selectedVoice.flagAsset" alt="">
-              <small>{{ selectedVoice.countryLabel || selectedVoice.countryCode }} · {{ timeZones[selectedVoice.countryCode] }}</small>
-            </span>
-            <span class="voice-earth-preview-audio">
-              <span
-                class="voice-earth-preview-wave audio-progress-wave"
-                :style="{ '--voice-progress': playbackProgress }"
-                aria-hidden="true"
-              ><i v-for="bar in 18" :key="bar" /></span>
-              <b>{{ formatVoiceDuration(playbackRemaining) }}</b>
-            </span>
-            <small v-if="playbackError" class="voice-earth-preview-error" role="alert">{{ copy.voiceUnavailable }}</small>
+          <span class="voice-earth-preview-identity">
+            <strong>{{ selectedVoice.displayName }}</strong>
+            <span><img :src="selectedVoice.flagAsset" alt="">{{ selectedVoice.countryLabel || selectedVoice.countryCode }} · {{ timeZones[selectedVoice.countryCode] }}</span>
           </span>
+        </button>
+        <button
+          class="voice-earth-preview-audio"
+          type="button"
+          :aria-label="isPlaying ? copy.pause : copy.play"
+          :aria-busy="playbackBusy"
+          :disabled="playbackBusy || phase !== 'earth'"
+          @click="toggleSelectedVoice"
+        >
+          <span
+            class="voice-earth-preview-wave audio-progress-wave"
+            :style="{ '--voice-progress': playbackProgress }"
+            aria-hidden="true"
+          ><i v-for="bar in 18" :key="bar" /></span>
+          <b>{{ formatVoiceDuration(playbackRemaining) }}</b>
         </button>
         <button
           class="voice-earth-preview-play"
@@ -585,9 +607,15 @@ onBeforeUnmount(() => {
           :disabled="playbackBusy || phase !== 'earth'"
           @click="toggleSelectedVoice"
         ><img :src="isPlaying ? pauseIcon : playIcon" alt=""></button>
+        <small v-if="playbackError" class="voice-earth-preview-error" role="alert">{{ copy.voiceUnavailable }}</small>
       </div>
 
-      <p v-else class="voice-earth-unlocked-hint">{{ copy.voiceEarthHint }}</p>
+      <p v-else-if="voices.length" class="voice-earth-unlocked-hint">{{ copy.voiceEarthHint }}</p>
+      <section v-if="phase === 'earth' && !voices.length" class="voice-earth-empty" role="status">
+        <strong>{{ emptyTitle }}</strong>
+        <span>{{ emptySubtitle }}</span>
+        <button type="button" @click="emit('get-more')">{{ getMoreLabel }}</button>
+      </section>
       <p class="voice-earth-privacy"><img :src="globeIcon" alt=""><span>{{ copy.voiceEarthPrivacy }}</span></p>
     </div>
 
@@ -596,7 +624,7 @@ onBeforeUnmount(() => {
       :key="voice.id"
       class="voice-earth-traveler"
       :class="{
-        'is-back': earthPoints[index]?.depth === 'back',
+        'is-back': earthPoint(index).depth === 'back',
         'is-selected': selectedVoiceID === voice.id,
         'is-region-muted': !isVoiceInActiveRegion(voice),
       }"

@@ -210,11 +210,13 @@ H5 不能直接调用 Apple Translation framework。翻译必须由 H5 经 Nativ
 
 接口基线：
 
-- `POST /oivox/v1/auth/register`
-- `POST /oivox/v1/auth/login`
-- `GET /oivox/v1/me/profile`
-- `PATCH /oivox/v1/me/profile`
-- `POST /oivox/v1/auth/logout`
+- `POST /oivox/v2/orbit/seed`
+- `POST /oivox/v2/orbit/enter`
+- `GET /oivox/v2/echo/self`
+- `PATCH /oivox/v2/echo/self`
+- `POST /oivox/v2/orbit/leave`
+
+HTTP 传输层使用 `src/services/oivoxSignalContract.js` 定义的 v2 signal contract。页面和业务层继续使用可读领域字段，只有网络与 Account Native Bridge 边界使用映射后的路径、请求键和响应键；不得在组件内手写或重复维护映射。
 
 关键错误码：
 

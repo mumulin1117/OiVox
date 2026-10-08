@@ -12,6 +12,16 @@ const requiredPhotoCopy = {
   ja: '写真とニックネームは必須です。',
   ko: '사진과 닉네임은 필수입니다.',
 }
+const privacyBodyCopy = {
+  en: 'Others only ever see your nickname, country and time zone.',
+  ar: 'لن يرى الآخرون سوى اسمك المستعار وبلدك ومنطقتك الزمنية.',
+  he: 'אחרים יראו רק את הכינוי, המדינה ואזור הזמן שלך.',
+  tr: 'Başkaları yalnızca takma adını, ülkeni ve saat dilimini görür.',
+  fr: 'Les autres ne voient que votre pseudo, votre pays et votre fuseau horaire.',
+  de: 'Andere sehen nur deinen Spitznamen, dein Land und deine Zeitzone.',
+  ja: '他の人に表示されるのは、ニックネーム、国、タイムゾーンだけです。',
+  ko: '다른 사람에게는 닉네임, 국가, 시간대만 표시됩니다.',
+}
 
 describe('seven-step registration copy', () => {
   it.each(locales)('provides complete onboarding content for %s', (locale) => {
@@ -21,6 +31,7 @@ describe('seven-step registration copy', () => {
     expect(copy.questions.every((question) => question.title && question.options.length === 4 && question.options.every(([, label]) => label))).toBe(true)
     expect(copy.tipItems).toHaveLength(3)
     expect(copy.profileSubtitle).toBe(requiredPhotoCopy[locale])
+    expect(copy.privacyBody).toBe(privacyBodyCopy[locale])
     expect(copy.avatarRequired).toBeTruthy()
     expect(copy.avatarCancelled).toBeTruthy()
     expect(copy.avatarPermissionDenied).toBeTruthy()

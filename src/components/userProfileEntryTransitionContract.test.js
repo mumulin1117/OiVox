@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 describe('Main Hub to own profile transition contract', () => {
   const hub = readFileSync(resolve(process.cwd(), 'src/components/MainHub.vue'), 'utf8')
   const transition = readFileSync(resolve(process.cwd(), 'src/components/UserProfileEntryTransition.vue'), 'utf8')
+  const returnTransition = readFileSync(resolve(process.cwd(), 'src/components/UserProfileReturnTransition.vue'), 'utf8')
   const social = readFileSync(resolve(process.cwd(), 'src/components/SocialModule.vue'), 'utf8')
   const css = readFileSync(resolve(process.cwd(), 'src/styles.css'), 'utf8')
 
@@ -31,7 +32,7 @@ describe('Main Hub to own profile transition contract', () => {
   })
 
   it('locks repeat interaction and safely handles reduced motion and interruption', () => {
-    expect(hub).toContain(':disabled="profileTransitionActive"')
+    expect(hub).toContain(':disabled="profileTransitionActive || Boolean(profileReturnState)"')
     expect(hub).toContain("'hub-profile-transition-active': profileTransitionActive")
     expect(transition).toContain("window.matchMedia('(prefers-reduced-motion: reduce)')")
     expect(transition).toContain("document.addEventListener('visibilitychange', handleVisibilityChange)")
@@ -39,5 +40,23 @@ describe('Main Hub to own profile transition contract', () => {
     expect(transition).toContain('cancelAnimations()')
     expect(transition).toContain('clearSourceState()')
     expect(social).toContain('profileEntryAnimation?.cancel()')
+  })
+
+  it('returns the own avatar to the Hub button and reveals the page from that landing point', () => {
+    expect(social).toContain("{ transition: 'profile-return', sourceRect: ownProfileSourceRect() }")
+    expect(hub).toContain("import UserProfileReturnTransition from './UserProfileReturnTransition.vue'")
+    expect(hub).toContain('const profileReturnState = ref(null)')
+    expect(hub).toContain('if (profileReturnState.value) return')
+    expect(hub).toContain('<UserProfileReturnTransition')
+    expect(returnTransition).toContain("document.querySelector('[data-profile-center-source]')")
+    expect(returnTransition).toContain("phase.value = 'returning-avatar'")
+    expect(returnTransition).toContain("phase.value = 'revealing-hub'")
+    expect(returnTransition).toContain('Math.hypot(')
+    expect(returnTransition).toContain('clipPath: `circle(0px at ${revealOrigin.x}px ${revealOrigin.y}px)`')
+    expect(returnTransition).toContain('duration: 320')
+    expect(returnTransition).toContain('duration: 240')
+    expect(returnTransition).not.toContain('setTimeout')
+    expect(css).toContain('.user-profile-return-transition')
+    expect(css).toContain('.hub-profile-return-active .hub-scroll')
   })
 })

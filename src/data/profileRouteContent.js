@@ -1,0 +1,13 @@
+const content = Object.freeze({
+  en: { listeners: 'Listeners', listenersHeading: '{count} people heard\nyour 7 seconds', likedClip: 'liked your clip', listenersNote: 'Listeners are shown to everyone equally — this is not a paid feature.', localListeners: 'People who heard your voice', stepOne: 'Step 1 of 2', stepTwo: 'Step 2 of 2', cancel: 'Cancel' },
+  ar: { listeners: 'المستمعون', listenersHeading: 'استمع {count} شخصًا إلى\nثوانيك السبع', likedClip: 'أعجب بالمقطع', listenersNote: 'يظهر المستمعون للجميع بالتساوي — وهذه ليست ميزة مدفوعة.', localListeners: 'من استمعوا إلى صوتك', stepOne: 'الخطوة 1 من 2', stepTwo: 'الخطوة 2 من 2', cancel: 'إلغاء' },
+  he: { listeners: 'מאזינים', listenersHeading: '{count} אנשים שמעו את\n7 השניות שלך', likedClip: 'אהב/ה את הקטע שלך', listenersNote: 'המאזינים מוצגים לכולם באופן שווה — זו אינה תכונה בתשלום.', localListeners: 'מי ששמעו את הקול שלך', stepOne: 'שלב 1 מתוך 2', stepTwo: 'שלב 2 מתוך 2', cancel: 'ביטול' },
+  tr: { listeners: 'Dinleyenler', listenersHeading: '{count} kişi 7 saniyeni\ndinledi', likedClip: 'klibini beğendi', listenersNote: 'Dinleyenler herkese eşit gösterilir — bu ücretli bir özellik değildir.', localListeners: 'Sesini dinleyenler', stepOne: 'Adım 1 / 2', stepTwo: 'Adım 2 / 2', cancel: 'İptal' },
+  fr: { listeners: 'Auditeurs', listenersHeading: '{count} personnes ont écouté\nvos 7 secondes', likedClip: 'a aimé votre extrait', listenersNote: 'Les auditeurs sont affichés de la même façon pour tous — ce service est gratuit.', localListeners: 'Personnes qui ont écouté votre voix', stepOne: 'Étape 1 sur 2', stepTwo: 'Étape 2 sur 2', cancel: 'Annuler' },
+  de: { listeners: 'Zuhörer', listenersHeading: '{count} Personen hörten\ndeine 7 Sekunden', likedClip: 'gefällt dein Clip', listenersNote: 'Zuhörer werden allen gleich angezeigt — dies ist keine kostenpflichtige Funktion.', localListeners: 'Personen, die deine Stimme gehört haben', stepOne: 'Schritt 1 von 2', stepTwo: 'Schritt 2 von 2', cancel: 'Abbrechen' },
+  ja: { listeners: 'リスナー', listenersHeading: '{count}人があなたの\n7秒ボイスを聴きました', likedClip: 'クリップにいいねしました', listenersNote: 'リスナーは全員に公平に表示されます。有料機能ではありません。', localListeners: 'あなたの声を聴いた人', stepOne: 'ステップ 1 / 2', stepTwo: 'ステップ 2 / 2', cancel: 'キャンセル' },
+  ko: { listeners: '청취자', listenersHeading: '{count}명이 나의\n7초 음성을 들었어요', likedClip: '클립을 좋아합니다', listenersNote: '청취자는 모두에게 동일하게 표시되며 유료 기능이 아닙니다.', localListeners: '내 목소리를 들은 사람', stepOne: '2단계 중 1단계', stepTwo: '2단계 중 2단계', cancel: '취소' },
+})
+
+export const profileRouteContent = (locale) => content[locale] || content.en
+export const profileRouteLocales = Object.freeze(Object.keys(content))

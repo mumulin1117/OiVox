@@ -48,6 +48,7 @@ export function installKeyboardViewport(win = window, doc = document) {
   const viewport = win.visualViewport
   let frameID = 0
   let focusFrameID = 0
+  let layoutViewportHeight = Math.max(1, win.innerHeight || root.clientHeight || viewport?.height || 1)
 
   const requestFrame = win.requestAnimationFrame?.bind(win) || ((callback) => win.setTimeout(callback, 0))
   const cancelFrame = win.cancelAnimationFrame?.bind(win) || win.clearTimeout.bind(win)
@@ -62,9 +63,15 @@ export function installKeyboardViewport(win = window, doc = document) {
   function updateViewport() {
     frameID = 0
     const { height, offsetTop } = viewportMetrics()
+    const activeElement = doc.activeElement
+    const editorFocused = isKeyboardEditable(activeElement)
+    const currentLayoutHeight = Math.max(1, win.innerHeight || root.clientHeight || height)
+    const visibleBottom = height + offsetTop
+    if (!editorFocused) layoutViewportHeight = Math.max(currentLayoutHeight, visibleBottom)
+    else layoutViewportHeight = Math.max(layoutViewportHeight, currentLayoutHeight)
     root.style.setProperty('--app-height', `${Math.round(height)}px`)
     root.style.setProperty('--viewport-offset-top', `${Math.round(offsetTop)}px`)
-    root.toggleAttribute('data-keyboard-visible', isKeyboardEditable(doc.activeElement) && height + offsetTop < win.innerHeight - 1)
+    root.toggleAttribute('data-keyboard-visible', editorFocused && visibleBottom < layoutViewportHeight - 1)
     ensureFocusedVisible()
   }
 

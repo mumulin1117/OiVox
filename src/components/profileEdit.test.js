@@ -11,14 +11,22 @@ describe('Blue Lake profile editor contract', () => {
     expect(socialModule).toContain("screen.value = 'edit-profile'")
     expect(socialModule).toContain("emit('profile-updated', user)")
     expect(component).toContain('oivoxAccountApi.updateProfile(patch)')
-    expect(component).toContain("emit('saved', updatedUser)")
+    expect(component).toContain("emit('saved', mergedUser)")
   })
 
   it('uses the existing avatar bridge with deduplication and keeps country read-only', () => {
     expect(component).toContain('nativeBridge.chooseAvatar')
     expect(component).toContain('if (avatarBusy.value || busy.value) return')
+    expect(component).toContain('class="profile-edit-camera-button"')
+    expect(component).toContain('@click="changePhoto"')
+    expect(component).toContain('@click="openFrames">{{ copy.changeFrame }}</button>')
+    expect(component).not.toContain('button class="secondary"')
+    expect(css).toContain('.profile-edit-camera-button { position: absolute; z-index: 3; inset-inline-end: -3px; bottom: -3px; width: 30px; height: 30px;')
     expect(component).not.toContain('Math.random')
     expect(component).toContain('profile-edit-readonly-row')
+    const countryRow = component.slice(component.indexOf('class="profile-edit-readonly-row country-row"'), component.indexOf('</div>', component.indexOf('class="profile-edit-readonly-row country-row"')))
+    expect(countryRow).not.toContain('profileChevronIcon')
+    expect(css).toContain('.profile-edit-readonly-row.country-row { grid-template-columns: minmax(0,1fr) auto; }')
   })
 
   it('keeps a single scroll container, safe areas, RTL mirroring, and no TabBar', () => {

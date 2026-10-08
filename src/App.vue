@@ -1,6 +1,7 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AuthScreen from './components/AuthScreen.vue'
+import FirstLaunchTransition from './components/FirstLaunchTransition.vue'
 import LanguageScreen from './components/LanguageScreen.vue'
 import MainHub from './components/MainHub.vue'
 import RegistrationFlow from './components/RegistrationFlow.vue'
@@ -9,14 +10,18 @@ import { installContentInteractionGuard } from './contentInteractionGuard'
 import { syncNativeLanguage, useI18n } from './i18n'
 import { installKeyboardViewport } from './keyboardViewport'
 import { oivoxAccountApi } from './services/oivoxAccountApi'
+import { mergeAccountUserWithLocalCache } from './services/accountUserCache'
 import { attachProfileAvatarPreview } from './services/profileAvatar'
 
 const { t } = useI18n()
 const screen = ref('welcome')
 const user = ref(null)
 const restoring = ref(true)
+const launchTransitionActive = ref(false)
 const mainHubIntroRequested = ref(false)
 const registrationDraft = ref(null)
+const authRouteDirection = ref('forward')
+const isAuthFlowScreen = computed(() => ['welcome', 'auth', 'registration'].includes(screen.value))
 let removeContentInteractionGuard = () => {}
 let removeKeyboardViewport = () => {}
 
@@ -24,11 +29,13 @@ onMounted(async () => {
   removeContentInteractionGuard = installContentInteractionGuard(document)
   removeKeyboardViewport = installKeyboardViewport(window, document)
 
-  syncNativeLanguage().catch(() => {})
+  await syncNativeLanguage().catch(() => {})
 
+  let hadSessionAtLaunch = false
   try {
-    if (await oivoxAccountApi.hasSession()) {
-      user.value = await attachProfileAvatarPreview(await oivoxAccountApi.getProfile())
+    hadSessionAtLaunch = await oivoxAccountApi.hasSession()
+    if (hadSessionAtLaunch) {
+      user.value = await attachProfileAvatarPreview(mergeAccountUserWithLocalCache(await oivoxAccountApi.getProfile()))
       mainHubIntroRequested.value = true
       screen.value = 'authenticated'
     }
@@ -36,6 +43,7 @@ onMounted(async () => {
     await oivoxAccountApi.logout().catch(() => {})
   } finally {
     restoring.value = false
+    if (!hadSessionAtLaunch) launchTransitionActive.value = true
   }
 })
 
@@ -45,43 +53,55 @@ onBeforeUnmount(() => {
 })
 
 function authenticated(profile) {
-  user.value = profile
-  attachProfileAvatarPreview(profile).then((hydrated) => {
-    if (user.value?.id === profile?.id) user.value = hydrated
+  const merged = mergeAccountUserWithLocalCache(profile)
+  user.value = merged
+  attachProfileAvatarPreview(merged).then((hydrated) => {
+    if (user.value?.id === merged?.id) user.value = hydrated
   })
   registrationDraft.value = null
+  launchTransitionActive.value = false
   mainHubIntroRequested.value = true
   screen.value = 'authenticated'
-  window.dispatchEvent(new CustomEvent('oivox:authenticated', { detail: { user: profile } }))
+  window.dispatchEvent(new CustomEvent('oivox:authenticated', { detail: { user: merged } }))
 }
 
 function beginRegistration(draft) {
+  authRouteDirection.value = 'forward'
   registrationDraft.value = draft
   screen.value = 'registration'
 }
 
 function returnToAuth(draft) {
+  authRouteDirection.value = 'back'
   registrationDraft.value = draft
   screen.value = 'auth'
 }
 
 function cancelAuth() {
+  authRouteDirection.value = 'back'
   registrationDraft.value = null
   screen.value = 'welcome'
 }
 
+function openAuth() {
+  authRouteDirection.value = 'forward'
+  screen.value = 'auth'
+}
+
 function registered(profile) {
-  user.value = profile
-  attachProfileAvatarPreview(profile).then((hydrated) => {
-    if (user.value?.id === profile?.id) user.value = hydrated
+  const merged = mergeAccountUserWithLocalCache(profile)
+  user.value = merged
+  attachProfileAvatarPreview(merged).then((hydrated) => {
+    if (user.value?.id === merged?.id) user.value = hydrated
   })
-  window.dispatchEvent(new CustomEvent('oivox:registered', { detail: { user: profile } }))
+  window.dispatchEvent(new CustomEvent('oivox:registered', { detail: { user: merged } }))
 }
 
 function profileUpdated(profile) {
-  user.value = profile
-  attachProfileAvatarPreview(profile).then((hydrated) => {
-    if (user.value?.id === profile?.id) user.value = hydrated
+  const merged = mergeAccountUserWithLocalCache(profile)
+  user.value = merged
+  attachProfileAvatarPreview(merged).then((hydrated) => {
+    if (user.value?.id === merged?.id) user.value = hydrated
   })
 }
 
@@ -89,6 +109,7 @@ async function logout() {
   await oivoxAccountApi.logout().catch(() => {})
   user.value = null
   registrationDraft.value = null
+  launchTransitionActive.value = false
   screen.value = 'welcome'
 }
 
@@ -103,21 +124,37 @@ function closeLanguage() {
 function completeMainHubIntro() {
   mainHubIntroRequested.value = false
 }
+
+function completeLaunchTransition() {
+  launchTransitionActive.value = false
+}
 </script>
 
 <template>
   <div v-if="restoring" class="app-loading" role="status" :aria-label="t('restoringSession')"><span /></div>
-  <WelcomeScreen v-else-if="screen === 'welcome'" @open-auth="screen = 'auth'" />
-  <AuthScreen v-else-if="screen === 'auth'" :initial-draft="registrationDraft" @back="cancelAuth" @authenticated="authenticated" @begin-registration="beginRegistration" />
-  <RegistrationFlow v-else-if="screen === 'registration' && registrationDraft" :draft="registrationDraft" @back-to-auth="returnToAuth" @registered="registered" @authenticated="authenticated" />
-  <LanguageScreen v-else-if="screen === 'language'" @back="closeLanguage" />
-  <MainHub
-    v-else
-    :user="user"
-    :play-intro="mainHubIntroRequested"
-    @intro-complete="completeMainHubIntro"
-    @open-language="openLanguage"
-    @profile-updated="profileUpdated"
-    @logout="logout"
-  />
+  <template v-else>
+    <Transition v-if="isAuthFlowScreen" :name="`auth-route-${authRouteDirection}`" mode="out-in">
+      <div v-if="screen === 'welcome'" key="welcome" class="auth-route-frame">
+        <WelcomeScreen
+          :inert="launchTransitionActive"
+          :aria-hidden="launchTransitionActive ? 'true' : undefined"
+          :defer-initial-eula="launchTransitionActive"
+          @open-auth="openAuth"
+        />
+        <FirstLaunchTransition v-if="launchTransitionActive" @complete="completeLaunchTransition" />
+      </div>
+      <AuthScreen v-else-if="screen === 'auth'" key="auth" :initial-draft="registrationDraft" @back="cancelAuth" @authenticated="authenticated" @begin-registration="beginRegistration" />
+      <RegistrationFlow v-else key="registration" :draft="registrationDraft" @back-to-auth="returnToAuth" @registered="registered" @authenticated="authenticated" />
+    </Transition>
+    <LanguageScreen v-else-if="screen === 'language'" @back="closeLanguage" />
+    <MainHub
+      v-else
+      :user="user"
+      :play-intro="mainHubIntroRequested"
+      @intro-complete="completeMainHubIntro"
+      @open-language="openLanguage"
+      @profile-updated="profileUpdated"
+      @logout="logout"
+    />
+  </template>
 </template>

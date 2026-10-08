@@ -1,4 +1,6 @@
-export const EULA_TERMS_VERSION = '2026-09-oivox-local-v1'
+import { LEGAL_DOCUMENT_VERSION } from '../data/legalDocuments'
+
+export const EULA_TERMS_VERSION = LEGAL_DOCUMENT_VERSION
 export const EULA_STORAGE_KEY = 'oivox.eulaConsent'
 
 export function readEulaConsent() {

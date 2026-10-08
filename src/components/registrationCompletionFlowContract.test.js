@@ -11,6 +11,13 @@ describe('registration completion recording branches', () => {
     expect(component).not.toContain("emit('open-language', completedUser)")
   })
 
+  it('renders completion community data from the shared discovery dataset', () => {
+    expect(component).toContain('discoveryDatasetSummary')
+    expect(component).toContain('lockedVoices.slice(0, 4)')
+    expect(component).toContain('{{ communitySummary }}')
+    expect(component).not.toContain("[portrait09, portrait07, portrait02, portrait04]")
+  })
+
   it('routes Skip to the page 44 Voice Earth gate with a return to registration complete', () => {
     const gate = component.slice(component.indexOf('stage === \'voiceEarthLocked\''), component.indexOf('stage === \'voiceRecord\''))
     expect(gate).toContain('voice-earth-locked-page')
@@ -27,6 +34,7 @@ describe('registration completion recording branches', () => {
 
   it('keeps publish and notification completion on the existing authenticated path', () => {
     expect(component).toContain("stage.value = 'notification'")
+    expect(component).toContain('{ accountID: completedUser.value?.id || completedUser.value?.userID }')
     expect(component).toContain("emit('authenticated', completedUser.value)")
     expect(component).toContain('finishOnboarding()')
   })

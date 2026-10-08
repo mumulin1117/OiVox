@@ -8,8 +8,14 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
         contentController.add(bridge, name: NativeBridge.handlerName)
 
         let initialLanguage = LanguagePreference.current
+        let accountAPIBaseURL = Self.accountAPIBaseURL
         let bootstrap = """
+        window.__OIVOX_NATIVE_BRIDGE__ = Object.freeze({
+          available: true,
+          protocolVersion: 1
+        });
         window.__OIVOX_NATIVE_LANGUAGE__ = \(Self.javascriptString(initialLanguage));
+        window.__OIVOX_ACCOUNT_API_URL__ = \(Self.javascriptString(accountAPIBaseURL));
         window.addEventListener('error', function (event) {
           window.webkit.messageHandlers.oivox.postMessage({
             action: 'clientLog',
@@ -147,5 +153,19 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
     private static func javascriptString(_ string: String) -> String {
         let data = try? JSONSerialization.data(withJSONObject: string, options: [.fragmentsAllowed])
         return data.flatMap { String(data: $0, encoding: .utf8) } ?? "\"en\""
+    }
+
+    private static var accountAPIBaseURL: String {
+        #if DEBUG
+        guard
+            let rawValue = Bundle.main.object(forInfoDictionaryKey: "OiVoxAccountAPIBaseURL") as? String,
+            let components = URLComponents(string: rawValue.trimmingCharacters(in: .whitespacesAndNewlines)),
+            ["http", "https"].contains(components.scheme?.lowercased() ?? ""),
+            components.host?.isEmpty == false
+        else { return "" }
+        return rawValue.trimmingCharacters(in: CharacterSet(charactersIn: "/ "))
+        #else
+        return ""
+        #endif
     }
 }

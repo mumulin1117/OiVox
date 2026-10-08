@@ -2,3 +2,4 @@
 "NSMicrophoneUsageDescription" = "يستخدم OiVox الميكروفون للتحقق ومقاطع السبع ثوانٍ والرسائل والمكالمات الصوتية.";
 "NSCameraUsageDescription" = "يستخدم OiVox الكاميرا عند التقاط صورة للملف الشخصي أو بدء التحقق أو مكالمة فيديو فردية.";
 "NSPhotoLibraryUsageDescription" = "يتيح لك OiVox اختيار صورة للملف الشخصي من مكتبتك فقط عند فتح محدد الصورة الرمزية.";
+"NSLocalNetworkUsageDescription" = "يتصل OiVox بخدمة الحساب على شبكتك المحلية أثناء التطوير والاختبار على الجهاز.";

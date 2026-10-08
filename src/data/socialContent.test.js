@@ -7,7 +7,11 @@ describe('social module localization', () => {
     for (const locale of socialLocales) {
       const content = socialContent(locale)
       expect(Object.keys(content).sort()).toEqual([...socialContentKeys].sort())
-      expect(socialContentKeys.every((key) => typeof content[key] === 'string' && content[key].length > 0)).toBe(true)
+      expect(socialContentKeys.every((key) => {
+        const value = content[key]
+        if (Array.isArray(value)) return value.length > 0 && value.every((item) => typeof item === 'string' && item.trim())
+        return typeof value === 'string' && value.trim()
+      })).toBe(true)
     }
   })
 })

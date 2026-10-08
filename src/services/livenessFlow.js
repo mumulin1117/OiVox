@@ -30,7 +30,7 @@ export function createLivenessChallenge(randomValues, previousDigits = []) {
     captureState: 'idle',
     faceState: 'unknown',
     outcome: 'pending',
-    outcomeSource: 'injected-local-fixture',
+    outcomeSource: 'native-dynamic-face',
     mediaSessionID: null,
     startedAt: new Date().toISOString(),
     submittedAt: null,
