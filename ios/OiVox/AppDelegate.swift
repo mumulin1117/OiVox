@@ -14,8 +14,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         configurationForConnecting connectingSceneSession: UISceneSession,
         options: UIScene.ConnectionOptions
     ) -> UISceneConfiguration {
-        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-        configuration.delegateClass = SceneDelegate.self
-        return configuration
+        let contourHorizon = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        contourHorizon.delegateClass = SceneDelegate.self
+        return contourHorizon
     }
 }

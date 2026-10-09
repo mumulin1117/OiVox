@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* AppDelegate.swift */; };
 		A10000000000000000000002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* SceneDelegate.swift */; };
-		A10000000000000000000003 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* WebViewController.swift */; };
-		A10000000000000000000004 /* NativeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* NativeBridge.swift */; };
+		A10000000000000000000003 /* linguisticTapestroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* linguisticTapestroller.swift */; };
+		A10000000000000000000004 /* AaveEarthZoneMingle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* AaveEarthZoneMingle.swift */; };
 		A10000000000000000000005 /* LanguagePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* LanguagePreference.swift */; };
 		A10000000000000000000006 /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* StoreService.swift */; };
 		A10000000000000000000008 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000001 /* InfoPlist.strings */; };
@@ -20,8 +20,8 @@
 /* Begin PBXFileReference section */
 		A20000000000000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		A20000000000000000000003 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
-		A20000000000000000000004 /* NativeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeBridge.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* linguisticTapestroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = linguisticTapestroller.swift; sourceTree = "<group>"; };
+		A20000000000000000000004 /* AaveEarthZoneMingle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaveEarthZoneMingle.swift; sourceTree = "<group>"; };
 		A20000000000000000000005 /* LanguagePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguagePreference.swift; sourceTree = "<group>"; };
 		A20000000000000000000006 /* StoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
 		A20000000000000000000007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -62,8 +62,8 @@
 			children = (
 				A20000000000000000000001 /* AppDelegate.swift */,
 				A20000000000000000000002 /* SceneDelegate.swift */,
-				A20000000000000000000003 /* WebViewController.swift */,
-				A20000000000000000000004 /* NativeBridge.swift */,
+				A20000000000000000000003 /* linguisticTapestroller.swift */,
+				A20000000000000000000004 /* AaveEarthZoneMingle.swift */,
 				A20000000000000000000005 /* LanguagePreference.swift */,
 				A20000000000000000000006 /* StoreService.swift */,
 				A20000000000000000000007 /* Info.plist */,
@@ -161,8 +161,8 @@
 			files = (
 				A10000000000000000000001 /* AppDelegate.swift in Sources */,
 				A10000000000000000000002 /* SceneDelegate.swift in Sources */,
-				A10000000000000000000003 /* WebViewController.swift in Sources */,
-				A10000000000000000000004 /* NativeBridge.swift in Sources */,
+				A10000000000000000000003 /* linguisticTapestroller.swift in Sources */,
+				A10000000000000000000004 /* AaveEarthZoneMingle.swift in Sources */,
 				A10000000000000000000005 /* LanguagePreference.swift in Sources */,
 				A10000000000000000000006 /* StoreService.swift in Sources */,
 			);
