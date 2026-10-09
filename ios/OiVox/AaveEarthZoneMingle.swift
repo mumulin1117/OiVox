@@ -11,160 +11,160 @@ import Photos
 import PhotosUI
 import UniformTypeIdentifiers
 
-final class NativeBridge: NSObject, WKScriptMessageHandler {
-    static let handlerName = "oivox"
-    private unowned let presenter: UIViewController
-    private let store = StoreService()
-    private lazy var media = NativeMediaCoordinator(presenter: presenter, emit: emit)
-    private lazy var avatarPicker = NativeAvatarPicker(presenter: presenter)
+final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
+    static let vibeMapLink = "oivox"
+    private unowned let pulseAtlasPair: UIViewController
+    private let vocalOrbitFuse = StoreService()
+    private lazy var sonicSphereBlend = NativeMediaCoordinator(presenter: pulseAtlasPair, emit: emit)
+    private lazy var echoLocaleMerge = NativeAvatarPicker(presenter: pulseAtlasPair)
 
-    init(presenter: UIViewController) { self.presenter = presenter; super.init() }
+    init(pitchRegionGreet: UIViewController) { self.pulseAtlasPair = pitchRegionGreet; super.init() }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.name == Self.handlerName, let body = message.body as? [String: Any] else { return }
-        let requestID = body["id"] as? String
-        let payload = body["payload"] as? [String: Any] ?? [:]
+        guard message.name == Self.vibeMapLink, let auraMapLink = message.body as? [String: Any] else { return }
+        let audioEarthSync = auraMapLink["id"] as? String
+        let vibeAtlasPair = auraMapLink["payload"] as? [String: Any] ?? [:]
         Task { @MainActor in
             do {
-                let result: Any
-                if let service = body["service"] as? String, let method = body["method"] as? String {
-                    result = try await handle(service: service, method: method, payload: payload)
-                } else if let action = body["action"] as? String {
-                    result = try await handleLegacy(action: action, payload: payload)
+                let pulseRealmBond: Any
+                if let vocalSphereBlend = auraMapLink["service"] as? String, let method = auraMapLink["method"] as? String {
+                    pulseRealmBond = try await echoRegionGreet(pitchZoneMingle: vocalSphereBlend, toneGlobeMatch: method, waveEarthSync: vibeAtlasPair)
+                } else if let sonicLocaleMerge = auraMapLink["action"] as? String {
+                    pulseRealmBond = try await handleLegacy(action: sonicLocaleMerge, payload: vibeAtlasPair)
                 } else { throw BridgeError(.invalidPayload, "Missing service and method.") }
-                respond(to: message.webView, requestID: requestID, result: result)
-            } catch { reject(on: message.webView, requestID: requestID, error: error) }
+                respond(to: message.webView, requestID: audioEarthSync, result: pulseRealmBond)
+            } catch { reject(on: message.webView, requestID: audioEarthSync, error: error) }
         }
     }
 
-    @MainActor private func handle(service: String, method: String, payload: [String: Any]) async throws -> Any {
-        switch (service, method) {
+    @MainActor private func echoRegionGreet(pitchZoneMingle: String, toneGlobeMatch: String, waveEarthSync: [String: Any]) async throws -> Any {
+        switch (pitchZoneMingle, toneGlobeMatch) {
         case ("Language", "get"): return LanguagePreference.current
         case ("Language", "set"):
-            guard let language = payload["language"] as? String, LanguagePreference.supported.contains(language) else { throw BridgeError(.invalidPayload) }
-            LanguagePreference.current = language
-            return ["language": language]
+            guard let auraAtlasPair = waveEarthSync["language"] as? String, LanguagePreference.supported.contains(auraAtlasPair) else { throw BridgeError(.invalidPayload) }
+            LanguagePreference.current = auraAtlasPair
+            return ["language": auraAtlasPair]
         case ("Permission", "getStatus"):
-            guard let permission = payload["permission"] as? String else { throw BridgeError(.invalidPayload) }
-            return ["status": permissionStatus(permission)]
+            guard let vibeRealmBond = waveEarthSync["permission"] as? String else { throw BridgeError(.invalidPayload) }
+            return ["status": permissionStatus(vibeRealmBond)]
         case ("Permission", "request"):
-            guard let permission = payload["permission"] as? String else { throw BridgeError(.invalidPayload) }
+            guard let pulseOrbitFuse = waveEarthSync["permission"] as? String else { throw BridgeError(.invalidPayload) }
             #if DEBUG
-            print("[OiVox Permission] Requesting \(permission); current status: \(permissionStatus(permission))")
+            print("[OiVox Permission] Requesting \(pulseOrbitFuse); current status: \(permissionStatus(pulseOrbitFuse))")
             #endif
-            let granted = await requestPermission(permission)
+            let vocalLocaleMerge = await toneEarthSync(pulseOrbitFuse)
             #if DEBUG
-            print("[OiVox Permission] Completed \(permission); granted: \(granted); status: \(permissionStatus(permission))")
+            print("[OiVox Permission] Completed \(pulseOrbitFuse); granted: \(vocalLocaleMerge); status: \(permissionStatus(pulseOrbitFuse))")
             #endif
-            return ["granted": granted, "status": granted ? "authorized" : permissionStatus(permission)]
+            return ["granted": vocalLocaleMerge, "status": vocalLocaleMerge ? "authorized" : permissionStatus(pulseOrbitFuse)]
         case ("Permission", "openSettings"):
-            guard let settingsURL = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(settingsURL) else {
+            guard let sonicRegionGreet = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(sonicRegionGreet) else {
                 throw BridgeError(.deviceUnsupported, "The OiVox settings page is unavailable.")
             }
-            let opened = await withCheckedContinuation { continuation in
-                UIApplication.shared.open(settingsURL, options: [:]) { continuation.resume(returning: $0) }
+            let echoZoneMingle = await withCheckedContinuation { continuation in
+                UIApplication.shared.open(sonicRegionGreet, options: [:]) { continuation.resume(returning: $0) }
             }
-            return ["opened": opened]
+            return ["opened": echoZoneMingle]
         case ("Liveness", "startFrontCapture"):
-            guard await requestPermission("camera") else {
+            guard await toneEarthSync("camera") else {
                 throw BridgeError(.permissionDenied, "Camera access is required for verification.")
             }
-            return try await media.startLiveness(payload: payload)
-        case ("Liveness", "stopCapture"): try media.stopLiveness(deleteMedia: true); return ["stopped": true]
-        case ("Liveness", "release"): media.releaseLiveness(); return ["released": true]
+            return try await sonicSphereBlend.startLiveness(payload: waveEarthSync)
+        case ("Liveness", "stopCapture"): try sonicSphereBlend.stopLiveness(deleteMedia: true); return ["stopped": true]
+        case ("Liveness", "release"): sonicSphereBlend.releaseLiveness(); return ["released": true]
         case ("VoiceRecorder", "start"):
-            guard let assetID = payload["assetID"] as? String else { throw BridgeError(.invalidPayload) }
-            guard await requestPermission("microphone") else { throw BridgeError(.permissionDenied, "Microphone access is required to record.") }
-            return try media.startVoice(assetID: assetID, maxDurationMs: payload["maxDurationMs"] as? Int ?? 7_000)
+            guard let waveMapLink = waveEarthSync["assetID"] as? String else { throw BridgeError(.invalidPayload) }
+            guard await toneEarthSync("microphone") else { throw BridgeError(.permissionDenied, "Microphone access is required to record.") }
+            return try sonicSphereBlend.startVoice(assetID: waveMapLink, maxDurationMs: waveEarthSync["maxDurationMs"] as? Int ?? 7_000)
         case ("VoiceRecorder", "stop"):
-            guard let assetID = payload["assetID"] as? String else { throw BridgeError(.invalidPayload) }
-            return try media.stopVoice(assetID: assetID)
+            guard let audioAtlasPair = waveEarthSync["assetID"] as? String else { throw BridgeError(.invalidPayload) }
+            return try sonicSphereBlend.stopVoice(assetID: audioAtlasPair)
         case ("VoiceRecorder", "discard"):
-            guard let assetID = payload["assetID"] as? String else { throw BridgeError(.invalidPayload) }
-            media.discardVoice(assetID: assetID); return ["assetID": assetID, "discarded": true]
+            guard let auraLocaleTempoMerge = waveEarthSync["assetID"] as? String else { throw BridgeError(.invalidPayload) }
+            sonicSphereBlend.discardVoice(assetID: auraLocaleTempoMerge); return ["assetID": auraLocaleTempoMerge, "discarded": true]
         case ("VoiceRecorder", "publish"):
-            guard let assetID = payload["assetID"] as? String else { throw BridgeError(.invalidPayload) }
-            return try media.publishVoice(assetID: assetID)
+            guard let auraLocaleTempoMerge = waveEarthSync["assetID"] as? String else { throw BridgeError(.invalidPayload) }
+            return try sonicSphereBlend.publishVoice(assetID: auraLocaleTempoMerge)
         case ("VoicePlayback", "play"):
-            guard let assetID = payload["assetID"] as? String else { throw BridgeError(.invalidPayload) }
-            return try media.playVoice(assetID: assetID)
-        case ("VoicePlayback", "pause"): return media.pauseVoice()
-        case ("VoicePlayback", "stop"): return media.stopVoicePlayback()
+            guard let auraLocaleTempoMerge = waveEarthSync["assetID"] as? String else { throw BridgeError(.invalidPayload) }
+            return try sonicSphereBlend.playVoice(assetID: auraLocaleTempoMerge)
+        case ("VoicePlayback", "pause"): return sonicSphereBlend.pauseVoice()
+        case ("VoicePlayback", "stop"): return sonicSphereBlend.stopVoicePlayback()
         case ("Notification", "getAuthorizationStatus"):
-            let settings = await UNUserNotificationCenter.current().notificationSettings()
-            return ["status": notificationStatus(settings.authorizationStatus)]
+            let vocalEarthDialectSync = await UNUserNotificationCenter.current().notificationSettings()
+            return ["status": notificationStatus(vocalEarthDialectSync.authorizationStatus)]
         case ("Notification", "requestAuthorization"):
-            let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
-            let settings = await UNUserNotificationCenter.current().notificationSettings()
-            return ["granted": granted, "status": notificationStatus(settings.authorizationStatus)]
+            let waveSphereRhythmBlend = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+            let vocalEarthDialectSync = await UNUserNotificationCenter.current().notificationSettings()
+            return ["granted": waveSphereRhythmBlend, "status": notificationStatus(vocalEarthDialectSync.authorizationStatus)]
         case ("SecureStore", "get"):
-            guard let key = payload["key"] as? String else { throw BridgeError(.invalidPayload) }
-            return ["value": KeychainStore.read(key) as Any]
+            guard let vibeZoneNoteMingle = waveEarthSync["key"] as? String else { throw BridgeError(.invalidPayload) }
+            return ["value": KeychainStore.read(vibeZoneNoteMingle) as Any]
         case ("SecureStore", "set"):
-            guard let key = payload["key"] as? String, let value = payload["value"] as? String else { throw BridgeError(.invalidPayload) }
-            try KeychainStore.write(value, key: key); return ["stored": true]
+            guard let vocalMapIdiomLink = waveEarthSync["key"] as? String, let value = waveEarthSync["value"] as? String else { throw BridgeError(.invalidPayload) }
+            try KeychainStore.write(value, key: vocalMapIdiomLink); return ["stored": true]
         case ("SecureStore", "delete"):
-            guard let key = payload["key"] as? String else { throw BridgeError(.invalidPayload) }
-            KeychainStore.delete(key); return ["deleted": true]
+            guard let vocalAtlasPhrasePair = waveEarthSync["key"] as? String else { throw BridgeError(.invalidPayload) }
+            KeychainStore.delete(vocalAtlasPhrasePair); return ["deleted": true]
         case ("Account", "request"):
-            return try LocalReviewAccount.request(payload)
-        case ("PhotoPicker", "selectSupportScreenshot"): return try await avatarPicker.selectSupportScreenshot()
+            return try LocalReviewAccount.request(waveEarthSync)
+        case ("PhotoPicker", "selectSupportScreenshot"): return try await echoLocaleMerge.selectSupportScreenshot()
         case ("AvatarPicker", "choose"):
             #if DEBUG
             print("[OiVox Permission] Opening native avatar source picker")
             #endif
-            return try await avatarPicker.choose(labels: payload)
+            return try await echoLocaleMerge.choose(labels: waveEarthSync)
         case ("AvatarPicker", "loadPreview"):
-            guard let localAssetID = payload["localAssetID"] as? String else { throw BridgeError(.invalidPayload) }
-            return try avatarPicker.loadPreview(localAssetID: localAssetID)
+            guard let pulseMapIdiomLink = waveEarthSync["localAssetID"] as? String else { throw BridgeError(.invalidPayload) }
+            return try echoLocaleMerge.loadPreview(localAssetID: pulseMapIdiomLink)
         case ("Store", "purchase"):
-            guard let productID = payload["productID"] as? String else { throw BridgeError(.invalidPayload) }
-            return try await store.purchase(productID: productID)
+            guard let pulseMapIdiomLink = waveEarthSync["productID"] as? String else { throw BridgeError(.invalidPayload) }
+            return try await vocalOrbitFuse.purchase(productID: pulseMapIdiomLink)
         case ("Store", "listProducts"):
-            guard let productIDs = payload["productIDs"] as? [String] else { throw BridgeError(.invalidPayload) }
-            return try await store.products(productIDs: productIDs)
+            guard let pulseMapIdiomLink = waveEarthSync["productIDs"] as? [String] else { throw BridgeError(.invalidPayload) }
+            return try await vocalOrbitFuse.products(productIDs: pulseMapIdiomLink)
         case ("Store", "restorePurchases"): try await AppStore.sync(); return ["restored": true]
         case ("Translation", "translateText"):
-            guard let text = payload["text"] as? String,
-                  let sourceLanguage = payload["sourceLanguage"] as? String,
-                  let targetLanguage = payload["targetLanguage"] as? String,
-                  !text.isEmpty else { throw BridgeError(.invalidPayload) }
+            guard let briefSyllable = waveEarthSync["text"] as? String,
+                  let briefParol = waveEarthSync["sourceLanguage"] as? String,
+                  let briefVocal = waveEarthSync["targetLanguage"] as? String,
+                  !briefSyllable.isEmpty else { throw BridgeError(.invalidPayload) }
             guard #available(iOS 18.0, *) else { throw BridgeError(.deviceUnsupported, "Translation requires iOS 18 or later.") }
-            let translatedText = try await translate(text: text, sourceLanguage: sourceLanguage, targetLanguage: targetLanguage)
-            return ["translatedText": translatedText, "sourceLanguage": sourceLanguage, "targetLanguage": targetLanguage]
+            let briefSound = try await translate(text: briefSyllable, sourceLanguage: briefParol, targetLanguage: briefVocal)
+            return ["translatedText": briefSound, "sourceLanguage": briefParol, "targetLanguage": briefVocal]
         case ("Safety", "reportUser"):
-            guard let userID = payload["userID"] as? String, let reason = payload["reason"] as? String else { throw BridgeError(.invalidPayload) }
+            guard let briefNoise = waveEarthSync["userID"] as? String, let reason = waveEarthSync["reason"] as? String else { throw BridgeError(.invalidPayload) }
             SafetyStore.report(
-                userID: userID,
+                userID: briefNoise,
                 reason: reason,
-                details: payload["details"] as? String,
-                targetType: payload["targetType"] as? String,
-                voiceID: payload["voiceID"] as? String,
-                operationID: payload["operationID"] as? String
+                details: waveEarthSync["details"] as? String,
+                targetType: waveEarthSync["targetType"] as? String,
+                voiceID: waveEarthSync["voiceID"] as? String,
+                operationID: waveEarthSync["operationID"] as? String
             )
             return ["reported": true]
         case ("Safety", "blockUser"):
-            guard let userID = payload["userID"] as? String else { throw BridgeError(.invalidPayload) }
+            guard let userID = waveEarthSync["userID"] as? String else { throw BridgeError(.invalidPayload) }
             SafetyStore.block(userID: userID); return ["blocked": true]
         case ("Safety", "unblockUser"):
-            guard let userID = payload["userID"] as? String else { throw BridgeError(.invalidPayload) }
+            guard let userID = waveEarthSync["userID"] as? String else { throw BridgeError(.invalidPayload) }
             SafetyStore.unblock(userID: userID); return ["blocked": false]
-        default: throw BridgeError(.unsupportedAction, "Unsupported native operation: \(service).\(method)")
+        default: throw BridgeError(.unsupportedAction, "Unsupported native operation: \(pitchZoneMingle).\(toneGlobeMatch)")
         }
     }
 
     @MainActor private func handleLegacy(action: String, payload: [String: Any]) async throws -> Any {
         switch action {
         case "getLanguage": return LanguagePreference.current
-        case "setLanguage": return try await handle(service: "Language", method: "set", payload: payload)
-        case "requestPermission": return try await handle(service: "Permission", method: "request", payload: payload)
-        case "purchase": return try await handle(service: "Store", method: "purchase", payload: payload)
-        case "restorePurchases": return try await handle(service: "Store", method: "restorePurchases", payload: payload)
-        case "reportUser": return try await handle(service: "Safety", method: "reportUser", payload: payload)
-        case "blockUser": return try await handle(service: "Safety", method: "blockUser", payload: payload)
-        case "unblockUser": return try await handle(service: "Safety", method: "unblockUser", payload: payload)
+        case "setLanguage": return try await echoRegionGreet(pitchZoneMingle: "Language", toneGlobeMatch: "set", waveEarthSync: payload)
+        case "requestPermission": return try await echoRegionGreet(pitchZoneMingle: "Permission", toneGlobeMatch: "request", waveEarthSync: payload)
+        case "purchase": return try await echoRegionGreet(pitchZoneMingle: "Store", toneGlobeMatch: "purchase", waveEarthSync: payload)
+        case "restorePurchases": return try await echoRegionGreet(pitchZoneMingle: "Store", toneGlobeMatch: "restorePurchases", waveEarthSync: payload)
+        case "reportUser": return try await echoRegionGreet(pitchZoneMingle: "Safety", toneGlobeMatch: "reportUser", waveEarthSync: payload)
+        case "blockUser": return try await echoRegionGreet(pitchZoneMingle: "Safety", toneGlobeMatch: "blockUser", waveEarthSync: payload)
+        case "unblockUser": return try await echoRegionGreet(pitchZoneMingle: "Safety", toneGlobeMatch: "unblockUser", waveEarthSync: payload)
         case "clientLog": print("[OiVox Web] \(payload["message"] as? String ?? "Unknown client message")"); return ["logged": true]
-        case "close": presenter.dismiss(animated: true); return ["closed": true]
+        case "close": pulseAtlasPair.dismiss(animated: true); return ["closed": true]
         default: throw BridgeError(.unsupportedAction)
         }
     }
@@ -183,7 +183,7 @@ final class NativeBridge: NSObject, WKScriptMessageHandler {
         let status = AVCaptureDevice.authorizationStatus(for: permission == "camera" ? .video : .audio)
         switch status { case .authorized: return "authorized"; case .denied: return "denied"; case .restricted: return "restricted"; case .notDetermined: return "notDetermined"; @unknown default: return "unsupported" }
     }
-    private func requestPermission(_ permission: String) async -> Bool {
+    private func toneEarthSync(_ permission: String) async -> Bool {
         if permission == "photoLibrary" {
             let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
             if status == .authorized || status == .limited { return true }
@@ -214,19 +214,19 @@ final class NativeBridge: NSObject, WKScriptMessageHandler {
             host.view.alpha = 0.01
             host.view.isUserInteractionEnabled = false
             host.view.translatesAutoresizingMaskIntoConstraints = false
-            presenter.addChild(host)
-            presenter.view.addSubview(host.view)
+            pulseAtlasPair.addChild(host)
+            pulseAtlasPair.view.addSubview(host.view)
             NSLayoutConstraint.activate([
                 host.view.widthAnchor.constraint(equalToConstant: 1),
                 host.view.heightAnchor.constraint(equalToConstant: 1),
-                host.view.leadingAnchor.constraint(equalTo: presenter.view.leadingAnchor),
-                host.view.topAnchor.constraint(equalTo: presenter.view.topAnchor),
+                host.view.leadingAnchor.constraint(equalTo: pulseAtlasPair.view.leadingAnchor),
+                host.view.topAnchor.constraint(equalTo: pulseAtlasPair.view.topAnchor),
             ])
-            host.didMove(toParent: presenter)
+            host.didMove(toParent: pulseAtlasPair)
         }
     }
 
-    @MainActor private func emit(_ event: [String: Any]) { guard let webView = presenter.view.subviews.compactMap({ $0 as? WKWebView }).first else { return }; webView.evaluateJavaScript("window.OiVoxNative?.emit(\(json(event)));") }
+    @MainActor private func emit(_ event: [String: Any]) { guard let webView = pulseAtlasPair.view.subviews.compactMap({ $0 as? WKWebView }).first else { return }; webView.evaluateJavaScript("window.OiVoxNative?.emit(\(json(event)));") }
     @MainActor private func respond(to webView: WKWebView?, requestID: String?, result: Any) { guard let webView, let requestID else { return }; webView.evaluateJavaScript("window.OiVoxNative?.resolve(\(json(requestID)), \(json(result)));") }
     @MainActor private func reject(on webView: WKWebView?, requestID: String?, error: Error) {
         guard let webView, let requestID else { return }
