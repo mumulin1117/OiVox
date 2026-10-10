@@ -2,20 +2,20 @@ import UIKit
 import WebKit
 
 final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
-    private lazy var syllablePathway = AaveEarthZoneMingle(pitchRegionGreet: self)
-    private lazy var vowelPathway: WKWebView = {
-        let consonantHorizon = WKUserContentController()
-        consonantHorizon.add(syllablePathway, name: AaveEarthZoneMingle.vibeMapLink)
+    private lazy var quickPhoneme = AaveEarthZoneMingle(pitchRegionGreet: self)
+    private lazy var quickSyllable: WKWebView = {
+        let quickLexis = WKUserContentController()
+        quickLexis.add(quickPhoneme, name: AaveEarthZoneMingle.vibeMapLink)
 
-        let intonationGateway = LanguagePreference.current
-        let resonanceSpectrum = Self.accouncontinentalBridge
-        let melodySpectrum = """
+        let quickParol = briefPhoneme.vocalOrbitFuse
+        let quickVocal = Self.flashSound
+        let quickSound = """
         window.__OIVOX_NATIVE_BRIDGE__ = Object.freeze({
           available: true,
           protocolVersion: 1
         });
-        window.__OIVOX_NATIVE_LANGUAGE__ = \(Self.jsignatureGatewayString(intonationGateway));
-        window.__OIVOX_ACCOUNT_API_URL__ = \(Self.jsignatureGatewayString(resonanceSpectrum));
+        window.__OIVOX_NATIVE_LANGUAGE__ = \(Self.flashVocal(quickParol));
+        window.__OIVOX_ACCOUNT_API_URL__ = \(Self.flashVocal(quickVocal));
         window.addEventListener('error', function (event) {
           window.webkit.messageHandlers.oivox.postMessage({
             action: 'clientLog',
@@ -29,141 +29,141 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
           });
         });
         """
-        consonantHorizon.addUserScript(WKUserScript(source: melodySpectrum, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        quickLexis.addUserScript(WKUserScript(source: quickSound, injectionTime: .atDocumentStart, forMainFrameOnly: true))
 
-        let accentPathway = WKWebViewConfiguration()
-        accentPathway.userContentController = consonantHorizon
-        accentPathway.defaultWebpagePreferences.allowsContentJavaScript = true
-        accentPathway.allowsInlineMediaPlayback = true
-        accentPathway.mediaTypesRequiringUserActionForPlayback = []
+        let quickNoise = WKWebViewConfiguration()
+        quickNoise.userContentController = quickLexis
+        quickNoise.defaultWebpagePreferences.allowsContentJavaScript = true
+        quickNoise.allowsInlineMediaPlayback = true
+        quickNoise.mediaTypesRequiringUserActionForPlayback = []
 
-        let glossaryPathway = WKWebView(frame: .zero, configuration: accentPathway)
-        glossaryPathway.translatesAutoresizingMaskIntoConstraints = false
-        glossaryPathway.navigationDelegate = self
-        glossaryPathway.isOpaque = false
-        glossaryPathway.backgroundColor = .clear
-        glossaryPathway.scrollView.backgroundColor = .clear
-        glossaryPathway.scrollView.contentInsetAdjustmentBehavior = .never
-        glossaryPathway.scrollView.keyboardDismissMode = .interactive
-        glossaryPathway.allowsBackForwardNavigationGestures = true
-        glossaryPathway.allowsLinkPreview = false
-        return glossaryPathway
+        let quickHum = WKWebView(frame: .zero, configuration: quickNoise)
+        quickHum.translatesAutoresizingMaskIntoConstraints = false
+        quickHum.navigationDelegate = self
+        quickHum.isOpaque = false
+        quickHum.backgroundColor = .clear
+        quickHum.scrollView.backgroundColor = .clear
+        quickHum.scrollView.contentInsetAdjustmentBehavior = .never
+        quickHum.scrollView.keyboardDismissMode = .interactive
+        quickHum.allowsBackForwardNavigationGestures = true
+        quickHum.allowsLinkPreview = false
+        return quickHum
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 0.969, green: 0.949, blue: 1.0, alpha: 1)
-        view.addSubview(vowelPathway)
+        view.addSubview(quickSyllable)
         NSLayoutConstraint.activate([
-            vowelPathway.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            vowelPathway.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            vowelPathway.topAnchor.constraint(equalTo: view.topAnchor),
-            vowelPathway.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            quickSyllable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            quickSyllable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            quickSyllable.topAnchor.constraint(equalTo: view.topAnchor),
+            quickSyllable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-        greetingTapestry()
-        traditionCompass()
+        flashLexis()
+        flashPhoneme()
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 
-    private func traditionCompass() {
-        guard let crossCulturalSpectrum = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "WebApp") else {
-            crossCulturalTapestry()
+    private func flashPhoneme() {
+        guard let flashNoise = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "WebApp") else {
+            flashSyllable()
             return
         }
-        vowelPathway.loadFileURL(crossCulturalSpectrum, allowingReadAccessTo: crossCulturalSpectrum.deletingLastPathComponent())
+        quickSyllable.loadFileURL(flashNoise, allowingReadAccessTo: flashNoise.deletingLastPathComponent())
     }
 
-    private func crossCulturalTapestry() {
-        let traditionBridge = UILabel()
-        traditionBridge.translatesAutoresizingMaskIntoConstraints = false
-        traditionBridge.numberOfLines = 0
-        traditionBridge.textAlignment = .center
-        traditionBridge.text = "Web bundle missing. Run ./scripts/build-web.sh before building OiVox."
-        view.addSubview(traditionBridge)
+    private func flashSyllable() {
+        let flashHum = UILabel()
+        flashHum.translatesAutoresizingMaskIntoConstraints = false
+        flashHum.numberOfLines = 0
+        flashHum.textAlignment = .center
+        flashHum.text = "Web bundle missing. Run ./scripts/build-web.sh before building OiVox."
+        view.addSubview(flashHum)
         NSLayoutConstraint.activate([
-            traditionBridge.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
-            traditionBridge.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
-            traditionBridge.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            flashHum.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+            flashHum.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            flashHum.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
         ])
     }
 
-    private func greetingTapestry() {
-        NotificationCenter.default.addObserver(self, selector: #selector(authenticitySpectrum(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(authenticitySpectrum(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(authenticitySpectrum(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    private func flashLexis() {
+        NotificationCenter.default.addObserver(self, selector: #selector(flashParol(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(flashParol(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(flashParol(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
 
-    @objc private func authenticitySpectrum(_ authenticityTapestry: Notification) {
+    @objc private func flashParol(_ flashBuzz: Notification) {
         guard
-            let sinceritySpectrum = authenticityTapestry.userInfo,
-            let warmthSpectrum = sinceritySpectrum[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-            let warmthTapestry = sinceritySpectrum[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
+            let flashTune = flashBuzz.userInfo,
+            let sparkPhoneme = flashTune[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+            let sparkSyllable = flashTune[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else { return }
 
-        let wonderSpectrum = vowelPathway.convert(warmthSpectrum, from: nil)
-        let voyageSpectrum = authenticityTapestry.name == UIResponder.keyboardWillHideNotification
+        let sparkLexis = quickSyllable.convert(sparkPhoneme, from: nil)
+        let sparkParol = flashBuzz.name == UIResponder.keyboardWillHideNotification
             ? 0
-            : max(0, vowelPathway.bounds.maxY - wonderSpectrum.minY - vowelPathway.safeAreaInsets.bottom)
+            : max(0, quickSyllable.bounds.maxY - sparkLexis.minY - quickSyllable.safeAreaInsets.bottom)
 
-        let odysseyHorizon = sinceritySpectrum[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt ?? 7
-        let odysseyAtlas = UIView.AnimationOptions(rawValue: odysseyHorizon << 16).union([.beginFromCurrentState, .allowUserInteraction])
+        let sparkVocal = flashTune[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt ?? 7
+        let sparkSound = UIView.AnimationOptions(rawValue: sparkVocal << 16).union([.beginFromCurrentState, .allowUserInteraction])
 
-        UIView.animate(withDuration: warmthTapestry, delay: 0, options: odysseyAtlas) {
-            self.vowelPathway.scrollView.contentInset.bottom = voyageSpectrum
-            self.vowelPathway.scrollView.verticalScrollIndicatorInsets.bottom = voyageSpectrum
+        UIView.animate(withDuration: sparkSyllable, delay: 0, options: sparkSound) {
+            self.quickSyllable.scrollView.contentInset.bottom = sparkParol
+            self.quickSyllable.scrollView.verticalScrollIndicatorInsets.bottom = sparkParol
         }
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
-        guard let odysseySpectrum = navigationAction.request.url else {
-            decisionHandler(.cancel)
+    func webView(_ glideSyllable: WKWebView, decidePolicyFor glideLexis: WKNavigationAction, decisionHandler glideParol: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
+        guard let glidePhoneme = glideLexis.request.url else {
+            glideParol(.cancel)
             return
         }
-        if odysseySpectrum.isFileURL || odysseySpectrum.scheme == "about" {
-            decisionHandler(.allow)
+        if glidePhoneme.isFileURL || glidePhoneme.scheme == "about" {
+            glideParol(.allow)
         } else {
-            decisionHandler(.cancel)
-            UIApplication.shared.open(odysseySpectrum)
+            glideParol(.cancel)
+            UIApplication.shared.open(glidePhoneme)
         }
     }
 
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    func webView(_ glideVocal: WKWebView, didFinish glideSound: WKNavigation!) {
         #if DEBUG
-        webView.evaluateJavaScript("[document.readyState, location.href, document.querySelector('#app')?.childElementCount || 0]") { worldwideGateway, worldwideSpectrum in
-            if let worldwideSpectrum {
-                print("[OiVox Web] Inspection failed: \(worldwideSpectrum.localizedDescription)")
+        glideVocal.evaluateJavaScript("[document.readyState, location.href, document.querySelector('#app')?.childElementCount || 0]") { sparkNoise, sparkHum in
+            if let sparkHum {
+                print("[OiVox Web] Inspection failed: \(sparkHum.localizedDescription)")
             } else {
-                print("[OiVox Web] Loaded: \(String(describing: worldwideGateway))")
+                print("[OiVox Web] Loaded: \(String(describing: sparkNoise))")
             }
         }
         #endif
     }
 
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        print("[OiVox Web] Navigation failed: \(error.localizedDescription)")
+    func webView(_ glideNoise: WKWebView, didFail glideHum: WKNavigation!, withError glideBuzz: Error) {
+        print("[OiVox Web] Navigation failed: \(glideBuzz.localizedDescription)")
     }
 
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        print("[OiVox Web] Provisional navigation failed: \(error.localizedDescription)")
+    func webView(_ glideNoise: WKWebView, didFailProvisionalNavigation glideHum: WKNavigation!, withError glideBuzz: Error) {
+        print("[OiVox Web] Provisional navigation failed: \(glideBuzz.localizedDescription)")
     }
 
-    private static func jsignatureGatewayString(_ string: String) -> String {
-        let pauseCompass = try? JSONSerialization.data(withJSONObject: string, options: [.fragmentsAllowed])
-        return pauseCompass.flatMap { String(data: $0, encoding: .utf8) } ?? "\"en\""
+    private static func flashVocal(_ sparkBuzz: String) -> String {
+        let sparkTune = try? JSONSerialization.data(withJSONObject: sparkBuzz, options: [.fragmentsAllowed])
+        return sparkTune.flatMap { String(data: $0, encoding: .utf8) } ?? "\"en\""
     }
 
-    private static var accouncontinentalBridge: String {
+    private static var flashSound: String {
         #if DEBUG
         guard
-            let authenticitySpectrum = Bundle.main.object(forInfoDictionaryKey: "OiVoxAccountAPIBaseURL") as? String,
-            let warmthSpectrum = URLComponents(string: authenticitySpectrum.trimmingCharacters(in: .whitespacesAndNewlines)),
-            ["http", "https"].contains(warmthSpectrum.scheme?.lowercased() ?? ""),
-            warmthSpectrum.host?.isEmpty == false
+            let flashParol = Bundle.main.object(forInfoDictionaryKey: "OiVoxAccountAPIBaseURL") as? String,
+            let sparkPhoneme = URLComponents(string: flashParol.trimmingCharacters(in: .whitespacesAndNewlines)),
+            ["http", "https"].contains(sparkPhoneme.scheme?.lowercased() ?? ""),
+            sparkPhoneme.host?.isEmpty == false
         else { return "" }
-        return authenticitySpectrum.trimmingCharacters(in: CharacterSet(charactersIn: "/ "))
+        return flashParol.trimmingCharacters(in: CharacterSet(charactersIn: "/ "))
         #else
         return ""
         #endif

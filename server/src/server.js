@@ -4,7 +4,10 @@ import { createOiVoxApp } from './app.js'
 import { seedTestAccount } from './testAccount.js'
 import { OIVOX_SIGNAL_CONTRACT } from '../../src/services/oivoxSignalContract.js'
 
-const host = process.env.OIVOX_SERVER_HOST || '127.0.0.1'
+// Device Debug builds reach the account service through the Mac's LAN/Bonjour
+// address. Keep the host configurable, but make the development default
+// reachable from an iPhone on the same network.
+const host = process.env.OIVOX_SERVER_HOST || '0.0.0.0'
 const port = Number(process.env.OIVOX_SERVER_PORT || 3102)
 const sessionHours = Number(process.env.OIVOX_SESSION_HOURS || 24)
 const dataFile = resolve(process.cwd(), process.env.OIVOX_DATA_FILE || './server/data/oivox-accounts.json')

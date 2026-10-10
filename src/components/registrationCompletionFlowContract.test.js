@@ -5,8 +5,10 @@ import { describe, expect, it } from 'vitest'
 describe('registration completion recording branches', () => {
   const component = readFileSync(resolve(process.cwd(), 'src/components/RegistrationFlow.vue'), 'utf8')
 
-  it('keeps the primary recording path and replaces language with Skip', () => {
+  it('keeps the primary recording path and uses the Lanhu completion actions', () => {
     expect(component).toContain("beginVoiceRecording('complete')")
+    expect(component).toContain('copy.completeTitle(nickname.trim())')
+    expect(component).toContain('<img :src="micIcon" alt="">{{ copy.record7 }}')
     expect(component).toContain('@click="skipFirstVoice">{{ copy.skip }}')
     expect(component).not.toContain("emit('open-language', completedUser)")
   })
@@ -14,7 +16,8 @@ describe('registration completion recording branches', () => {
   it('renders completion community data from the shared discovery dataset', () => {
     expect(component).toContain('discoveryDatasetSummary')
     expect(component).toContain('lockedVoices.slice(0, 4)')
-    expect(component).toContain('{{ communitySummary }}')
+    expect(component).toContain('{{ communityListeningCount }}')
+    expect(component).toContain('{{ copy.completeListeningToday }}')
     expect(component).not.toContain("[portrait09, portrait07, portrait02, portrait04]")
   })
 

@@ -219,7 +219,7 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
     try {
       if (origin && !allowedOrigins.includes(origin)) throw new ApiError(403, 'ORIGIN_NOT_ALLOWED', 'This origin is not allowed.')
       if (request.method === 'OPTIONS') {
-        response.setHeader('access-control-allow-methods', 'GET,POST,PATCH,OPTIONS')
+        response.setHeader('access-control-allow-methods', 'GET,POST,PATCH,DELETE,OPTIONS')
         response.setHeader('access-control-allow-headers', `authorization,content-type,${signalHeaders.seedRef}`)
         return send(204)
       }
@@ -300,6 +300,16 @@ export function createOiVoxApp({ store, sessionHours = 24, now = () => new Date(
           return target
         })
         return send(200, encodePublicUser(publicUser(user)))
+      }
+
+      if (request.method === 'DELETE' && path === routes.self) {
+        const current = findSession(store.data, request, now()).user
+        await store.update((data) => {
+          data.users = data.users.filter((item) => item.id !== current.id)
+          data.sessions = data.sessions.filter((item) => item.userID !== current.id)
+          data.registrationResults = data.registrationResults.filter((item) => item.userID !== current.id)
+        })
+        return send(204)
       }
 
       if (request.method === 'POST' && path === routes.leave) {

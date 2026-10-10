@@ -37,14 +37,14 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>OiVox uses the camera when you take a profile photo, start verification, or begin a one-to-one video call.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OiVox lets you choose a profile photo from your library only when you open the avatar picker.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>OiVox uses the microphone for verification, seven-second voice clips, voice messages, and calls.</string>
-	<key>OiVoxAccountAPIBaseURL</key>
-	<string>$(OIVOX_ACCOUNT_API_URL)</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>OiVox connects to the account service on your local network during development and device testing.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>OiVox uses the microphone for verification, seven-second voice clips, voice messages, and calls.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>OiVox lets you choose a profile photo from your library only when you open the avatar picker.</string>
+	<key>OiVoxAccountAPIBaseURL</key>
+	<string>$(OIVOX_ACCOUNT_API_URL)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

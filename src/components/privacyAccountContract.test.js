@@ -48,7 +48,8 @@ describe('Blue Lake privacy and account contract', () => {
     expect(component).toContain("unblockingID.value = personID")
     expect(component).toContain("emit('logout')")
     expect(component).toContain("deleteText.value.trim().toUpperCase() === copy.value.deleteWord")
-    expect(component).toContain('deleteUnavailable')
+    expect(component).toContain('oivoxAccountApi.deleteAccount()')
+    expect(component).toContain('clearAccountLocalData(props.accountId)')
   })
 
   it('opens the H5 s57 delete confirmation as a guarded bottom sheet', () => {
@@ -58,7 +59,7 @@ describe('Blue Lake privacy and account contract', () => {
     expect(component).toContain('role="dialog" aria-modal="true"')
     expect(component).toContain('autocomplete="off" autocapitalize="characters"')
     expect(component).toContain(':disabled="!deleteCanConfirm || deleteBusy"')
-    expect(component).toContain("deleteSubmissionState.value = 'unavailable'")
+    expect(component).toContain("deleteSubmissionState.value = 'error'")
     expect(component).not.toContain("open('delete')")
     expect(component).not.toContain("emit('delete")
     expect(css).toContain('background: rgba(27,28,46,.42)')

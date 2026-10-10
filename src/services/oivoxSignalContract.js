@@ -7,6 +7,7 @@ export const OIVOX_SIGNAL_CONTRACT = freeze({
     seed: '/oivox/v2/orbit/seed',
     enter: '/oivox/v2/orbit/enter',
     self: '/oivox/v2/echo/self',
+    deleteSelf: '/oivox/v2/echo/self',
     leave: '/oivox/v2/orbit/leave',
   }),
   headers: freeze({

@@ -11,7 +11,7 @@ cp server/.env.example server/.env
 node --env-file-if-exists=server/.env server/src/server.js
 ```
 
-默认地址：`http://127.0.0.1:3102`。
+默认地址：`http://0.0.0.0:3102`（本机访问可使用 `127.0.0.1`）。
 
 ```bash
 curl http://127.0.0.1:3102/oivox/v2/echo/pulse
@@ -23,6 +23,8 @@ curl http://127.0.0.1:3102/oivox/v2/echo/pulse
 
 ```bash
 OIVOX_SERVER_HOST=0.0.0.0 node --env-file-if-exists=server/.env server/src/server.js
+
+如果已经创建过 `server/.env`，请确认其中的 `OIVOX_SERVER_HOST` 也为 `0.0.0.0`；否则该文件会覆盖默认值，手机仍然无法连接。
 ```
 
 OiVox 的 Debug 配置会在 WKWebView 启动前注入账户服务器地址，当前开发机使用稳定的 Bonjour 地址：

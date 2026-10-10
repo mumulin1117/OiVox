@@ -14,6 +14,8 @@ import { legalDocuments } from '../data/legalDocuments'
 import { useI18n } from '../i18n'
 import { nativeBridge } from '../nativeBridge'
 import { createCoinWalletStore } from '../services/coinWalletStore'
+import { clearAccountLocalData } from '../services/accountDeletionStore'
+import { oivoxAccountApi } from '../services/oivoxAccountApi'
 
 const props = defineProps({
   accountId: { type: String, required: true },
@@ -47,7 +49,6 @@ const deleteBusy = ref(false)
 const deleteInput = ref(null)
 let noticeTimer = 0
 let unblockTimer = 0
-let deleteTimer = 0
 let mounted = true
 
 const preferenceKey = computed(() => `oivox.privacy.v1:${props.accountId}`)
@@ -203,10 +204,20 @@ async function attemptDelete() {
   if (deleteBusy.value || !deleteCanConfirm.value) return
   deleteBusy.value = true
   deleteSubmissionState.value = 'submitting'
-  await new Promise((resolve) => { deleteTimer = window.setTimeout(resolve, 320) })
-  if (!mounted) return
-  deleteBusy.value = false
-  deleteSubmissionState.value = 'unavailable'
+  try {
+    await oivoxAccountApi.deleteAccount()
+    if (!mounted) return
+    clearAccountLocalData(props.accountId)
+    deleteSubmissionState.value = 'deleted'
+    deleteDialogOpen.value = false
+    emit('logout')
+  } catch {
+    if (!mounted) return
+    deleteSubmissionState.value = 'error'
+    flash(copy.value.deleteError, true)
+  } finally {
+    if (mounted) deleteBusy.value = false
+  }
 }
 function handleKeydown(event) {
   if (event.key === 'Escape' && deleteDialogOpen.value) closeDeleteDialog()
@@ -223,7 +234,6 @@ onBeforeUnmount(() => {
   mounted = false
   window.clearTimeout(noticeTimer)
   window.clearTimeout(unblockTimer)
-  window.clearTimeout(deleteTimer)
   window.removeEventListener('keydown', handleKeydown)
   nativeBridge.cancelPage('privacy-notification')
 })
@@ -373,7 +383,7 @@ onBeforeUnmount(() => {
               <img v-if="deleteCanConfirm" :src="checkGreenIcon" alt="">
             </div>
             <p class="privacy-delete-note">{{ copy.coinWarning }}</p>
-            <p v-if="deleteSubmissionState === 'unavailable'" class="privacy-delete-feedback" role="alert">{{ copy.deleteUnavailable }}</p>
+            <p v-if="deleteSubmissionState === 'error'" class="privacy-delete-feedback" role="alert">{{ copy.deleteError }}</p>
             <button class="privacy-delete-confirm" type="submit" :disabled="!deleteCanConfirm || deleteBusy">
               <span v-if="deleteBusy" class="button-spinner" aria-hidden="true" />
               {{ copy.deleteConfirm }}

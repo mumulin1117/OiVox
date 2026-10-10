@@ -223,8 +223,8 @@ function profileRouteDepth(route) {
 }
 
 watch(screen, (nextScreen, previousScreen) => {
-  if (nextScreen === 'safety') safetyRouteTransitionName.value = 'ios-modal-page-present'
-  else if (previousScreen === 'safety') safetyRouteTransitionName.value = 'ios-modal-page-dismiss'
+  if (nextScreen === 'safety') safetyRouteTransitionName.value = 'ios-bottom-page-present'
+  else if (previousScreen === 'safety') safetyRouteTransitionName.value = 'ios-bottom-page-dismiss'
   else safetyRouteTransitionName.value = ''
   if (isOwnProfileFlow.value) profileRouteDirection.value = profileRouteDepth(nextScreen) < profileRouteDepth(previousScreen) ? 'back' : 'forward'
   if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
@@ -862,6 +862,7 @@ onBeforeUnmount(() => {
   <LanguageScreen v-else-if="screen === 'privacy-language'" @back="closePrivacyLanguage" />
   <ReportBlockScreen
     v-else-if="screen === 'safety' && selectedPerson"
+    :key="`report-block-${selectedPerson.id}`"
     :person="selectedPerson"
     :busy="busy"
     :error="error"

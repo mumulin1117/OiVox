@@ -94,8 +94,7 @@ const isPlaying = computed(() => playbackState.value.id === voiceClip.value?.id 
 const notificationNote = ref('')
 const voiceRecordReturnStage = ref('complete')
 const lockedVoices = Object.freeze(firstDayFreeDiscoveryIDs.slice(0, 6).map((id) => discoveryPeople[id]))
-const communitySummary = computed(() => copy.value.completeCommunity
-  .replace('{voiceCount}', new Intl.NumberFormat(locale.value).format(discoveryDatasetSummary.voiceCount))
+const communityListeningCount = computed(() => copy.value.completeListeningCount
   .replace('{countryCount}', new Intl.NumberFormat(locale.value).format(discoveryDatasetSummary.countryCount)))
 const permissionPromptOpen = computed(() => permissionPromptPermissions.value.length > 0)
 const permissionPromptBody = computed(() => {
@@ -965,10 +964,13 @@ onBeforeUnmount(() => {
     <section v-else-if="stage === 'complete'" class="flow-page complete-page">
       <div class="complete-content">
         <div class="complete-mark" aria-hidden="true"><img :src="checkLargeIcon" alt=""></div>
-        <h1>{{ copy.completeTitle(nickname) }}</h1><p>{{ copy.completeBody }}</p>
-        <div class="complete-community"><span class="avatar-stack" aria-hidden="true"><img v-for="(voice, index) in lockedVoices.slice(0, 4)" :key="voice.id" :src="voice.avatarAsset" alt="" :style="{ zIndex: 4 - index }"></span><strong>{{ communitySummary }}</strong></div>
+        <h1>{{ copy.completeTitle(nickname.trim()) }}</h1><p>{{ copy.completeBody }}</p>
+        <div class="complete-community">
+          <span class="avatar-stack" aria-hidden="true"><img v-for="(voice, index) in lockedVoices.slice(0, 4)" :key="voice.id" :src="voice.avatarAsset" alt="" :style="{ zIndex: 4 - index }"></span>
+          <span class="complete-community-copy"><strong>{{ communityListeningCount }}</strong><span>{{ copy.completeListeningToday }}</span></span>
+        </div>
       </div>
-      <footer class="flow-footer permission-actions"><button class="flow-primary" type="button" @click="beginVoiceRecording('complete')">{{ copy.record7 }}</button><button class="flow-secondary" type="button" @click="skipFirstVoice">{{ copy.skip }}</button></footer>
+      <footer class="flow-footer permission-actions"><button class="flow-primary icon-primary" type="button" @click="beginVoiceRecording('complete')"><img :src="micIcon" alt="">{{ copy.record7 }}</button><button class="flow-secondary" type="button" @click="skipFirstVoice">{{ copy.skip }}</button></footer>
     </section>
 
     <section v-else-if="stage === 'voiceEarthLocked'" class="flow-page voice-earth-locked-page">

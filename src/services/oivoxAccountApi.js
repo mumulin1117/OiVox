@@ -165,6 +165,16 @@ export const oivoxAccountApi = {
     method: 'PATCH',
     body: JSON.stringify(encodeProfilePatch(patch)),
   }, decodePublicUser),
+  async deleteAccount() {
+    const result = await request(OIVOX_SIGNAL_CONTRACT.routes.deleteSelf, { method: 'DELETE' })
+    accessToken = ''
+    nativeReviewSession = false
+    if (nativeBridge.isNative) {
+      await nativeBridge.call('SecureStore', 'delete', { key: TOKEN_KEY }).catch(() => {})
+      await nativeBridge.call('SecureStore', 'delete', { key: TRANSPORT_KEY }).catch(() => {})
+    } else sessionStorage.removeItem(TOKEN_KEY)
+    return result
+  },
   async logout() {
     try { await request(OIVOX_SIGNAL_CONTRACT.routes.leave, { method: 'POST' }) } finally {
       accessToken = ''

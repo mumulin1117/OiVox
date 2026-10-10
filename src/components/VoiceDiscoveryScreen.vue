@@ -81,8 +81,8 @@ const insufficientProductsLoading = ref(false)
 const insufficientPurchaseBusy = ref(false)
 
 watch(activePanel, (nextPanel, previousPanel) => {
-  if (nextPanel === 'report-block') panelTransitionName.value = 'ios-modal-page-present'
-  else if (previousPanel === 'report-block') panelTransitionName.value = 'ios-modal-page-dismiss'
+  if (nextPanel === 'report-block') panelTransitionName.value = 'ios-bottom-page-present'
+  else if (previousPanel === 'report-block') panelTransitionName.value = 'ios-bottom-page-dismiss'
   else panelTransitionName.value = 'social-route-none'
 }, { flush: 'sync' })
 const insufficientPurchaseMessage = ref('')
@@ -867,7 +867,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Transition :name="panelTransitionName">
-  <ReportBlockScreen v-if="activePanel === 'report-block'" :person="currentProfile" :busy="reportBusy" :error="reportError" source="voice" @close="closeReport" @submit="submitReport" />
+  <ReportBlockScreen v-if="activePanel === 'report-block'" :key="`report-block-${currentProfile.id}`" :person="currentProfile" :busy="reportBusy" :error="reportError" source="voice" @close="closeReport" @submit="submitReport" />
   <TranslationHistoryScreen v-else-if="activePanel === 'history'" :account-id="accountId" :coin-balance="walletBalance" @back="closePanel" />
   <CoinStoreScreen v-else-if="activePanel === 'coin-store'" :account-id="accountId" :initial-balance="walletBalance" @back="closeCoinStore" @balance-changed="updateWalletBalance" @purchase-complete="handleCoinPurchaseComplete" />
 

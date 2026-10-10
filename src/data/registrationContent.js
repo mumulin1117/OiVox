@@ -26,7 +26,7 @@ const en = {
   digitsTitle: 'Stay in the frame', digitsBody: 'Move naturally while reading the numbers. Only live face movement is checked.', saidAll: 'I said all three', couldntHear: 'Couldn’t hear me?', cancel: 'Cancel',
   failedTitle: 'Check failed', failedBody: 'We could not detect one naturally moving face clearly.', tips: 'QUICK TIPS', tipItems: ['Face the light', 'Keep one face in the circle', 'Move naturally or change your expression'], tryAgain: 'Try again', contactSupport: 'Contact support',
   creating: 'Creating your account…', submitError: 'Your account was not created. Check the message and try again.', emailInUse: 'That email already has an account. Return to Step 1 or log in.', returnToAccount: 'Return to Step 1',
-  completeKicker: 'REGISTRATION COMPLETE', completeTitle: (name) => `You’re in, ${name}`, completeBody: 'One 7-second clip unlocks the voice globe.', record7: 'Record my 7 seconds', voiceEarthTitle: 'Voice Earth', recordToUnlock: 'Record to unlock', voiceEarthLockedBody: 'Everyone here shared their voice first — that keeps Voice Earth kind and real.',
+  completeKicker: 'REGISTRATION COMPLETE', completeTitle: (name) => `You're in, ${name}`, completeBody: 'One 7-second clip unlocks the voice globe.', record7: 'Record my 7 seconds', voiceEarthTitle: 'Voice Earth', recordToUnlock: 'Record to unlock', voiceEarthLockedBody: 'Everyone here shared their voice first — that keeps Voice Earth kind and real.',
   questions,
 }
 
@@ -123,42 +123,42 @@ const localizedPrivacyBodies = {
 
 const localizedFlowExtras = {
   en: {
-    helloWorld: 'hello, world', digitWord: 'three', recording: 'REC', completeCommunity: '{voiceCount} voices from {countryCount} countries are ready to meet you',
+    helloWorld: 'hello, world', digitWord: 'three', recording: 'REC', completeCommunity: '{voiceCount} voices from {countryCount} countries are ready to meet you', completeListeningCount: '{countryCount} countries are listening', completeListeningToday: 'today',
     micBenefits: ['Only while you hold record', 'Never captured in the background', 'Re-record as many times as you like'],
     cameraBenefits: ['Used only for the liveness check', 'No verification video is saved', 'Never shown on your profile'],
   },
   ar: {
-    helloWorld: 'مرحبًا بالعالم', digitWord: 'ثلاثة', recording: 'تسجيل', completeCommunity: '{voiceCount} صوتًا من {countryCount} دول جاهزة للتعرّف إليك',
+    helloWorld: 'مرحبًا بالعالم', digitWord: 'ثلاثة', recording: 'تسجيل', completeCommunity: '{voiceCount} صوتًا من {countryCount} دول جاهزة للتعرّف إليك', completeListeningCount: 'تستمع {countryCount} دولة', completeListeningToday: 'اليوم',
     micBenefits: ['يُستخدم فقط أثناء الضغط للتسجيل', 'لا يُسجّل أبدًا في الخلفية', 'يمكنك إعادة التسجيل بلا حدود'],
     cameraBenefits: ['تُستخدم فقط للتحقق من الحيوية', 'لا يتم حفظ فيديو التحقق', 'لن يظهر شيء في ملفك'],
   },
   he: {
-    helloWorld: 'שלום, עולם', digitWord: 'שלוש', recording: 'הקלטה', completeCommunity: '{voiceCount} קולות מ־{countryCount} מדינות מחכים להכיר אותך',
+    helloWorld: 'שלום, עולם', digitWord: 'שלוש', recording: 'הקלטה', completeCommunity: '{voiceCount} קולות מ־{countryCount} מדינות מחכים להכיר אותך', completeListeningCount: '{countryCount} מדינות מאזינות', completeListeningToday: 'היום',
     micBenefits: ['פועל רק בזמן לחיצה על הקלטה', 'לעולם לא מקליט ברקע', 'אפשר להקליט מחדש ללא הגבלה'],
     cameraBenefits: ['משמשת רק לבדיקת החיוּת', 'סרטון האימות אינו נשמר', 'דבר לא יוצג בפרופיל'],
   },
   tr: {
-    helloWorld: 'merhaba, dünya', digitWord: 'üç', recording: 'KAYIT', completeCommunity: '{countryCount} ülkeden {voiceCount} ses seninle tanışmaya hazır',
+    helloWorld: 'merhaba, dünya', digitWord: 'üç', recording: 'KAYIT', completeCommunity: '{countryCount} ülkeden {voiceCount} ses seninle tanışmaya hazır', completeListeningCount: '{countryCount} ülke dinliyor', completeListeningToday: 'bugün',
     micBenefits: ['Yalnızca kayıt düğmesini tutarken kullanılır', 'Arka planda asla kayıt yapmaz', 'İstediğin kadar yeniden kaydedebilirsin'],
     cameraBenefits: ['Yalnızca canlılık kontrolünde kullanılır', 'Doğrulama videosu kaydedilmez', 'Profilinde asla gösterilmez'],
   },
   fr: {
-    helloWorld: 'bonjour, le monde', digitWord: 'trois', recording: 'REC', completeCommunity: '{voiceCount} voix de {countryCount} pays sont prêtes à vous rencontrer',
+    helloWorld: 'bonjour, le monde', digitWord: 'trois', recording: 'REC', completeCommunity: '{voiceCount} voix de {countryCount} pays sont prêtes à vous rencontrer', completeListeningCount: '{countryCount} pays écoutent', completeListeningToday: 'aujourd’hui',
     micBenefits: ['Utilisé uniquement pendant l’enregistrement', 'Jamais activé en arrière-plan', 'Réenregistrez autant de fois que nécessaire'],
     cameraBenefits: ['Utilisée uniquement pour le contrôle de présence', 'Aucune vidéo de vérification enregistrée', 'Jamais affichée sur votre profil'],
   },
   de: {
-    helloWorld: 'hallo, welt', digitWord: 'drei', recording: 'REC', completeCommunity: '{voiceCount} Stimmen aus {countryCount} Ländern möchten dich kennenlernen',
+    helloWorld: 'hallo, welt', digitWord: 'drei', recording: 'REC', completeCommunity: '{voiceCount} Stimmen aus {countryCount} Ländern möchten dich kennenlernen', completeListeningCount: '{countryCount} Länder hören zu', completeListeningToday: 'heute',
     micBenefits: ['Nur beim Gedrückthalten der Aufnahme aktiv', 'Niemals im Hintergrund aufgezeichnet', 'Beliebig oft neu aufnehmen'],
     cameraBenefits: ['Nur für die Echtheitsprüfung verwendet', 'Kein Prüfungsvideo wird gespeichert', 'Niemals in deinem Profil sichtbar'],
   },
   ja: {
-    helloWorld: 'こんにちは、世界', digitWord: 'さん', recording: '録音中', completeCommunity: '{countryCount}か国から{voiceCount}件の声があなたを待っています',
+    helloWorld: 'こんにちは、世界', digitWord: 'さん', recording: '録音中', completeCommunity: '{countryCount}か国から{voiceCount}件の声があなたを待っています', completeListeningCount: '{countryCount}か国が聴いています', completeListeningToday: '今日',
     micBenefits: ['録音ボタンを押している間だけ使用', 'バックグラウンドでは録音しません', '何度でも録り直せます'],
     cameraBenefits: ['本人確認にのみ使用', '確認動画は保存されません', 'プロフィールには表示されません'],
   },
   ko: {
-    helloWorld: '안녕, 세상', digitWord: '삼', recording: '녹음', completeCommunity: '{countryCount}개국의 {voiceCount}개 목소리가 당신을 기다리고 있어요',
+    helloWorld: '안녕, 세상', digitWord: '삼', recording: '녹음', completeCommunity: '{countryCount}개국의 {voiceCount}개 목소리가 당신을 기다리고 있어요', completeListeningCount: '{countryCount}개국이 듣고 있어요', completeListeningToday: '오늘',
     micBenefits: ['녹음 버튼을 누르는 동안에만 사용', '백그라운드에서는 녹음하지 않음', '원하는 만큼 다시 녹음 가능'],
     cameraBenefits: ['실제 사용자 확인에만 사용', '확인 영상은 저장하지 않음', '프로필에는 절대 표시되지 않음'],
   },
