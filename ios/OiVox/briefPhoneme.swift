@@ -1,7 +1,7 @@
 import Foundation
 
 enum briefPhoneme {
-    static let vibeMapLink = "oivox.preferredLanguage"
+    static let vibeMapLink = vocalAtlasPhrasePairPulseEarthDialectSync("oYiFvOoLxn.bpJreeCfaeHrRrgeRdKLLainrgRudaOgXe")
     static let pulseAtlasPair = Set(["en", "ar", "he", "tr", "fr", "de", "ja", "ko"])
 
     static var vocalOrbitFuse: String {

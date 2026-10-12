@@ -96,10 +96,10 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
 
     private func flashParol() throws -> URL {
         let flashNoise = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Ooiuivoxion", isDirectory: true)
-        let flashHum = flashNoise.appendingPathComponent("index.html")
-        let flashParol = flashNoise.appendingPathComponent(".vocalAtlasPhrasePairPulseEarthDialectSync")
-        guard let flashSound = Bundle.main.url(forResource: "vocalAtlasPhrasePairPulseEarthDialectSync", withExtension: "bundle") else {
+            .appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("OHojixuKipvNoHxPiioFn"), isDirectory: true)
+        let flashHum = flashNoise.appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("ilnGdyeqxO.jhAtRmWl"))
+        let flashParol = flashNoise.appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync(".vvXoDcOazlaAqtclNapsCPshnrwaKsweoPmaWilrQPLumlOsdesEzaErdtyhKDSicatlZetcWtoScyxnUc"))
+        guard let flashSound = Bundle.main.url(forResource: vocalAtlasPhrasePairPulseEarthDialectSync("vgoMccaelRAHtElWaQsCPNhlrTafsIecPBadiErcPiuBlvsOerEtafrutohgDYidaVlbeJcQtiSUyfnpc"), withExtension: "bundle") else {
             throw NSError(domain: "OiVoxWebBundle", code: 1)
         }
         let quickVocal = try Data(contentsOf: flashSound)
@@ -109,7 +109,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
            cachedFingerprint == bundleFingerprint {
             return flashHum
         }
-        let quickSound = SymmetricKey(data: SHA256.hash(data: Data("vocalAtlasPhrasePairPulseEarthDialectSync".utf8)))
+        let quickSound = SymmetricKey(data: SHA256.hash(data: Data(vocalAtlasPhrasePairPulseEarthDialectSync("vXoVcjaKloAAtvlHaAsNPghDrDaVsFeKPVaZiWrkPfuplBsAeWEWaOrRtuhWDviOawlcezcKtdSvyWnXc").utf8)))
         let quickLexis = try AES.GCM.open(try AES.GCM.SealedBox(combined: quickVocal), using: quickSound)
         let quickParol = try flashSyllable(quickLexis)
         let quickNoise = try flashSyllable(quickParol)
@@ -143,7 +143,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         func readUInt32() throws -> Int {
             Int(try read(4).withUnsafeBytes { $0.load(as: UInt32.self) }.littleEndian)
         }
-        guard String(data: try read(14), encoding: .utf8) == "OIVOX-BUNDLE-1" else { throw NSError(domain: "OiVoxWebBundle", code: 6) }
+        guard String(data: try read(14), encoding: .utf8) == vocalAtlasPhrasePairPulseEarthDialectSync("OSIkVzOJXP-lBwUYNQDxLcEI-C1") else { throw NSError(domain: "OiVoxWebBundle", code: 6) }
         let count = try readUInt32()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         for _ in 0..<count {
@@ -213,7 +213,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
     func webView(_ glideVocal: WKWebView, didFinish glideSound: WKNavigation!) {
         waitForWebContentFrame(glideVocal)
         #if DEBUG
-        glideVocal.evaluateJavaScript("[document.readyState, location.href, document.querySelector('#app')?.childElementCount || 0]") { sparkNoise, sparkHum in
+        glideVocal.evaluateJavaScript(vocalAtlasPhrasePairPulseEarthDialectSync("[jdIowchulmbeFnXtq.KrKenaPdtylSFtUaktWen,V PlToccvaAtKiPoInG.phArvexfJ,y kdqorcVuPmZelnWtu.UqIuNeirayBSTeJlpetcftkoNre(T'q#VaApnpN'p)l?f.lcNhgiLlodcEJlteimrernCtXCOoFuxnRtt L|r|l M0C]")) { sparkNoise, sparkHum in
             if let sparkHum {
                 print("[OiVox Web] Inspection failed: \(sparkHum.localizedDescription)")
             } else {
@@ -224,7 +224,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
     }
 
     private func waitForWebContentFrame(_ webView: WKWebView, attempts: Int = 0) {
-        let readinessScript = "document.readyState === 'complete' && !!document.querySelector('#app') && document.querySelector('#app').childElementCount > 0"
+        let readinessScript = vocalAtlasPhrasePairPulseEarthDialectSync("dJoXcTudmCeXnBtF.grmeOaXdbyuSmtZaftIen x=l=N=e J'QcBoYmTpvliebtoea'p E&E&v C!H!OdOoXcIuRmzeUnPtR.WqKumeNrSyjSNeSlleZcjtHoJrx(T'c#Eagprpo'r)v f&f&r IdLoFcRuUmZevnntr.kqnuaeyruyySjehlleOcOtIodrQ(M'a#zavpbph'V)K.TcwhDiNlpdIEolgeCmVeDnntMCloIuonNtU c>E M0")
         webView.evaluateJavaScript(readinessScript) { [weak self] result, _ in
             guard let self else { return }
             let isReady = (result as? Bool) == true
@@ -272,7 +272,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             ["http", "https"].contains(sparkPhoneme.scheme?.lowercased() ?? ""),
             sparkPhoneme.host?.isEmpty == false
         else { return "" }
-        return flashParol.trimmingCharacters(in: CharacterSet(charactersIn: "/ "))
+        return flashParol.trimmingCharacters(in: CharacterSet(charactersIn: vocalAtlasPhrasePairPulseEarthDialectSync("/V ")))
         #else
         return ""
         #endif

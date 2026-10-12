@@ -16,6 +16,18 @@
 		A10000000000000000000008 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000001 /* InfoPlist.strings */; };
 		A10000000000000000000009 /* vocalAtlasPhrasePairPulseEarthDialectSync.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* vocalAtlasPhrasePairPulseEarthDialectSync.bundle */; };
 		A1000000000000000000000A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* Assets.xcassets */; };
+		B10000000000000000000001 /* BilingualstressTempo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* BilingualstressTempo.swift */; };
+		B10000000000000000000002 /* SmoothLightForestRaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* SmoothLightForestRaster.swift */; };
+		B10000000000000000000003 /* NuancedFlacEfficiency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* NuancedFlacEfficiency.swift */; };
+		B10000000000000000000004 /* AiryVowelOnset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* AiryVowelOnset.swift */; };
+		B10000000000000000000005 /* OarrowSyllableInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* OarrowSyllableInterval.swift */; };
+		B10000000000000000000006 /* TokyoSyllable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000006 /* TokyoSyllable.swift */; };
+		B10000000000000000000007 /* KhonologyOscillation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000007 /* KhonologyOscillation.swift */; };
+		B10000000000000000000008 /* audioZoneNoteMingle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000008 /* audioZoneNoteMingle.swift */; };
+		B10000000000000000000009 /* pitchRealmSyntaxBond.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000009 /* pitchRealmSyntaxBond.swift */; };
+		B1000000000000000000000A /* UstainedGutturalWavelength.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000A /* UstainedGutturalWavelength.swift */; };
+		B1000000000000000000000B /* toneSphereRhythmBlend.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000B /* toneSphereRhythmBlend.swift */; };
+		B1000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift */; };
 		F5E93364307A43A100E07169 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F5E93363307A43A100E07169 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +50,18 @@
 		A21000000000000000000006 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A21000000000000000000007 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A21000000000000000000008 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B20000000000000000000001 /* BilingualstressTempo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilingualstressTempo.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* SmoothLightForestRaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothLightForestRaster.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* NuancedFlacEfficiency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NuancedFlacEfficiency.swift; sourceTree = "<group>"; };
+		B20000000000000000000004 /* AiryVowelOnset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiryVowelOnset.swift; sourceTree = "<group>"; };
+		B20000000000000000000005 /* OarrowSyllableInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OarrowSyllableInterval.swift; sourceTree = "<group>"; };
+		B20000000000000000000006 /* TokyoSyllable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokyoSyllable.swift; sourceTree = "<group>"; };
+		B20000000000000000000007 /* KhonologyOscillation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KhonologyOscillation.swift; sourceTree = "<group>"; };
+		B20000000000000000000008 /* audioZoneNoteMingle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = audioZoneNoteMingle.swift; sourceTree = "<group>"; };
+		B20000000000000000000009 /* pitchRealmSyntaxBond.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pitchRealmSyntaxBond.swift; sourceTree = "<group>"; };
+		B2000000000000000000000A /* UstainedGutturalWavelength.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UstainedGutturalWavelength.swift; sourceTree = "<group>"; };
+		B2000000000000000000000B /* toneSphereRhythmBlend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = toneSphereRhythmBlend.swift; sourceTree = "<group>"; };
+		B2000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = vocalAtlasPhrasePairPulseEarthDialectSync.swift; sourceTree = "<group>"; };
 		F5E93363307A43A100E07169 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -69,6 +93,18 @@
 				A20000000000000000000004 /* AaveEarthZoneMingle.swift */,
 				A20000000000000000000005 /* briefPhoneme.swift */,
 				A20000000000000000000006 /* OivoxStoPashion.swift */,
+				B20000000000000000000001 /* BilingualstressTempo.swift */,
+				B20000000000000000000002 /* SmoothLightForestRaster.swift */,
+				B20000000000000000000003 /* NuancedFlacEfficiency.swift */,
+				B20000000000000000000004 /* AiryVowelOnset.swift */,
+				B20000000000000000000005 /* OarrowSyllableInterval.swift */,
+				B20000000000000000000006 /* TokyoSyllable.swift */,
+				B20000000000000000000007 /* KhonologyOscillation.swift */,
+				B20000000000000000000008 /* audioZoneNoteMingle.swift */,
+				B20000000000000000000009 /* pitchRealmSyntaxBond.swift */,
+				B2000000000000000000000A /* UstainedGutturalWavelength.swift */,
+				B2000000000000000000000B /* toneSphereRhythmBlend.swift */,
+				B2000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift */,
 				A20000000000000000000007 /* Info.plist */,
 				A20000000000000000000008 /* Assets.xcassets */,
 				A50000000000000000000001 /* InfoPlist.strings */,
@@ -171,6 +207,18 @@
 				A10000000000000000000004 /* AaveEarthZoneMingle.swift in Sources */,
 				A10000000000000000000005 /* briefPhoneme.swift in Sources */,
 				A10000000000000000000006 /* OivoxStoPashion.swift in Sources */,
+				B10000000000000000000001 /* BilingualstressTempo.swift in Sources */,
+				B10000000000000000000002 /* SmoothLightForestRaster.swift in Sources */,
+				B10000000000000000000003 /* NuancedFlacEfficiency.swift in Sources */,
+				B10000000000000000000004 /* AiryVowelOnset.swift in Sources */,
+				B10000000000000000000005 /* OarrowSyllableInterval.swift in Sources */,
+				B10000000000000000000006 /* TokyoSyllable.swift in Sources */,
+				B10000000000000000000007 /* KhonologyOscillation.swift in Sources */,
+				B10000000000000000000008 /* audioZoneNoteMingle.swift in Sources */,
+				B10000000000000000000009 /* pitchRealmSyntaxBond.swift in Sources */,
+				B1000000000000000000000A /* UstainedGutturalWavelength.swift in Sources */,
+				B1000000000000000000000B /* toneSphereRhythmBlend.swift in Sources */,
+				B1000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
