@@ -44,4 +44,18 @@ describe('my profile HTML route contract', () => {
     expect(styles).toContain('.profile-voice-record')
     expect(styles).toContain('@media (max-height: 700px)')
   })
+
+  it('keeps the outgoing public-profile request state as one full-width waiting action', () => {
+    expect(socialSource).toContain('class="public-profile-waiting"')
+    expect(socialSource).not.toContain('class="public-profile-cancel"')
+    expect(styles).toContain('.public-profile-actions.state-pending_out { grid-template-columns: minmax(0,1fr); }')
+    expect(styles).toContain('.public-profile-waiting { width: 100%;')
+  })
+
+  it('keeps the public-profile Send request artwork at the full design width', () => {
+    expect(socialSource).toContain('profileSendRequestImage')
+    expect(styles).toContain('.public-profile-actions .public-profile-send-request img { width: 100%; height: 48px; display: block; object-fit: fill; }')
+    expect(styles).toContain('.public-profile-actions { position: sticky;')
+    expect(styles).toContain('padding: 16px 20px env(safe-area-inset-bottom); background: transparent;')
+  })
 })

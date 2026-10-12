@@ -50,6 +50,7 @@ describe('coin store contract', () => {
     expect(component).not.toContain('.filter((item) => featuredCoinAmounts.has(item.coins))')
     expect(component).toContain('role="radiogroup"')
     expect(component).toContain('coin-store-uses')
+    expect(component).toContain('<b dir="ltr">50 / 5</b>')
     expect(component).toContain('@click="buy(selectedProduct)"')
   })
 })

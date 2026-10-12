@@ -133,11 +133,6 @@ const dailyVoiceIDs = computed(() => discoverySnapshot.value.allocatedUserIDs.fi
 const dailyVoices = computed(() => dailyVoiceIDs.value.map((id) => discoveryPeople[id]).filter(Boolean))
 const earthVoices = computed(() => discoverySnapshot.value.earthUserIDs.map((id) => discoveryPeople[id]).filter(Boolean))
 const voiceEarthUnlocked = ref(isVoiceEarthUnlocked({ accountID, user: props.user }))
-const recommendationStatus = computed(() => {
-  const count = discoverySnapshot.value.remainingCount
-  if (discoverySnapshot.value.bonusRemainingCount > 0) return cardPackCopy.value.extraRemaining.replace('{count}', count)
-  return cardPackCopy.value.freeRemaining.replace('{count}', count)
-})
 const heroPrimaryVoice = computed(() => dailyVoices.value[0])
 const heroSecondaryVoice = computed(() => dailyVoices.value[1])
 const featuredVoice = computed(() => dailyVoices.value[2])
@@ -541,7 +536,7 @@ onMounted(() => {
 
       <section class="hub-new-voices" aria-labelledby="new-voices-title">
         <div class="hub-section-heading">
-          <h2 id="new-voices-title">{{ copy.newVoices }}<small>{{ recommendationStatus }}</small></h2>
+          <h2 id="new-voices-title">{{ copy.newVoices }}</h2>
           <button ref="seeAllButton" class="hub-see-all-button" type="button" :disabled="voiceEarthActive" @click="openVoiceEarth">
             {{ copy.seeAll }}
             <img :src="chevronRightIcon" alt="">

@@ -141,7 +141,16 @@ export const nativeBridge = {
   call: callNative,
   getLanguage: (options) => callNative('Language', 'get', {}, options),
   setLanguage: (language) => callNative('Language', 'set', { language }),
-  requestPermission: (permission, options) => callNative('Permission', 'request', { permission }, options),
+  // System permission sheets can keep the WebView suspended while the user
+  // decides. Keep this request alive longer than the general bridge timeout so
+  // the chat composer does not surface a timeout (or leave the page in a
+  // broken state) when the microphone prompt is shown for the first time.
+  requestPermission: (permission, options = {}) => callNative(
+    'Permission',
+    'request',
+    { permission },
+    { ...options, timeout: options.timeout ?? 60_000 },
+  ),
   getPermissionStatus: (permission, options) => callNative('Permission', 'getStatus', { permission }, options),
   openAppSettings: (options) => callNative('Permission', 'openSettings', {}, options),
   startLiveness: (payload, options) => callNative('Liveness', 'startFrontCapture', payload, options),

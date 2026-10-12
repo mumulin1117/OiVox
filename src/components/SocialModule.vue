@@ -9,6 +9,7 @@ import sparkleIcon from '../assets/icons/discovery-sparkle.svg'
 import waitingIcon from '../assets/icons/discovery-history.svg'
 import messageIcon from '../assets/icons/hub-chat.svg'
 import videoCallIcon from '../assets/icons/video-call.svg'
+import videoReportIcon from '../assets/icons/video-report.svg'
 import pauseIcon from '../assets/icons/hub-pause.svg'
 import playIcon from '../assets/icons/hub-play.svg'
 import profileChevronIcon from '../assets/icons/profile-chevron.svg'
@@ -34,6 +35,7 @@ import callMuteImage from '../assets/slices/call-mute@2x.png'
 import callEndImage from '../assets/slices/call-end@2x.png'
 import callTopicsImage from '../assets/slices/call-ai-topics@2x.png'
 import callTopicStripImage from '../assets/slices/call-topic-strip@2x.png'
+import profileSendRequestImage from '../assets/slices/profile-send-request@2x.png'
 import { discoveryFlagAssets, discoveryPeople } from '../data/discoveryFixtures'
 import { avatarFrameByID, avatarFrameCatalog, avatarFrameContent, resolveAvatarFrameID } from '../data/avatarFrameCatalog'
 import { discoveryCommerceContent } from '../data/discoveryCommerceContent'
@@ -120,6 +122,10 @@ const callMuted = ref(false)
 const callTopicsExpanded = ref(false)
 const callCategoryIndex = ref(1)
 const callTopicIndex = ref(-1)
+const callElapsedSeconds = ref(0)
+const videoBlockConfirmOpen = ref(false)
+const videoBlockError = ref('')
+let callTimer = null
 const chatCoinDialog = ref('')
 const chatTranslationBusy = ref(false)
 const chatTranslationError = ref('')
@@ -235,7 +241,17 @@ function ownProfileSourceRect() {
   const rect = document.querySelector('.own-profile-photo')?.getBoundingClientRect()
   return rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null
 }
+function stopCallTimer() {
+  if (callTimer) window.clearInterval(callTimer)
+  callTimer = null
+}
+function startCallTimer() {
+  stopCallTimer()
+  if (screen.value !== 'video' || videoCallState.value !== 'active') return
+  callTimer = window.setInterval(() => { callElapsedSeconds.value += 1 }, 1000)
+}
 function cleanupVideoCall() {
+  stopCallTimer()
   nativeBridge.cancelPage(videoPageInstanceID)
   videoPermissionBusy.value = false
   videoCallState.value = 'idle'
@@ -244,6 +260,9 @@ function cleanupVideoCall() {
   callTopicsExpanded.value = false
   callCategoryIndex.value = 1
   callTopicIndex.value = -1
+  callElapsedSeconds.value = 0
+  videoBlockConfirmOpen.value = false
+  videoBlockError.value = ''
 }
 function goBack() {
   if (screen.value === 'safety') { closeSafety(); return }
@@ -301,6 +320,7 @@ function openSafety(userID, source = 'user') {
     muted: callMuted.value,
     category: callCategoryIndex.value,
     topic: callTopicIndex.value,
+    elapsed: callElapsedSeconds.value,
   } : null
   if (sourceScreen === 'video') cleanupVideoCall()
   selectedUserID.value = userID
@@ -324,6 +344,8 @@ function restoreSafetySource() {
     callMuted.value = safetyVideoState.muted
     callCategoryIndex.value = safetyVideoState.category
     callTopicIndex.value = safetyVideoState.topic
+    callElapsedSeconds.value = safetyVideoState.elapsed
+    if (safetyVideoState.state === 'active') nextTick(startCallTimer)
   }
   safetyVideoState = null
   screen.value = safetyReturnScreen.value
@@ -359,7 +381,8 @@ async function requestVideoPermissions() {
       videoPermissionError.value = callCopy.value.permissionRequired
       return
     }
-    videoCallState.value = 'connecting'
+    videoCallState.value = 'active'
+    startCallTimer()
   } catch (value) {
     if (value?.code === 'PAGE_DISPOSED') return
     videoCallState.value = 'permissionDenied'
@@ -378,11 +401,47 @@ function openVideo(userID) {
   screen.value = 'video'
   callCategoryIndex.value = 1
   callTopicIndex.value = -1
+  callElapsedSeconds.value = 0
+  videoBlockConfirmOpen.value = false
+  videoBlockError.value = ''
   nextTick(requestVideoPermissions)
 }
 function endVideoCall() { goBack() }
 function toggleCallMute() { callMuted.value = !callMuted.value }
 function toggleCallTopics() { callTopicsExpanded.value = !callTopicsExpanded.value }
+function requestVideoBlock() {
+  if (busy.value || !selectedPerson.value) return
+  callTopicsExpanded.value = false
+  videoBlockError.value = ''
+  videoBlockConfirmOpen.value = true
+}
+function cancelVideoBlock() {
+  if (busy.value) return
+  videoBlockConfirmOpen.value = false
+  videoBlockError.value = ''
+}
+async function confirmVideoBlock() {
+  if (busy.value || !selectedPerson.value) return
+  const targetUserID = selectedPerson.value.id
+  const transactionID = operationID('video-block')
+  busy.value = true
+  videoBlockError.value = ''
+  try {
+    await nativeBridge.blockUser(targetUserID, transactionID, { pageInstanceID: videoPageInstanceID })
+    try {
+      store.blockUser(targetUserID, transactionID)
+    } catch (storeError) {
+      await nativeBridge.unblockUser(targetUserID, `${transactionID}-rollback`, { pageInstanceID: videoPageInstanceID }).catch(() => {})
+      throw storeError
+    }
+    cleanupVideoCall()
+    emit('close')
+  } catch (value) {
+    videoBlockError.value = value?.message || copy.value.somethingWrong
+  } finally {
+    busy.value = false
+  }
+}
 function selectCallCategory(index) {
   callCategoryIndex.value = index
   callTopicIndex.value = -1
@@ -542,14 +601,6 @@ function sendProfileRequest() {
     notice.value = copy.value.requestSent
   })
 }
-function cancelProfileRequest() {
-  if (busy.value || publicProfileState.value !== 'pending_out') return
-  run(async () => {
-    store.cancelOutgoingRequest(selectedUserID.value, operationID('cancel-profile-request'))
-    notice.value = copy.value.requestCancelled
-  })
-}
-
 async function run(action) {
   if (busy.value) return
   busy.value = true
@@ -747,6 +798,7 @@ function stopHiddenAudio() {
     voicePlaybackService.stop()
     discardRecording()
     if (screen.value === 'video') {
+      stopCallTimer()
       nativeBridge.cancelPage(videoPageInstanceID)
       videoPermissionBusy.value = false
       videoCallState.value = 'paused'
@@ -1037,8 +1089,8 @@ onBeforeUnmount(() => {
       </div>
       <div class="chat-composer">
         <input ref="chatInput" v-model="draft" :placeholder="copy.typeMessage" maxlength="500" @keyup.enter.prevent="sendText">
-        <button class="chat-composer-slice" :class="{ recording: recordingAssetID }" type="button" :aria-label="copy.sendVoice" :aria-pressed="Boolean(recordingAssetID)" :disabled="busy" @click="toggleRecording"><img :src="chatMicImage" alt=""></button>
-        <button class="chat-composer-slice" type="button" :aria-label="copy.send" :disabled="busy || !draft.trim()" @click="sendText"><img :src="chatSendImage" alt=""></button>
+        <button class="chat-composer-slice chat-composer-mic" :class="{ recording: recordingAssetID }" type="button" :aria-label="copy.sendVoice" :aria-pressed="Boolean(recordingAssetID)" :disabled="busy" @click="toggleRecording"><img :src="chatMicImage" alt=""></button>
+        <button class="chat-composer-slice chat-composer-send" type="button" :aria-label="copy.send" :disabled="busy || !draft.trim()" @click="sendText"><img :src="chatSendImage" alt=""></button>
       </div>
     </section>
 
@@ -1091,7 +1143,13 @@ onBeforeUnmount(() => {
     <section v-else-if="screen === 'profile' && selectedPerson" class="social-scroll profile-page public-profile-page">
       <div class="public-profile-collage" aria-hidden="true">
         <span class="public-profile-tape" />
-        <div class="public-profile-polaroid"><img :src="selectedPerson.avatarAsset" alt=""></div>
+        <div class="public-profile-polaroid">
+          <img :src="selectedPerson.avatarAsset" alt="">
+          <p class="public-profile-polaroid-caption">
+            <span>{{ selectedPerson.displayName }}</span>
+            <img v-if="selectedPerson.flagAsset" :src="selectedPerson.flagAsset" alt="">
+          </p>
+        </div>
         <p class="public-profile-sticky">{{ formatCopy(copy.peopleHeard, { count: selectedPerson.heardCount }) }}</p>
         <img class="public-profile-star" :src="profileStarIcon" alt="">
       </div>
@@ -1100,9 +1158,8 @@ onBeforeUnmount(() => {
         <h1>{{ selectedPerson.displayName }}</h1>
         <span v-if="selectedPerson.verified" class="public-profile-verified"><img :src="profileVerifiedIcon" alt="">{{ copy.verified }}</span>
         <span v-if="publicProfileState === 'friends'" class="public-profile-friend">{{ copy.friendBadge }}</span>
-        <p><img v-if="selectedPerson.flagAsset" :src="selectedPerson.flagAsset" alt="">{{ localizedCountry(selectedPerson.countryCode, selectedPerson.countryLabel) }} · {{ selectedPerson.timezone }}</p>
+        <span class="public-profile-location" dir="ltr">{{ String(selectedPerson.countryCode || '').toUpperCase() }} · {{ selectedPerson.timezone }}</span>
       </div>
-
       <article v-if="selectedPerson.voiceClip" class="public-profile-voice" :class="{ playing: voiceIsPlaying(selectedPerson.voiceClip.id), paused: voiceIsPaused(selectedPerson.voiceClip.id), active: voiceIsActive(selectedPerson.voiceClip.id) }">
         <button type="button" :aria-label="voiceIsPlaying(selectedPerson.voiceClip.id) ? copy.pause : copy.play" :disabled="Boolean(audioBusyID)" @click="toggleVoice(null, selectedPerson.voiceClip, selectedPerson.id)"><img :src="voiceIsPlaying(selectedPerson.voiceClip.id) ? pauseIcon : playIcon" alt=""></button>
         <div><strong>{{ copy.theirSevenSeconds }}</strong><span class="public-profile-wave audio-progress-wave" :style="{ '--voice-progress': voiceProgress(selectedPerson.voiceClip) }" aria-hidden="true"><i v-for="(height, index) in [7, 15, 22, 12, 25, 18, 9, 20, 14, 23, 11, 18, 8, 16, 21, 10, 18, 13]" :key="index" :style="{ height: `${height}px` }" /></span></div>
@@ -1117,10 +1174,9 @@ onBeforeUnmount(() => {
       <p class="public-profile-privacy"><img :src="profileNoteShieldIcon" alt=""><span>{{ copy.publicPrivacy }}</span></p>
 
       <div class="public-profile-actions" :class="`state-${publicProfileState}`">
-        <button v-if="publicProfileState === 'none'" class="public-profile-primary" type="button" :disabled="busy" @click="openRequestComposer"><img :src="personAddIcon" alt="">{{ copy.sendRequest }}</button>
+        <button v-if="publicProfileState === 'none'" class="public-profile-primary public-profile-send-request" type="button" :aria-label="copy.sendRequest" :disabled="busy" @click="openRequestComposer"><img :src="profileSendRequestImage" alt=""></button>
         <template v-else-if="publicProfileState === 'pending_out'">
           <button class="public-profile-waiting" type="button" disabled><img :src="waitingIcon" alt="">{{ copy.waitingApproval }}</button>
-          <button class="public-profile-cancel" type="button" :disabled="busy" @click="cancelProfileRequest">{{ copy.cancel }}</button>
         </template>
         <template v-else-if="publicProfileState === 'friends'">
           <button class="public-profile-primary" type="button" :disabled="busy" @click="openChat(selectedPerson.id)"><img :src="messageIcon" alt="">{{ copy.message }}</button>
@@ -1135,12 +1191,13 @@ onBeforeUnmount(() => {
 
       <header class="video-call-header">
         <div class="video-call-person">
-          <span><img :src="selectedPerson.avatarAsset" alt=""><img v-if="selectedPerson.flagAsset" :src="selectedPerson.flagAsset" alt=""></span>
+          <span><img :src="selectedPerson.avatarAsset" alt=""></span>
           <strong>{{ selectedPerson.displayName }}</strong>
+          <img v-if="selectedPerson.flagAsset" class="video-call-person-flag" :src="selectedPerson.flagAsset" alt="">
         </div>
         <div class="video-call-safety">
-          <button type="button" @click="openSafety(selectedPerson.id, 'video-call')">{{ callCopy.report }}</button>
-          <button type="button" @click="openSafety(selectedPerson.id, 'video-call')">{{ callCopy.block }}</button>
+          <button class="video-call-report" type="button" @click="openSafety(selectedPerson.id, 'video-call')"><img :src="videoReportIcon" alt=""><span>{{ callCopy.report }}</span></button>
+          <button class="video-call-block" type="button" :disabled="busy" @click="requestVideoBlock">{{ callCopy.block }}</button>
         </div>
       </header>
 
@@ -1183,6 +1240,20 @@ onBeforeUnmount(() => {
               <button v-for="(item, index) in callCopy.topics" :key="item" type="button" :class="{ active: callTopicIndex === index }" :aria-pressed="callTopicIndex === index" @click="selectCallTopic(index)"><span>{{ item }}</span><img v-if="callTopicIndex === index" :src="checkIcon" alt=""></button>
             </div>
             <button class="video-topic-done" type="button" @click="toggleCallTopics">{{ callCopy.done }}</button>
+          </section>
+        </div>
+      </Transition>
+
+      <Transition name="ios-sheet">
+        <div v-if="videoBlockConfirmOpen" class="video-block-backdrop" role="presentation" @pointerdown.self="cancelVideoBlock">
+          <section class="video-block-confirm" role="alertdialog" aria-modal="true" :aria-label="copy.block">
+            <h2>{{ copy.block }}</h2>
+            <p>{{ copy.blockConfirm }}</p>
+            <p v-if="videoBlockError" class="video-block-error" role="alert">{{ videoBlockError }}</p>
+            <div>
+              <button type="button" :disabled="busy" @click="cancelVideoBlock">{{ copy.cancel }}</button>
+              <button class="danger" type="button" :disabled="busy" @click="confirmVideoBlock">{{ copy.confirmBlock }}</button>
+            </div>
           </section>
         </div>
       </Transition>

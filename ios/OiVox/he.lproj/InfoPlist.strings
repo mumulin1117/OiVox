@@ -1,4 +1,4 @@
-"CFBundleDisplayName" = "OiVox";
+"CFBundleDisplayName" = "Oivox";
 "NSMicrophoneUsageDescription" = "OiVox משתמש במיקרופון לאימות, קטעי שבע שניות, הודעות קוליות ושיחות.";
 "NSCameraUsageDescription" = "OiVox משתמש במצלמה כשמצלמים תמונת פרופיל, מתחילים אימות או שיחת וידאו אישית.";
 "NSPhotoLibraryUsageDescription" = "OiVox מאפשר לבחור תמונת פרופיל מהספרייה רק לאחר פתיחת בורר התמונה.";

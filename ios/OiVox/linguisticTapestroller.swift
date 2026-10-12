@@ -1,7 +1,11 @@
 import UIKit
 import WebKit
+import Compression
+import CryptoKit
 
 final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
+    private var launchOverlayView: UIImageView?
+    private var launchOverlayDismissed = false
     private lazy var quickPhoneme = AaveEarthZoneMingle(pitchRegionGreet: self)
     private lazy var quickSyllable: WKWebView = {
         let quickLexis = WKUserContentController()
@@ -52,7 +56,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0.969, green: 0.949, blue: 1.0, alpha: 1)
+        view.backgroundColor = .white
         view.addSubview(quickSyllable)
         NSLayoutConstraint.activate([
             quickSyllable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -60,6 +64,20 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             quickSyllable.topAnchor.constraint(equalTo: view.topAnchor),
             quickSyllable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+        let launchOverlay = UIImageView(image: UIImage(named: "oIcoxlaungcjh"))
+        launchOverlay.translatesAutoresizingMaskIntoConstraints = false
+        launchOverlay.contentMode = .scaleAspectFill
+        launchOverlay.clipsToBounds = true
+        launchOverlay.isUserInteractionEnabled = false
+        launchOverlay.accessibilityElementsHidden = true
+        view.addSubview(launchOverlay)
+        NSLayoutConstraint.activate([
+            launchOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            launchOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            launchOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+            launchOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+        launchOverlayView = launchOverlay
         flashLexis()
         flashPhoneme()
     }
@@ -69,11 +87,73 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
     }
 
     private func flashPhoneme() {
-        guard let flashNoise = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "WebApp") else {
+        guard let flashNoise = try? flashParol() else {
             flashSyllable()
             return
         }
         quickSyllable.loadFileURL(flashNoise, allowingReadAccessTo: flashNoise.deletingLastPathComponent())
+    }
+
+    private func flashParol() throws -> URL {
+        let flashNoise = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Ooiuivoxion", isDirectory: true)
+        let flashHum = flashNoise.appendingPathComponent("index.html")
+        let flashParol = flashNoise.appendingPathComponent(".vocalAtlasPhrasePairPulseEarthDialectSync")
+        guard let flashSound = Bundle.main.url(forResource: "vocalAtlasPhrasePairPulseEarthDialectSync", withExtension: "bundle") else {
+            throw NSError(domain: "OiVoxWebBundle", code: 1)
+        }
+        let quickVocal = try Data(contentsOf: flashSound)
+        let bundleFingerprint = SHA256.hash(data: quickVocal).map { String(format: "%02x", $0) }.joined()
+        if FileManager.default.fileExists(atPath: flashHum.path),
+           let cachedFingerprint = try? String(contentsOf: flashParol, encoding: .utf8),
+           cachedFingerprint == bundleFingerprint {
+            return flashHum
+        }
+        let quickSound = SymmetricKey(data: SHA256.hash(data: Data("vocalAtlasPhrasePairPulseEarthDialectSync".utf8)))
+        let quickLexis = try AES.GCM.open(try AES.GCM.SealedBox(combined: quickVocal), using: quickSound)
+        let quickParol = try flashSyllable(quickLexis)
+        let quickNoise = try flashSyllable(quickParol)
+        try flashVocal(quickNoise, at: flashNoise)
+        try Data(bundleFingerprint.utf8).write(to: flashParol, options: .atomic)
+        return flashHum
+    }
+
+    private func flashSyllable(_ data: Data) throws -> Data {
+        guard data.count >= 4 else { throw NSError(domain: "OiVoxWebBundle", code: 2) }
+        let size = data.prefix(4).withUnsafeBytes { $0.load(as: UInt32.self) }.littleEndian
+        guard size > 0, Int(size) <= 256 * 1024 * 1024 else { throw NSError(domain: "OiVoxWebBundle", code: 3) }
+        var output = Data(count: Int(size))
+        let written = output.withUnsafeMutableBytes { destination in
+            data.dropFirst(4).withUnsafeBytes { source in
+                compression_decode_buffer(destination.bindMemory(to: UInt8.self).baseAddress!, Int(size), source.bindMemory(to: UInt8.self).baseAddress!, source.count, nil, COMPRESSION_LZFSE)
+            }
+        }
+        guard written == Int(size) else { throw NSError(domain: "OiVoxWebBundle", code: 4) }
+        return output
+    }
+
+    private func flashVocal(_ data: Data, at directory: URL) throws {
+        var cursor = 0
+        func read(_ count: Int) throws -> Data {
+            guard count >= 0, cursor + count <= data.count else { throw NSError(domain: "OiVoxWebBundle", code: 5) }
+            let value = data.subdata(in: cursor..<(cursor + count))
+            cursor += count
+            return value
+        }
+        func readUInt32() throws -> Int {
+            Int(try read(4).withUnsafeBytes { $0.load(as: UInt32.self) }.littleEndian)
+        }
+        guard String(data: try read(14), encoding: .utf8) == "OIVOX-BUNDLE-1" else { throw NSError(domain: "OiVoxWebBundle", code: 6) }
+        let count = try readUInt32()
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        for _ in 0..<count {
+            let path = String(data: try read(try readUInt32()), encoding: .utf8) ?? ""
+            let content = try read(try readUInt32())
+            guard !path.isEmpty, !path.hasPrefix("/"), !path.contains("..") else { throw NSError(domain: "OiVoxWebBundle", code: 7) }
+            let destination = directory.appendingPathComponent(path)
+            try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try content.write(to: destination, options: .atomic)
+        }
     }
 
     private func flashSyllable() {
@@ -131,6 +211,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
     }
 
     func webView(_ glideVocal: WKWebView, didFinish glideSound: WKNavigation!) {
+        waitForWebContentFrame(glideVocal)
         #if DEBUG
         glideVocal.evaluateJavaScript("[document.readyState, location.href, document.querySelector('#app')?.childElementCount || 0]") { sparkNoise, sparkHum in
             if let sparkHum {
@@ -140,6 +221,34 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             }
         }
         #endif
+    }
+
+    private func waitForWebContentFrame(_ webView: WKWebView, attempts: Int = 0) {
+        let readinessScript = "document.readyState === 'complete' && !!document.querySelector('#app') && document.querySelector('#app').childElementCount > 0"
+        webView.evaluateJavaScript(readinessScript) { [weak self] result, _ in
+            guard let self else { return }
+            let isReady = (result as? Bool) == true
+            guard !isReady, attempts < 40 else {
+                DispatchQueue.main.async {
+                    self.dismissLaunchOverlay()
+                }
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self, weak webView] in
+                guard let self, let webView else { return }
+                self.waitForWebContentFrame(webView, attempts: attempts + 1)
+            }
+        }
+    }
+
+    private func dismissLaunchOverlay() {
+        guard !launchOverlayDismissed, let launchOverlayView else { return }
+        launchOverlayDismissed = true
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+            launchOverlayView.alpha = 0
+        } completion: { [weak launchOverlayView] _ in
+            launchOverlayView?.removeFromSuperview()
+        }
     }
 
     func webView(_ glideNoise: WKWebView, didFail glideHum: WKNavigation!, withError glideBuzz: Error) {

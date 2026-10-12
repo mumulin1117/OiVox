@@ -69,15 +69,20 @@ describe('single-card voice discovery contract', () => {
     expect(component).toContain('discoverySnapshot.value.allocatedUserIDs.includes(currentUserID.value)')
     expect(component).toContain('const currentDecision = computed(')
     expect(component).toContain('const isReviewMode = computed(')
-    expect(component).toContain('v-if="isReviewMode" class="voice-discovery-review-note"')
+    expect(component).not.toContain('voice-discovery-review-note')
+    expect(component).toContain('copy.freeToday.replace')
+    expect(component).toContain('skipButtonIcon')
     expect(component).toContain('decisionBusy.value || exhausted.value || isReviewMode.value')
     expect(component).toContain(':disabled="decisionBusy || exhausted || isReviewMode"')
     expect(component).toContain('v-if="nextProfile && !isReviewMode"')
-    for (const locale of ['en', 'ar', 'he', 'tr', 'fr', 'de', 'ja', 'ko']) {
-      expect(discoveryExperienceContent(locale).reviewPassed).toBeTruthy()
-      expect(discoveryExperienceContent(locale).reviewProcessed).toBeTruthy()
-      expect(discoveryExperienceContent(locale).reviewHint).toBeTruthy()
-    }
+  })
+
+  it('keeps the skip button touch target square while scaling the supplied artwork to the Add button height', () => {
+    expect(css).toContain('.voice-discovery-pass { position: relative; z-index: 1; width: 56px; aspect-ratio: 1; overflow: visible; background: transparent; }')
+    expect(css).toContain('.voice-discovery-pass img { width: 88px; height: 88px; max-width: none; max-height: none; object-fit: contain; pointer-events: none; transform: translateY(7px); }')
+    expect(css).toContain('.voice-discovery-pass img { width: 82px; height: 82px; transform: translateY(6px); }')
+    expect(css).toContain('.voice-discovery-actions { position: relative; z-index: 6; flex: none; display: grid; grid-template-columns: 56px 76px minmax(0,1fr); grid-template-rows: 56px 24px;')
+    expect(css).toContain('.voice-discovery-pass, .voice-discovery-like { grid-row: 1; align-self: center; }')
   })
 
   it('matches the Blue Lake version-1 coin confirmation sheet without changing the exchange transaction', () => {

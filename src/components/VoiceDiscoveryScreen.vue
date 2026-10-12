@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import coinIcon from '../assets/coin.png'
 import arrowLeftIcon from '../assets/icons/arrow-left.svg'
-import crossIcon from '../assets/icons/discovery-cross.svg'
+import skipButtonIcon from '../assets/icons/discovery-skip-button.png'
 import filterIcon from '../assets/icons/discovery-filter.svg'
 import heartIcon from '../assets/icons/discovery-heart.svg'
 import historyIcon from '../assets/icons/discovery-history.svg'
@@ -144,7 +144,6 @@ const currentProfile = computed(() => {
 })
 const currentDecision = computed(() => currentProfile.value ? discoverySnapshot.value.decisionsByUserID[currentProfile.value.id] || null : null)
 const isReviewMode = computed(() => Boolean(currentDecision.value))
-const reviewStatus = computed(() => currentDecision.value?.kind === 'pass' ? copy.value.reviewPassed : copy.value.reviewProcessed)
 const nextProfile = computed(() => {
   const ids = discoverySnapshot.value.remainingUserIDs.filter((userID) => userID !== currentUserID.value)
   return ids[0] ? toPublicSocialProfile(discoveryPeople[ids[0]]) : null
@@ -898,8 +897,8 @@ onBeforeUnmount(() => {
       <section class="voice-discovery-heading">
         <div><h1>{{ copy.title }}</h1><span aria-hidden="true"><i /><i /></span></div>
         <span class="voice-discovery-free" :class="{ empty: exhausted, bonus: discoverySnapshot.bonusRemainingCount > 0 }">
-          <b dir="ltr">{{ remainingCount }}</b>
-          <small>{{ (discoverySnapshot.bonusRemainingCount > 0 ? cardPackCopy.extraRemaining : cardPackCopy.freeRemaining).replace('{count}', '').trim() }}</small>
+          <img :src="coinIcon" alt="">
+          <span dir="ltr">{{ copy.freeToday.replace('{current}', discoverySnapshot.freeRemainingCount).replace('{total}', '7') }}</span>
         </span>
         <p>{{ copy.subtitle }}</p>
       </section>
@@ -930,7 +929,6 @@ onBeforeUnmount(() => {
         </section>
 
         <p v-if="audioError" class="voice-discovery-error" role="alert">{{ copy.audioUnavailable }} <button type="button" @click="toggleVoice">{{ copy.retry }}</button></p>
-        <p v-if="isReviewMode" class="voice-discovery-review-note" role="status"><strong>{{ reviewStatus }}</strong><span>{{ copy.reviewHint }}</span></p>
         <section class="voice-discovery-transcript">
           <header><strong>{{ copy.languageNames[currentProfile.voiceClip.transcriptLanguage] || currentProfile.voiceClip.transcriptLanguage.toUpperCase() }}</strong><span>{{ translatedText ? commerceCopy.translated : copy.notTranslated }}</span></header>
           <p :lang="currentProfile.voiceClip.transcriptLanguage" :dir="['ar', 'he'].includes(currentProfile.voiceClip.transcriptLanguage) ? 'rtl' : 'ltr'">{{ currentProfile.voiceClip.transcript }}</p>
@@ -952,7 +950,7 @@ onBeforeUnmount(() => {
 
       <p v-if="notice" class="voice-discovery-notice" role="status">{{ notice }}</p>
       <footer v-if="currentProfile" class="voice-discovery-actions" dir="ltr">
-        <button class="voice-discovery-pass" type="button" :aria-label="copy.skip" :disabled="decisionBusy || exhausted || isReviewMode" @click="decide('pass')"><img :src="crossIcon" alt=""></button>
+        <button class="voice-discovery-pass" type="button" :aria-label="copy.skip" :disabled="decisionBusy || exhausted || isReviewMode" @click="decide('pass')"><img :src="skipButtonIcon" alt=""></button>
         <button class="voice-discovery-like" :class="{ selected: isLiked }" type="button" :aria-label="copy.like" :aria-pressed="isLiked" :disabled="decisionBusy || likeBusy" @click="toggleLike"><img :src="heartIcon" alt=""><b v-if="currentLikes !== null">{{ currentLikes }}</b></button>
         <button class="voice-discovery-add" type="button" :disabled="addDisabled || decisionBusy" @click="openRequest"><img :src="personAddIcon" alt=""><span>{{ addLabel }}</span></button>
         <button class="voice-discovery-report" type="button" :disabled="decisionBusy" @click="openReport">{{ copy.report }}</button>

@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="coin-store-use-group">
           <h3>{{ copy.storeMoreVoices }}</h3>
-          <p><span>{{ copy.storeMoreVoicesDetail }}</span><b dir="ltr">10</b></p>
+          <p><span>{{ copy.storeMoreVoicesDetail }}</span><b dir="ltr">50 / 5</b></p>
         </div>
         <div class="coin-store-use-group">
           <h3>{{ copy.storeFrames }}</h3>

@@ -75,7 +75,15 @@ final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
         case ("VoiceRecorder", "start"):
             guard let waveMapLink = waveEarthSync["assetID"] as? String else { throw BridgeError(.waveAtlasPair) }
             guard await toneEarthSync("microphone") else { throw BridgeError(.auraOrbitFuse, "Microphone access is required to record.") }
+            #if targetEnvironment(simulator)
+            // The iOS simulator may report microphone permission as granted
+            // even when no input route is attached. Do not create an
+            // AVAudioSession/AVAudioRecorder in that state: return a normal
+            // bridge error that the chat composer can render and recover from.
+            throw BridgeError(.vibeSphereBlend, "The simulator has no usable microphone input.")
+            #else
             return try sonicSphereBlend.waveZoneNoteMingle(flowBuzz: waveMapLink, flowTune: waveEarthSync["maxDurationMs"] as? Int ?? 7_000)
+            #endif
         case ("VoiceRecorder", "stop"):
             guard let audioAtlasPair = waveEarthSync["assetID"] as? String else { throw BridgeError(.waveAtlasPair) }
             return try sonicSphereBlend.audioGlobeAccentMatch(flowBuzz: audioAtlasPair)
@@ -891,8 +899,8 @@ private final class NativeMediaCoordinator: NSObject, @unchecked Sendable, AVCap
             streamHum = pulseAtlasPair
         } else {
             guard flowBuzz.range(of: #"^[A-Za-z0-9_-]{8,120}$"#, options: .regularExpression) != nil else { throw BridgeError(.waveAtlasPair) }
-            let streamNoise = Bundle.main.bundleURL
-                .appendingPathComponent("WebApp/assets/discovery/audio", isDirectory: true)
+            let streamNoise = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("Ooiuivoxion/assets/discovery/audio", isDirectory: true)
                 .appendingPathComponent(flowBuzz)
                 .appendingPathExtension("wav")
             if flowBuzz.hasPrefix("voice-"), FileManager.default.fileExists(atPath: streamNoise.path) {
