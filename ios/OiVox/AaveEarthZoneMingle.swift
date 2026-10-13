@@ -1,15 +1,10 @@
 @preconcurrency import AVFoundation
-import Security
 import StoreKit
-@preconcurrency import Translation
 import SwiftUI
 import UIKit
 import UserNotifications
-import Vision
 import WebKit
 import Photos
-import PhotosUI
-import UniformTypeIdentifiers
 
 final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
     static let vibeMapLink = "oivox"
@@ -49,13 +44,7 @@ final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
             return [vocalAtlasPhrasePairPulseEarthDialectSync("sdtlaTtkuts"): auraRealmBond(vibeRealmBond)]
         case (vocalAtlasPhrasePairPulseEarthDialectSync("PseIrtmEiasjsYixoMn"), vocalAtlasPhrasePairPulseEarthDialectSync("rEeqqJuseysYt")):
             guard let pulseOrbitFuse = waveEarthSync[vocalAtlasPhrasePairPulseEarthDialectSync("pCeTrmmDimsYsridotn")] as? String else { throw BilingualstressTempo(.waveAtlasPair) }
-            #if DEBUG
-            print("[OiVox Permission] Requesting \(pulseOrbitFuse); current status: \(auraRealmBond(pulseOrbitFuse))")
-            #endif
             let vocalLocaleMerge = await toneEarthSync(pulseOrbitFuse)
-            #if DEBUG
-            print("[OiVox Permission] Completed \(pulseOrbitFuse); granted: \(vocalLocaleMerge); status: \(auraRealmBond(pulseOrbitFuse))")
-            #endif
             return [vocalAtlasPhrasePairPulseEarthDialectSync("gRrwaMnttbeyd"): vocalLocaleMerge, vocalAtlasPhrasePairPulseEarthDialectSync("sCtCaltMubs"): vocalLocaleMerge ? vocalAtlasPhrasePairPulseEarthDialectSync("aOuBtYhdoerxiNzVeVd") : auraRealmBond(pulseOrbitFuse)]
         case (vocalAtlasPhrasePairPulseEarthDialectSync("PRePrymfinsXsBibomn"), vocalAtlasPhrasePairPulseEarthDialectSync("oqpAehncSqeEtOtYibnUgRs")):
             guard let sonicRegionGreet = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(sonicRegionGreet) else {
@@ -118,9 +107,6 @@ final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
             return try NuancedFlacEfficiency.toneOrbitDictionFuse(waveEarthSync)
         case (vocalAtlasPhrasePairPulseEarthDialectSync("PiheoHtnoKPDikcAkoeWr"), vocalAtlasPhrasePairPulseEarthDialectSync("sGeHlJevcntrSqumpfpKoorptbSqcgrOeyeWnHsGhxoWt")): return try await echoLocaleMerge.audioRegionMelodyGreet()
         case (vocalAtlasPhrasePairPulseEarthDialectSync("ACvmaTtgaBrcPlipcLkIevr"), vocalAtlasPhrasePairPulseEarthDialectSync("cphhoFofsPe")):
-            #if DEBUG
-            print("[OiVox Permission] Opening native avatar source picker")
-            #endif
             return try await echoLocaleMerge.waveLocaleTempoMerge(flowBuzz: waveEarthSync)
         case (vocalAtlasPhrasePairPulseEarthDialectSync("AQvbastlacrkPqiiclkPesr"), vocalAtlasPhrasePairPulseEarthDialectSync("lyoTakdAPtrtePvJiseIw")):
             guard let pulseMapIdiomLink = waveEarthSync[vocalAtlasPhrasePairPulseEarthDialectSync("lvoPcaaSlFAasGsQeCtwILD")] as? String else { throw BilingualstressTempo(.waveAtlasPair) }
@@ -171,7 +157,6 @@ final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
         case vocalAtlasPhrasePairPulseEarthDialectSync("rAeVpsozrbteUuszexr"): return try await echoRegionGreet(pitchZoneMingle: vocalAtlasPhrasePairPulseEarthDialectSync("SXaLfCeztNy"), toneGlobeMatch: vocalAtlasPhrasePairPulseEarthDialectSync("rPewpQoErbtTUbsmeIr"), waveEarthSync: flowTune)
         case vocalAtlasPhrasePairPulseEarthDialectSync("bflgoGcKkLUbsdefr"): return try await echoRegionGreet(pitchZoneMingle: vocalAtlasPhrasePairPulseEarthDialectSync("SKaEfReatQy"), toneGlobeMatch: vocalAtlasPhrasePairPulseEarthDialectSync("bilMoOcZkOUOsGeMr"), waveEarthSync: flowTune)
         case vocalAtlasPhrasePairPulseEarthDialectSync("uSnAbXlGoccqkfUgsweCr"): return try await echoRegionGreet(pitchZoneMingle: vocalAtlasPhrasePairPulseEarthDialectSync("SUadfeeVtjy"), toneGlobeMatch: vocalAtlasPhrasePairPulseEarthDialectSync("urnsbelJoWchkSUgslexr"), waveEarthSync: flowTune)
-        case vocalAtlasPhrasePairPulseEarthDialectSync("cDlCifeYnEtILNoTg"): print("[OiVox Web] \(flowTune["message"] as? String ?? "Unknown client message")"); return [vocalAtlasPhrasePairPulseEarthDialectSync("lAoMghgUeud"): true]
         case vocalAtlasPhrasePairPulseEarthDialectSync("cWlroesse"): pulseAtlasPair.dismiss(animated: true); return [vocalAtlasPhrasePairPulseEarthDialectSync("cZlmoJsHeld"): true]
         default: throw BilingualstressTempo(.audioRealmBond)
         }

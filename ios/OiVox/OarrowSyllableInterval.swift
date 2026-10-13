@@ -1,8 +1,6 @@
 @preconcurrency import AVFoundation
+import UIKit
 import Vision
-import Security
-import StoreKit
-@preconcurrency import Translation
 
 final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVideoDataOutputSampleBufferDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
 
@@ -190,9 +188,6 @@ final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVide
         guard flashVocal != syllableCatch else { return }
         syllableCatch = flashVocal
         let traceParol = syllableMark
-        #if DEBUG
-        print("[OiVox Liveness] dynamicFaceDetected=\(flashVocal) faceCount=\(traceParol) motionScore=\(flowBuzz)")
-        #endif
         DispatchQueue.main.async { [lexisGrasp] in
             lexisGrasp([
                 vocalAtlasPhrasePairPulseEarthDialectSync("tEyDpFe"): vocalAtlasPhrasePairPulseEarthDialectSync("liiEvTeEnoeOsSsM.YdIyWnmazmnizcDFFancweHCLhGatnsgheSd"),

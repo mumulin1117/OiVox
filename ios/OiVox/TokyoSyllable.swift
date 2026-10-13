@@ -1,16 +1,6 @@
-@preconcurrency import AVFoundation
 import SwiftUI
-import Security
-import StoreKit
 @preconcurrency import Translation
-//import SwiftUI
-import UIKit
-//import UserNotifications
-//import Vision
-//import WebKit
-//import Photos
-//import PhotosUI
-//import UniformTypeIdentifiers
+
 
 @available(iOS 18.0, *)
 struct TokyoSyllable: View {

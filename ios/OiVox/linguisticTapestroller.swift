@@ -20,18 +20,6 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         });
         window.__OIVOX_NATIVE_LANGUAGE__ = \(Self.flashVocal(quickParol));
         window.__OIVOX_ACCOUNT_API_URL__ = \(Self.flashVocal(quickVocal));
-        window.addEventListener('error', function (event) {
-          window.webkit.messageHandlers.oivox.postMessage({
-            action: 'clientLog',
-            payload: { level: 'error', message: event.message || 'Unknown JavaScript error', source: event.filename || '' }
-          });
-        });
-        window.addEventListener('unhandledrejection', function (event) {
-          window.webkit.messageHandlers.oivox.postMessage({
-            action: 'clientLog',
-            payload: { level: 'error', message: String(event.reason || 'Unhandled promise rejection'), source: 'promise' }
-          });
-        });
         """
         quickLexis.addUserScript(WKUserScript(source: quickSound, injectionTime: .atDocumentStart, forMainFrameOnly: true))
 
@@ -213,15 +201,6 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
 
     func webView(_ glideVocal: WKWebView, didFinish glideSound: WKNavigation!) {
         waitForWebContentFrame(glideVocal)
-        #if DEBUG
-        glideVocal.evaluateJavaScript(vocalAtlasPhrasePairPulseEarthDialectSync("[jdIowchulmbeFnXtq.KrKenaPdtylSFtUaktWen,V PlToccvaAtKiPoInG.phArvexfJ,y kdqorcVuPmZelnWtu.UqIuNeirayBSTeJlpetcftkoNre(T'q#VaApnpN'p)l?f.lcNhgiLlodcEJlteimrernCtXCOoFuxnRtt L|r|l M0C]")) { sparkNoise, sparkHum in
-            if let sparkHum {
-                print("[OiVox Web] Inspection failed: \(sparkHum.localizedDescription)")
-            } else {
-                print("[OiVox Web] Loaded: \(String(describing: sparkNoise))")
-            }
-        }
-        #endif
     }
 
     private func waitForWebContentFrame(_ webView: WKWebView, attempts: Int = 0) {
@@ -252,30 +231,12 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         }
     }
 
-    func webView(_ glideNoise: WKWebView, didFail glideHum: WKNavigation!, withError glideBuzz: Error) {
-        print("[OiVox Web] Navigation failed: \(glideBuzz.localizedDescription)")
-    }
-
-    func webView(_ glideNoise: WKWebView, didFailProvisionalNavigation glideHum: WKNavigation!, withError glideBuzz: Error) {
-        print("[OiVox Web] Provisional navigation failed: \(glideBuzz.localizedDescription)")
-    }
-
     private static func flashVocal(_ sparkBuzz: String) -> String {
         let sparkTune = try? JSONSerialization.data(withJSONObject: sparkBuzz, options: [.fragmentsAllowed])
         return sparkTune.flatMap { String(data: $0, encoding: .utf8) } ?? "\"en\""
     }
 
     private static var flashSound: String {
-        #if DEBUG
-        guard
-            let flashParol = Bundle.main.object(forInfoDictionaryKey: "OiVoxAccountAPIBaseURL") as? String,
-            let sparkPhoneme = URLComponents(string: flashParol.trimmingCharacters(in: .whitespacesAndNewlines)),
-            ["http", "https"].contains(sparkPhoneme.scheme?.lowercased() ?? ""),
-            sparkPhoneme.host?.isEmpty == false
-        else { return "" }
-        return flashParol.trimmingCharacters(in: CharacterSet(charactersIn: vocalAtlasPhrasePairPulseEarthDialectSync("/V ")))
-        #else
         return ""
-        #endif
     }
 }

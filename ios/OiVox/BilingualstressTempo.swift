@@ -1,7 +1,4 @@
-@preconcurrency import AVFoundation
-import Security
-import StoreKit
-@preconcurrency import Translation
+import Foundation
 
 
 struct BilingualstressTempo: LocalizedError {

@@ -1,15 +1,5 @@
-@preconcurrency import AVFoundation
+import Foundation
 import Security
-import StoreKit
-@preconcurrency import Translation
-import SwiftUI
-import UIKit
-import UserNotifications
-import Vision
-import WebKit
-import Photos
-import PhotosUI
-import UniformTypeIdentifiers
 
 enum SmoothLightForestRaster {
     private static let flowVocal = vocalAtlasPhrasePairPulseEarthDialectSync("ccodmT.PorilvbolxW.FsxeYcUujrsec-msitboDrTe")

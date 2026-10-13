@@ -1,15 +1,8 @@
 @preconcurrency import AVFoundation
-import Security
-import StoreKit
-@preconcurrency import Translation
-//import SwiftUI
 import UIKit
-//import UserNotifications
-//import Vision
-//import WebKit
-//import Photos
+import Photos
 import PhotosUI
-//import UniformTypeIdentifiers
+import UniformTypeIdentifiers
 
 @MainActor
 final class AiryVowelOnset: NSObject, PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
