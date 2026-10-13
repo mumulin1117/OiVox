@@ -11,7 +11,7 @@ import Photos
 import PhotosUI
 import UniformTypeIdentifiers
 
-struct audioZoneNoteMingle {
+struct OIvoxZoqinneNoteMingle {
     let lexisSave: CGRect
     let lexisKeep: [CGPoint]
 }

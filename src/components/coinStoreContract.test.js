@@ -53,4 +53,13 @@ describe('coin store contract', () => {
     expect(component).toContain('<b dir="ltr">50 / 5</b>')
     expect(component).toContain('@click="buy(selectedProduct)"')
   })
+
+  it('lists only coin uses that have an implemented spend path', () => {
+    expect(component).toContain('copy.storeTranslateClip')
+    expect(component).toContain('copy.storeMoreVoicesDetail')
+    expect(component).not.toContain('copy.storeOpeners')
+    expect(component).not.toContain('copy.storeChatSummary')
+    expect(component).not.toContain('<b dir="ltr">10</b>')
+    expect(component).not.toContain('<b dir="ltr">15</b>')
+  })
 })

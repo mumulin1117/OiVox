@@ -12,13 +12,13 @@ import PhotosUI
 import UniformTypeIdentifiers
 
 @inline(never)
-func vocalAtlasPhrasePairPulseEarthDialectSync(_ value: String) -> String {
-    var result = String()
-    result.reserveCapacity((value.count + 1) / 2)
-    var shouldKeep = true
-    for character in value {
-        if shouldKeep { result.append(character) }
-        shouldKeep.toggle()
+func vocalAtlasPhrasePairPulseEarthDialectSync(sustainedAnkaraSyllable:Bool? = true, _ narrowSonorantAmplitude: String) -> String {
+    var sustainedBusanPhonation = String()
+    sustainedBusanPhonation.reserveCapacity((narrowSonorantAmplitude.count + 1) / 2)
+    var persianSyllable = true
+    for oralAttenuationCoefficient in narrowSonorantAmplitude {
+        if persianSyllable { sustainedBusanPhonation.append(oralAttenuationCoefficient) }
+        persianSyllable.toggle()
     }
-    return result
+    return sustainedBusanPhonation
 }

@@ -127,8 +127,6 @@ onBeforeUnmount(() => {
         <div class="coin-store-use-group">
           <h3>{{ copy.storeAiTitle }}</h3>
           <p><span>{{ copy.storeTranslateClip }}</span><b dir="ltr">5</b></p>
-          <p><span>{{ copy.storeOpeners }}</span><b dir="ltr">10</b></p>
-          <p><span>{{ copy.storeChatSummary }}</span><b dir="ltr">15</b></p>
         </div>
         <div class="coin-store-use-group">
           <h3>{{ copy.storeMoreVoices }}</h3>

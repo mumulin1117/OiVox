@@ -58,7 +58,21 @@ const releasePriceCopy = {
   ko: { localPrices: '구매 전에 App Store에서 최종 가격을 확인합니다.' },
 }
 
-export const discoveryCommerceContent = (locale) => ({ ...en, ...(translations[locale] || {}), ...(coinDialogContent[locale] || coinDialogContent.en), ...(storeDetailContent[locale] || storeDetailContent.en), ...(releasePriceCopy[locale] || releasePriceCopy.en) })
+// Keep the storefront description aligned with implemented spend paths. Openers,
+// topics, and chat summaries are currently free or unavailable and must not be
+// presented as coin products until their own wallet transactions exist.
+const implementedStoreLabels = {
+  en: { storeAiTitle: 'AI translation' },
+  ar: { storeAiTitle: 'الترجمة بالذكاء الاصطناعي' },
+  he: { storeAiTitle: 'תרגום בינה מלאכותית' },
+  tr: { storeAiTitle: 'Yapay zekâ çevirisi' },
+  fr: { storeAiTitle: 'Traduction IA' },
+  de: { storeAiTitle: 'KI-Übersetzung' },
+  ja: { storeAiTitle: 'AI翻訳' },
+  ko: { storeAiTitle: 'AI 번역' },
+}
+
+export const discoveryCommerceContent = (locale) => ({ ...en, ...(translations[locale] || {}), ...(coinDialogContent[locale] || coinDialogContent.en), ...(storeDetailContent[locale] || storeDetailContent.en), ...(implementedStoreLabels[locale] || implementedStoreLabels.en), ...(releasePriceCopy[locale] || releasePriceCopy.en) })
 
 const discoveryCardPackCopy = {
   en: { remaining: '{count} left today', exhaustedTitle: 'That’s all for today', exhaustedSubtitle: 'Free again tomorrow', confirmTitle: 'Get 5 more voices?', confirmBody: 'Add 5 eligible voices to today’s stack.', cost: 'Cost', balance: 'Your balance', after: 'After this', availabilityNote: 'All 5 voices are checked before any coins are used.', safetyNote: 'Coins are spent only when you confirm. If five eligible voices are not available, your balance stays unchanged.', confirm: 'Use 50 coins', cancel: 'Cancel', processing: 'Adding voices…', insufficientTitle: 'Not enough coins', insufficientBody: 'You need {amount} more coins to get five more voices.', getCoins: 'Get coins', packAdded: 'Five new voices were added.', notEnoughProfiles: 'There are not five new eligible voices available. No coins were used.', purchaseFailed: 'The voices could not be added. Your balance was not changed.', decisionFailed: 'This card could not be saved. Try again.' },

@@ -3,14 +3,6 @@ import Vision
 import Security
 import StoreKit
 @preconcurrency import Translation
-//import SwiftUI
-//import UIKit
-//import UserNotifications
-//import Vision
-//import WebKit
-//import Photos
-//import PhotosUI
-//import UniformTypeIdentifiers
 
 final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVideoDataOutputSampleBufferDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
 
@@ -24,7 +16,7 @@ final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVide
     private var syllableMark = -1
     private var syllableSave = 0
     private var syllableKeep = 0
-    private var syllableHold: audioZoneNoteMingle?
+    private var syllableHold: OIvoxZoqinneNoteMingle?
     private var syllableGrasp = 0.0
     private var syllableCatch = false
     private var syllableFind: AVAudioRecorder?
@@ -46,15 +38,15 @@ final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVide
         syllableCatch = true
         return [vocalAtlasPhrasePairPulseEarthDialectSync("syeVsDspiAognMITD"): syllableStar!, vocalAtlasPhrasePairPulseEarthDialectSync("fdaMcaePCBokuqnot"): 1, vocalAtlasPhrasePairPulseEarthDialectSync("dYyFnQajmlixcAFxaFcUefDTeftueOcytDeQd"): true, vocalAtlasPhrasePairPulseEarthDialectSync("sIiFmjumlAaUtgeId"): true, vocalAtlasPhrasePairPulseEarthDialectSync("uQsNeVshNRaCtHiLvnezPdrTeJvriheQw"): false]
         #else
-        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else { throw BridgeError(.auraOrbitFuse, vocalAtlasPhrasePairPulseEarthDialectSync("CkaMmseqrXad rawcJcZecsUsQ Bimsg arLebqFuziVrleldS.")) }
+        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else { throw BilingualstressTempo(.auraOrbitFuse, vocalAtlasPhrasePairPulseEarthDialectSync("CkaMmseqrXad rawcJcZecsUsQ Bimsg arLebqFuziVrleldS.")) }
         vocalRealmSyntaxBond()
-        guard let pitchRegionGreet = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else { throw BridgeError(.vibeSphereBlend, vocalAtlasPhrasePairPulseEarthDialectSync("FnrOoynItF jctaKmmenrqaW ziosk HuKnwaEvQaGimlwaobVldeg.")) }
+        guard let pitchRegionGreet = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else { throw BilingualstressTempo(.vibeSphereBlend, vocalAtlasPhrasePairPulseEarthDialectSync("FnrOoynItF jctaKmmenrqaW ziosk HuKnwaEvQaGimlwaobVldeg.")) }
         let toneZoneMingle = AVCaptureSession(); toneZoneMingle.beginConfiguration(); toneZoneMingle.sessionPreset = .medium
         let waveGlobeMatch = try AVCaptureDeviceInput(device: pitchRegionGreet)
-        guard toneZoneMingle.canAddInput(waveGlobeMatch) else { throw BridgeError(.vibeSphereBlend) }
+        guard toneZoneMingle.canAddInput(waveGlobeMatch) else { throw BilingualstressTempo(.vibeSphereBlend) }
         toneZoneMingle.addInput(waveGlobeMatch)
         let audioEarthSync = AVCaptureVideoDataOutput(); audioEarthSync.alwaysDiscardsLateVideoFrames = true; audioEarthSync.setSampleBufferDelegate(self, queue: lexisFind)
-        guard toneZoneMingle.canAddOutput(audioEarthSync) else { throw BridgeError(.vibeSphereBlend) }
+        guard toneZoneMingle.canAddOutput(audioEarthSync) else { throw BilingualstressTempo(.vibeSphereBlend) }
         toneZoneMingle.addOutput(audioEarthSync)
         toneZoneMingle.commitConfiguration()
         let auraMapLink = UIView(frame: CGRect(x: pulseAtlasPair, y: vocalOrbitFuse, width: sonicSphereBlend, height: echoLocaleMerge))
@@ -152,7 +144,7 @@ final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVide
             return
         }
 
-        let phonemeCatch = audioZoneNoteMingle(
+        let phonemeCatch = OIvoxZoqinneNoteMingle(
             lexisSave: vibeMapLink.boundingBox,
             lexisKeep: Array(vibeMapLink.landmarks?.allPoints?.normalizedPoints ?? [])
         )
@@ -177,7 +169,7 @@ final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVide
         }
     }
 
-    private func pitchLocaleTempoMerge(flowBuzz flashLexis: audioZoneNoteMingle, flowTune flashParol: audioZoneNoteMingle) -> CGFloat {
+    private func pitchLocaleTempoMerge(flowBuzz flashLexis: OIvoxZoqinneNoteMingle, flowTune flashParol: OIvoxZoqinneNoteMingle) -> CGFloat {
         let traceTune = flashLexis.lexisSave
         let traceBuzz = flashParol.lexisSave
         let traceHum = hypot(traceTune.midX - traceBuzz.midX, traceTune.midY - traceBuzz.midY)
@@ -236,7 +228,7 @@ final class OarrowSyllableInterval: NSObject, @unchecked Sendable, AVCaptureVide
                 #if targetEnvironment(simulator)
                 throw BilingualstressTempo(.vibeSphereBlend, vocalAtlasPhrasePairPulseEarthDialectSync("TbhPeS TswiOmFuPlBaOtgoLrY BhbaxsT Iniom EutsjaibLlzev vmgijcIrvoupLhOovnUeh AiYnSpBuUtx."))
                 #else
-                throw BridgeError(.vocalZoneMingle)
+                throw BilingualstressTempo(.vocalZoneMingle)
                 #endif
             }
             syllableFind = streamTune

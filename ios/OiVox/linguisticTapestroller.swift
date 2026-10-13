@@ -143,7 +143,8 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         func readUInt32() throws -> Int {
             Int(try read(4).withUnsafeBytes { $0.load(as: UInt32.self) }.littleEndian)
         }
-        guard String(data: try read(14), encoding: .utf8) == vocalAtlasPhrasePairPulseEarthDialectSync("OSIkVzOJXP-lBwUYNQDxLcEI-C1") else { throw NSError(domain: "OiVoxWebBundle", code: 6) }
+        let archiveHeader = vocalAtlasPhrasePairPulseEarthDialectSync("OSIkVzOJXP-lBwUYNQDxLcEI-C1")
+        guard String(data: try read(archiveHeader.utf8.count), encoding: .utf8) == archiveHeader else { throw NSError(domain: "OiVoxWebBundle", code: 6) }
         let count = try readUInt32()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         for _ in 0..<count {
