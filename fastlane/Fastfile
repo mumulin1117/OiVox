@@ -27,7 +27,7 @@ platform :ios do
 
   lane :release do
     validate_release_configuration
-    authenticate_app_store_connect
+    api_key = authenticate_app_store_connect
 
     UI.important "export_method = #{export_method}"
     UI.important "match_type = #{match_type}"
@@ -123,6 +123,35 @@ platform :ios do
     UI.important "Signing target = #{app_target}"
     UI.important "Build scheme = #{scheme}"
     UI.important "Build workspace = #{workspace_path}" unless workspace_path.empty?
+
+    application_target = application_targets.find { |target| target.name == app_target }
+    release_configuration = application_target.build_configurations.find { |configuration| configuration.name == "Release" }
+    UI.user_error!("Target #{app_target} does not have a Release build configuration") unless release_configuration
+
+    configured_build_number = release_configuration.build_settings["CURRENT_PROJECT_VERSION"].to_i
+    marketing_version = release_configuration.build_settings["MARKETING_VERSION"].to_s.strip
+    UI.user_error!("Release MARKETING_VERSION is missing for #{app_target}") if marketing_version.empty?
+
+    circle_build_number = ENV["CIRCLE_BUILD_NUM"].to_i
+    next_build_number = [configured_build_number, circle_build_number].max
+    if export_method == "app-store"
+      uploaded_build_number = latest_testflight_build_number(
+        api_key: api_key,
+        app_identifier: bundle_id,
+        version: marketing_version,
+        initial_build_number: 0
+      ).to_i
+      next_build_number = [next_build_number, uploaded_build_number + 1].max
+      UI.important "Latest uploaded build for #{marketing_version} = #{uploaded_build_number}"
+    end
+    UI.user_error!("Unable to determine a positive build number") unless next_build_number.positive?
+
+    increment_build_number(
+      build_number: next_build_number.to_s,
+      xcodeproj: project_path,
+      skip_info_plist: true
+    )
+    UI.important "Archive build number = #{next_build_number}"
 
     update_code_signing_settings(
       path: project_path,
