@@ -77,7 +77,7 @@ http://linqiannew.local:3102
   "echoAddress": "new@example.test",
   "signalPhrase": "example-123",
   "accordMark": true,
-  "accordEdition": "2026-09-oivox-legal-v2",
+  "accordEdition": "2026-10-oivox-legal-v3",
   "seasonBand": "25-34",
   "speakerShape": {
     "echoName": "Nova",
@@ -102,7 +102,7 @@ http://linqiannew.local:3102
 }
 ```
 
-`echoName` 去除首尾空格后必须为 1–32 个字符。头像必须是已确认的有效引用：本地预设使用 `portraitOrigin: "preset"` + `portraitMark`；相册或相机图片使用对应 `portraitOrigin` + App 沙盒内稳定的 `portraitVaultRef`。占位头像、Base64 和临时绝对路径都不是有效头像引用。缺少头像返回 `AVATAR_REQUIRED`，昵称无效返回 `INVALID_DISPLAY_NAME`。`seasonBand` 只接受 `17-24`、`25-34`、`35+`，不保存精确出生日期。资料、六题问卷、2–5 个兴趣和本地动态人脸验证摘要缺一时，服务器拒绝注册且不创建部分账号。
+`echoName` 去除首尾空格后必须为 1–32 个字符。头像必须是已确认的有效引用：本地预设使用 `portraitOrigin: "preset"` + `portraitMark`；相册或相机图片使用对应 `portraitOrigin` + App 沙盒内稳定的 `portraitVaultRef`。占位头像、Base64 和临时绝对路径都不是有效头像引用。缺少头像返回 `AVATAR_REQUIRED`，昵称无效返回 `INVALID_DISPLAY_NAME`。`seasonBand` 只接受 `18-24`、`25-34`、`35+`，不保存精确出生日期。资料、六题问卷、2–5 个兴趣和本地动态人脸验证摘要缺一时，服务器拒绝注册且不创建部分账号。
 
 注册请求的自定义防重头为 `x-oivox-seed-ref`。完整旧协议到 v2 signal contract 的映射见 `docs/oivox-signal-contract-v2.md`。
 

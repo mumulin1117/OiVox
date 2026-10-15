@@ -23,8 +23,8 @@ const emailInput = ref(null)
 const passwordInput = ref(null)
 
 const ages = computed(() => [
-  { value: 'under17', label: t('under17'), note: t('notEligible') },
-  { value: '17-24', label: '17 – 24', note: t('stricterFilters') },
+  { value: 'under18', label: t('under18'), note: t('notEligible') },
+  { value: '18-24', label: '18 – 24', note: t('allFeatures') },
   { value: '25-34', label: '25 – 34', note: t('allFeatures') },
   { value: '35+', label: t('age35'), note: t('allFeatures') },
 ])
@@ -61,7 +61,7 @@ function validate() {
   if (!password.value) return { message: t('passwordRequired'), target: passwordInput }
   if (password.value.length < 8) return { message: t('passwordTooShort'), target: passwordInput }
   if (mode.value === 'signup' && !ageRange.value) return { message: t('chooseAge') }
-  if (mode.value === 'signup' && ageRange.value === 'under17') return { message: t('ageRestricted') }
+  if (mode.value === 'signup' && ageRange.value === 'under18') return { message: t('ageRestricted') }
   if (mode.value === 'signup' && !readEulaConsent().accepted) return { message: t('termsRequired') }
   return null
 }
@@ -141,7 +141,7 @@ async function submit() {
           <h2 id="age-title">{{ t('ageTitle') }}</h2>
           <p>{{ t('ageNote') }}</p>
           <div class="age-grid">
-            <button v-for="age in ages" :key="age.value" type="button" :class="{ selected: ageRange === age.value, blocked: age.value === 'under17' }" :aria-pressed="ageRange === age.value" @click="selectAge(age.value)">
+            <button v-for="age in ages" :key="age.value" type="button" :class="{ selected: ageRange === age.value, blocked: age.value === 'under18' }" :aria-pressed="ageRange === age.value" @click="selectAge(age.value)">
               <strong>{{ age.label }}</strong>
               <small>{{ age.note }}</small>
             </button>

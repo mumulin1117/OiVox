@@ -62,14 +62,14 @@ export const discoveryTranslationHistoryFixtures = Object.freeze(historyRows.map
 }))
 
 const userFacingStatusCopy = {
-  en: { translateUnavailable: 'Translation is temporarily unavailable. Try again soon.', reportSaved: 'Report saved securely.', fixtureNotice: 'Your saved activity' },
-  ar: { translateUnavailable: 'الترجمة غير متاحة مؤقتًا. حاول لاحقًا.', reportSaved: 'تم حفظ البلاغ بأمان.', fixtureNotice: 'نشاطك المحفوظ' },
-  he: { translateUnavailable: 'התרגום אינו זמין כרגע. נסו שוב בקרוב.', reportSaved: 'הדיווח נשמר בצורה מאובטחת.', fixtureNotice: 'הפעילות השמורה שלך' },
-  tr: { translateUnavailable: 'Çeviri şu anda kullanılamıyor. Daha sonra tekrar dene.', reportSaved: 'Bildirim güvenle kaydedildi.', fixtureNotice: 'Kaydettiğin etkinlik' },
-  fr: { translateUnavailable: 'La traduction est temporairement indisponible. Réessayez bientôt.', reportSaved: 'Signalement enregistré en toute sécurité.', fixtureNotice: 'Votre activité enregistrée' },
-  de: { translateUnavailable: 'Die Übersetzung ist vorübergehend nicht verfügbar. Versuche es später erneut.', reportSaved: 'Meldung sicher gespeichert.', fixtureNotice: 'Deine gespeicherten Aktivitäten' },
-  ja: { translateUnavailable: '翻訳は一時的に利用できません。しばらくしてから再試行してください。', reportSaved: '報告を安全に保存しました。', fixtureNotice: '保存したアクティビティ' },
-  ko: { translateUnavailable: '번역을 잠시 사용할 수 없습니다. 나중에 다시 시도해 주세요.', reportSaved: '신고를 안전하게 저장했습니다.', fixtureNotice: '저장한 활동' },
+  en: { translateUnavailable: 'Translation is temporarily unavailable. Try again soon.', reportSaved: 'Report submitted for review within 24 hours.', reportHidden: 'Report submitted. This voice was removed from your feed immediately.', fixtureNotice: 'Your saved activity' },
+  ar: { translateUnavailable: 'الترجمة غير متاحة مؤقتًا. حاول لاحقًا.', reportSaved: 'تم إرسال البلاغ لمراجعته خلال 24 ساعة.', reportHidden: 'تم إرسال البلاغ وإزالة الصوت فورًا من موجزك.', fixtureNotice: 'نشاطك المحفوظ' },
+  he: { translateUnavailable: 'התרגום אינו זמין כרגע. נסו שוב בקרוב.', reportSaved: 'הדיווח נשלח לבדיקה בתוך 24 שעות.', reportHidden: 'הדיווח נשלח והקול הוסר מיד מהפיד שלך.', fixtureNotice: 'הפעילות השמורה שלך' },
+  tr: { translateUnavailable: 'Çeviri şu anda kullanılamıyor. Daha sonra tekrar dene.', reportSaved: 'Bildirim 24 saat içinde incelenmek üzere gönderildi.', reportHidden: 'Bildirim gönderildi. Bu ses akışından hemen kaldırıldı.', fixtureNotice: 'Kaydettiğin etkinlik' },
+  fr: { translateUnavailable: 'La traduction est temporairement indisponible. Réessayez bientôt.', reportSaved: 'Signalement envoyé pour examen sous 24 heures.', reportHidden: 'Signalement envoyé. Cette voix a été retirée immédiatement de votre fil.', fixtureNotice: 'Votre activité enregistrée' },
+  de: { translateUnavailable: 'Die Übersetzung ist vorübergehend nicht verfügbar. Versuche es später erneut.', reportSaved: 'Meldung zur Prüfung innerhalb von 24 Stunden gesendet.', reportHidden: 'Meldung gesendet. Diese Stimme wurde sofort aus deinem Feed entfernt.', fixtureNotice: 'Deine gespeicherten Aktivitäten' },
+  ja: { translateUnavailable: '翻訳は一時的に利用できません。しばらくしてから再試行してください。', reportSaved: '報告を送信しました。24時間以内に確認します。', reportHidden: '報告を送信し、この音声をフィードから直ちに削除しました。', fixtureNotice: '保存したアクティビティ' },
+  ko: { translateUnavailable: '번역을 잠시 사용할 수 없습니다. 나중에 다시 시도해 주세요.', reportSaved: '신고가 제출되었으며 24시간 이내에 검토합니다.', reportHidden: '신고가 제출되었고 이 음성은 피드에서 즉시 제거되었습니다.', fixtureNotice: '저장한 활동' },
 }
 
 export function discoveryExperienceContent(locale) {

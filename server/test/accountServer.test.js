@@ -187,6 +187,24 @@ test('registration rejects incomplete onboarding without creating an account', a
   assert.equal(store.data.users.length, beforeCount)
 })
 
+test('registration rejects the former 17-24 range and stale legal version', async () => {
+  const under18 = await api(OIVOX_SIGNAL_CONTRACT.routes.seed, {
+    method: 'POST',
+    headers: registrationHeaders(),
+    body: JSON.stringify({ email: 'age-gate@example.test', password: 'example-123', acceptedTerms: true, termsVersion: TERMS_VERSION, ageRange: '17-24' }),
+  })
+  assert.equal(under18.response.status, 400)
+  assert.equal(under18.body.error.code, 'AGE_RESTRICTED')
+
+  const staleTerms = await api(OIVOX_SIGNAL_CONTRACT.routes.seed, {
+    method: 'POST',
+    headers: registrationHeaders(),
+    body: JSON.stringify({ email: 'stale-terms@example.test', password: 'example-123', acceptedTerms: true, termsVersion: '2026-09-oivox-legal-v2', ageRange: '18-24' }),
+  })
+  assert.equal(staleTerms.response.status, 400)
+  assert.equal(staleTerms.body.error.code, 'TERMS_REQUIRED')
+})
+
 test('registration rejects a missing avatar with AVATAR_REQUIRED and creates no account', async () => {
   const beforeCount = store.data.users.length
   const registration = {
@@ -252,7 +270,7 @@ test('registration preserves an explicit questionnaire skip without inventing an
       password: 'example-123',
       acceptedTerms: true,
       termsVersion: TERMS_VERSION,
-      ageRange: '17-24',
+      ageRange: '18-24',
       profile: { displayName: 'Mia', avatarSource: 'preset', avatarKey: 'portrait-09', spokenLanguages: ['en'], preferredLanguage: 'en', timezone: 'Asia/Shanghai' },
       onboarding: { questionnaire: Array(6).fill('skipped'), interests: ['food', 'travel'] },
       verification: verificationSummary('skip'),

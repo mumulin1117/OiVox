@@ -14,6 +14,9 @@ describe('Blue Lake Report/Block contract', () => {
     reportBlockLocales.forEach((locale) => {
       const copy = reportBlockContent(locale)
       expect(copy.title).toBeTruthy()
+      expect(copy.hideContent, `${locale}.hideContent`).toBeTruthy()
+      expect(copy.reviewNote, `${locale}.reviewNote`).toMatch(/24/)
+      expect(copy.reportHidden, `${locale}.reportHidden`).toBeTruthy()
       expect(copy.reasons.map(([id]) => id)).toEqual(['harassment', 'sexual_explicit', 'hate_threats', 'scam_fraud', 'private_contact', 'fake_voice'])
     })
     expect(reportBlockContent('en').title).toBe('Report/Block')
@@ -42,7 +45,11 @@ describe('Blue Lake Report/Block contract', () => {
     expect(component).toContain("role=\"alertdialog\"")
     expect(component).toContain('<Transition name="ios-sheet" @after-enter="focusConfirmDialog">')
     expect(component).toContain('details.value.trim()')
+    expect(component).toContain("hideContent: props.source === 'voice' && hideContent.value")
+    expect(component).toContain("v-if=\"source === 'voice'\"")
     expect(component).toContain('voiceID:')
+    expect(discovery).toContain("operationID('discovery-report-hide')")
+    expect(discovery).toContain("showNotice(removedFromFeed ? copy.value.reportHidden : copy.value.reportSaved)")
   })
 
   it('matches the annotated 375 by 812 surface and supports safe areas, RTL and reduced motion', () => {

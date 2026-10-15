@@ -31,4 +31,16 @@ describe('language preference', () => {
       expect(i18n.t('agreeContinue')).toBe(label)
     }
   })
+
+  it('uses the 18+ gate and zero-tolerance safety copy in every supported language', async () => {
+    const { supportedLanguages, useI18n } = await import('./i18n')
+    const i18n = useI18n()
+    for (const locale of supportedLanguages) {
+      await i18n.setLocale(locale)
+      expect(i18n.t('under18')).toBeTruthy()
+      expect(i18n.t('ageNote')).toMatch(/18/)
+      expect(i18n.t('ageRestricted')).toMatch(/18/)
+      expect(i18n.t('eulaSafetyBody')).toMatch(/24/)
+    }
+  })
 })

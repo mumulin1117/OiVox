@@ -12,6 +12,7 @@ const en = {
     ['fake_voice', 'Not a real voice clip'],
   ],
   details: 'Add details (optional)…',
+  hideContent: 'Immediately remove this voice from my feed',
   alsoBlock: 'Also block this user',
   submit: 'Submit Report',
   submitting: 'Submitting…',
@@ -65,14 +66,14 @@ const overrides = {
 
 export const reportBlockLocales = Object.freeze(['en', 'ar', 'he', 'tr', 'fr', 'de', 'ja', 'ko'])
 const statusCopy = {
-  en: { reviewNote: 'Your report is saved securely. Voice clips use the same safety rules.', reportSaved: 'Report saved securely.' },
-  ar: { reviewNote: 'يُحفظ بلاغك بأمان. وتخضع المقاطع الصوتية لقواعد الأمان نفسها.', reportSaved: 'تم حفظ البلاغ بأمان.' },
-  he: { reviewNote: 'הדיווח שלך נשמר בצורה מאובטחת. אותם כללי בטיחות חלים על קטעי קול.', reportSaved: 'הדיווח נשמר בצורה מאובטחת.' },
-  tr: { reviewNote: 'Bildirimin güvenle kaydedilir. Ses klipleri aynı güvenlik kurallarına tabidir.', reportSaved: 'Bildirim güvenle kaydedildi.' },
-  fr: { reviewNote: 'Votre signalement est enregistré en toute sécurité. Les voix suivent les mêmes règles.', reportSaved: 'Signalement enregistré en toute sécurité.' },
-  de: { reviewNote: 'Deine Meldung wird sicher gespeichert. Für Sprachclips gelten dieselben Sicherheitsregeln.', reportSaved: 'Meldung sicher gespeichert.' },
-  ja: { reviewNote: '報告は安全に保存されます。音声クリップにも同じ安全ルールが適用されます。', reportSaved: '報告を安全に保存しました。' },
-  ko: { reviewNote: '신고를 안전하게 저장합니다. 음성 클립에도 같은 안전 규칙이 적용됩니다.', reportSaved: '신고를 안전하게 저장했습니다.' },
+  en: { hideContent: 'Immediately remove this voice from my feed', reviewNote: 'We review reports within 24 hours and remove violating content or accounts.', reportSaved: 'Report submitted. We will review it within 24 hours.', reportHidden: 'Report submitted. This voice was removed from your feed immediately.' },
+  ar: { hideContent: 'إزالة هذا الصوت فورًا من موجزي', reviewNote: 'نراجع البلاغات خلال 24 ساعة ونزيل المحتوى أو الحسابات المخالفة.', reportSaved: 'تم إرسال البلاغ وسنراجعه خلال 24 ساعة.', reportHidden: 'تم إرسال البلاغ وإزالة الصوت فورًا من موجزك.' },
+  he: { hideContent: 'להסיר מיד את הקול מהפיד שלי', reviewNote: 'אנו בודקים דיווחים בתוך 24 שעות ומסירים תוכן או חשבונות מפרים.', reportSaved: 'הדיווח נשלח וייבדק בתוך 24 שעות.', reportHidden: 'הדיווח נשלח והקול הוסר מיד מהפיד שלך.' },
+  tr: { hideContent: 'Bu sesi akışımdan hemen kaldır', reviewNote: 'Bildirimleri 24 saat içinde inceler, ihlal eden içerikleri veya hesapları kaldırırız.', reportSaved: 'Bildirim gönderildi. 24 saat içinde inceleyeceğiz.', reportHidden: 'Bildirim gönderildi. Bu ses akışından hemen kaldırıldı.' },
+  fr: { hideContent: 'Retirer immédiatement cette voix de mon fil', reviewNote: 'Nous examinons les signalements sous 24 heures et supprimons les contenus ou comptes en infraction.', reportSaved: 'Signalement envoyé. Il sera examiné sous 24 heures.', reportHidden: 'Signalement envoyé. Cette voix a été retirée immédiatement de votre fil.' },
+  de: { hideContent: 'Diese Stimme sofort aus meinem Feed entfernen', reviewNote: 'Wir prüfen Meldungen innerhalb von 24 Stunden und entfernen regelwidrige Inhalte oder Konten.', reportSaved: 'Meldung gesendet. Wir prüfen sie innerhalb von 24 Stunden.', reportHidden: 'Meldung gesendet. Diese Stimme wurde sofort aus deinem Feed entfernt.' },
+  ja: { hideContent: 'この音声をフィードから直ちに削除', reviewNote: '報告は24時間以内に確認し、違反コンテンツまたはアカウントを削除します。', reportSaved: '報告を送信しました。24時間以内に確認します。', reportHidden: '報告を送信し、この音声をフィードから直ちに削除しました。' },
+  ko: { hideContent: '이 음성을 피드에서 즉시 제거', reviewNote: '신고를 24시간 이내에 검토하고 위반 콘텐츠나 계정을 제거합니다.', reportSaved: '신고가 제출되었습니다. 24시간 이내에 검토합니다.', reportHidden: '신고가 제출되었고 이 음성은 피드에서 즉시 제거되었습니다.' },
 }
 
 export const reportBlockContent = (locale) => ({ ...en, ...(overrides[locale] || {}), ...(statusCopy[locale] || statusCopy.en) })

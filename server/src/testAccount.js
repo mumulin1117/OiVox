@@ -17,7 +17,7 @@ export async function seedTestAccount(store, now = new Date()) {
     isTestAccount: true,
     emailVerified: false,
     wallet: { coinBalance: 120 },
-    terms: { version: '2026-09-oivox-legal-v2', acceptedAt: timestamp },
+    terms: { version: '2026-10-oivox-legal-v3', acceptedAt: timestamp },
     profile: {
       displayName: 'Mia',
       handle: '@mia_voice',

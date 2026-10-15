@@ -222,7 +222,7 @@ img, svg, button { -webkit-user-drag: none; user-drag: none; }
 .eula-copy h3 { margin: 17px 0 4px; color: #1d1b1a; font-size: 14px; line-height: 19px; }
 .eula-copy p { margin: 0; }
 .eula-copy .legal-intro { color: #385e49; font-weight: 600; }
-.eula-copy .legal-contact { margin-top: 19px; padding: 12px 13px; border-radius: 13px; color: #385e49; background: linear-gradient(150deg, #d6efdc 0%, #e6efd9 52%, #f3eedc 100%); font-size: 11px; line-height: 16px; font-weight: 650; }
+.eula-copy .legal-contact { display: block; margin-top: 19px; padding: 12px 13px; border-radius: 13px; color: #385e49; background: linear-gradient(150deg, #d6efdc 0%, #e6efd9 52%, #f3eedc 100%); font-size: 11px; line-height: 16px; font-weight: 650; text-decoration: none; }
 .eula-actions { flex: none; }
 .eula-actions .primary-pill { color: #fff; background: #1f5e7e; box-shadow: 0 10px 24px rgba(31, 94, 126, .22); }
 .eula-actions .secondary-pill { color: #1f5e7e; background: #fff; box-shadow: 0 4px 14px rgba(40, 86, 111, .12); }
@@ -247,7 +247,7 @@ img, svg, button { -webkit-user-drag: none; user-drag: none; }
 .eula-standalone-scroll article p { margin: 0; color: #59666c; font-size: 12px; line-height: 18px; }
 .eula-standalone-scroll .eula-standalone-intro { background: linear-gradient(150deg,#d6efdc 0%,#e6efd9 52%,#f3eedc 100%); box-shadow: 0 5px 15px rgba(56,94,73,.1); }
 .eula-standalone-scroll .eula-standalone-intro p { color: #385e49; font-weight: 650; }
-.eula-standalone-contact { margin: 2px 4px 8px; padding: 12px 14px; border-radius: 14px; color: #385e49; background: linear-gradient(150deg,rgba(214,239,220,.96),rgba(243,238,220,.96)); font-size: 11px; line-height: 16px; font-weight: 650; }
+.eula-standalone-contact { display: block; margin: 2px 4px 8px; padding: 12px 14px; border-radius: 14px; color: #385e49; background: linear-gradient(150deg,rgba(214,239,220,.96),rgba(243,238,220,.96)); font-size: 11px; line-height: 16px; font-weight: 650; text-decoration: none; }
 .eula-standalone-action { flex: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 10px 20px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(0deg,rgba(220,239,250,.98) 72%,rgba(220,239,250,0)); }
 .eula-standalone-action .primary-pill { color: #fff; background: #1f5e7e; box-shadow: 0 10px 24px rgba(31,94,126,.22); }
 .eula-standalone-action .secondary-pill { color: #1f5e7e; background: #fff; box-shadow: 0 4px 14px rgba(40,86,111,.12); }
@@ -1157,6 +1157,7 @@ img, svg, button { -webkit-user-drag: none; user-drag: none; }
 .report-block-details textarea { width: 100%; min-height: 17px; max-height: 68px; display: block; resize: none; overflow-y: auto; border: 0; outline: 0; color: #1d1b1a; background: transparent; font: 500 14px/17px "Figtree", sans-serif; }
 .report-block-details textarea::placeholder { color: #6c6560; opacity: 1; }
 .report-block-toggle { min-height: 47px; display: flex; flex: none; align-items: center; gap: 10px; padding: 0 15px; border-radius: 16px; background: rgba(169,58,99,.1); font-size: 12.5px; line-height: 15px; font-weight: 600; }
+.report-block-toggle + .report-block-toggle { margin-top: 8px; }
 .report-block-toggle i { width: 21px; height: 21px; display: grid; flex: none; place-items: center; border: 1.5px solid rgba(169,58,99,.5); border-radius: 8px; background: rgba(255,255,255,.72); }
 .report-block-toggle input:checked + i { border-color: #a93a63; background: #a93a63; }
 .report-block-toggle input:checked + i::after { width: 8px; height: 4px; border-bottom: 2px solid #fff; border-left: 2px solid #fff; content: ""; transform: translateY(-1px) rotate(-45deg); }
@@ -1781,7 +1782,7 @@ button:disabled { opacity: .48; }
 .privacy-eula-page p, .privacy-policies-page p { margin: 0; color: #59666c; font-size: 12px; line-height: 18px; }
 .privacy-eula-page .privacy-legal-intro, .privacy-policies-page .privacy-legal-intro { background: linear-gradient(150deg,#d6efdc 0%,#e6efd9 52%,#f3eedc 100%); box-shadow: 0 5px 15px rgba(56,94,73,.1); }
 .privacy-eula-page .privacy-legal-intro p, .privacy-policies-page .privacy-legal-intro p { color: #385e49; font-weight: 650; }
-.privacy-legal-contact { margin: 2px 4px 8px !important; padding: 12px 14px; border-radius: 14px; color: #385e49 !important; background: linear-gradient(150deg,rgba(214,239,220,.96),rgba(243,238,220,.96)); font-size: 11px !important; line-height: 16px !important; font-weight: 650; }
+.privacy-legal-contact { display: block; margin: 2px 4px 8px !important; padding: 12px 14px; border-radius: 14px; color: #385e49 !important; background: linear-gradient(150deg,rgba(214,239,220,.96),rgba(243,238,220,.96)); font-size: 11px !important; line-height: 16px !important; font-weight: 650; text-decoration: none; }
 .privacy-delete-backdrop { position: fixed; z-index: 60; inset: var(--viewport-offset-top, 0) 0 auto; height: var(--app-height, 100dvh); display: flex; align-items: flex-end; justify-content: center; padding: 0 14px calc(14px + env(safe-area-inset-bottom)); box-sizing: border-box; overflow: hidden; background: rgba(27,28,46,.42); }
 .privacy-delete-sheet { width: min(100%, 402px); max-height: calc(100% - 14px); padding: 20px 18px 18px; box-sizing: border-box; overflow-x: hidden; overflow-y: auto; border-radius: 24px; color: #1d1b1a; background: #fff; box-shadow: 0 -10px 40px rgba(27,28,46,.3); text-align: center; overscroll-behavior: contain; }
 .privacy-delete-icon { width: 52px; height: 52px; display: grid; margin: 0 auto 14px; place-items: center; border-radius: 50%; background: #f6dede; }

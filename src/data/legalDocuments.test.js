@@ -7,7 +7,9 @@ describe('OiVox legal document contract', () => {
     for (const locale of legalDocumentLocales) {
       const copy = legalDocuments(locale)
       expect(copy.labels.effective, `${locale}.effective`).toBeTruthy()
-      expect(copy.labels.version, `${locale}.version`).toContain('v2')
+      expect(copy.labels.version, `${locale}.version`).toContain('v3')
+      expect(copy.labels.supportEmail, `${locale}.supportEmail`).toBe('OiVox@gmail.com')
+      expect(copy.labels.contact, `${locale}.contact`).toContain('OiVox@gmail.com')
       for (const kind of ['eula', 'terms', 'privacy']) {
         const value = copy[kind]
         expect(value.title, `${locale}.${kind}.title`).toBeTruthy()
@@ -17,12 +19,15 @@ describe('OiVox legal document contract', () => {
       }
       expect(copy.eula.title).not.toBe(copy.terms.title)
       expect(copy.terms.title).not.toBe(copy.privacy.title)
+      const localizedEula = copy.eula.sections.map((item) => item.body).join(' ')
+      expect(localizedEula, `${locale}.eula.age`).toMatch(/18/)
+      expect(localizedEula, `${locale}.eula.responseTime`).toMatch(/24/)
     }
   })
 
   it('uses a stable effective date and consent version', () => {
-    expect(LEGAL_EFFECTIVE_DATE).toBe('2026-09-24')
-    expect(LEGAL_DOCUMENT_VERSION).toBe('2026-09-oivox-legal-v2')
+    expect(LEGAL_EFFECTIVE_DATE).toBe('2026-10-15')
+    expect(LEGAL_DOCUMENT_VERSION).toBe('2026-10-oivox-legal-v3')
   })
 
   it('documents the privacy and safety controls required by the current product', () => {
@@ -37,6 +42,12 @@ describe('OiVox legal document contract', () => {
     expect(terms).toMatch(/block/i)
     expect(terms).toMatch(/report/i)
     expect(terms).toMatch(/StoreKit/i)
-    expect(terms).toMatch(/17/)
+    expect(terms).toMatch(/18/)
+    const eula = english.eula.sections.map((item) => `${item.title} ${item.body}`).join(' ')
+    expect(eula).toMatch(/zero tolerance/i)
+    expect(eula).toMatch(/within 24 hours/i)
+    expect(eula).toMatch(/will be removed/i)
+    expect(eula).toMatch(/permanently terminated/i)
+    expect(eula).not.toMatch(/stored locally|simulated report/i)
   })
 })

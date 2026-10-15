@@ -349,7 +349,7 @@ onBeforeUnmount(() => {
       </header>
       <article class="privacy-legal-intro"><p>{{ legalCopy.eula.intro }}</p></article>
       <article v-for="item in legalCopy.eula.sections" :key="item.title"><h2>{{ item.title }}</h2><p>{{ item.body }}</p></article>
-      <p class="privacy-legal-contact">{{ legalCopy.labels.contact }}</p>
+      <a class="privacy-legal-contact" :href="`mailto:${legalCopy.labels.supportEmail}?subject=OiVox%20Safety%20Report`">{{ legalCopy.labels.contact }}</a>
     </section>
 
     <section v-else-if="page === 'policies'" ref="legalScroll" class="privacy-account-scroll privacy-policies-page">
@@ -362,7 +362,7 @@ onBeforeUnmount(() => {
       </header>
       <article class="privacy-legal-intro"><p>{{ activeLegalDocument.intro }}</p></article>
       <article v-for="item in activeLegalDocument.sections" :key="item.title"><h2>{{ item.title }}</h2><p>{{ item.body }}</p></article>
-      <p class="privacy-legal-contact">{{ legalCopy.labels.contact }}</p>
+      <a class="privacy-legal-contact" :href="`mailto:${legalCopy.labels.supportEmail}?subject=OiVox%20Safety%20Report`">{{ legalCopy.labels.contact }}</a>
     </section>
     </div>
     </Transition>

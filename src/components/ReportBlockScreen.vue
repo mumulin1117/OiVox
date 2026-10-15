@@ -16,6 +16,7 @@ const page = ref(null)
 const confirmDialog = ref(null)
 const reason = ref('harassment')
 const details = ref('')
+const hideContent = ref(true)
 const alsoBlock = ref(true)
 const confirmOpen = ref(false)
 
@@ -46,6 +47,7 @@ function submit(block) {
   emit('submit', {
     reason: reason.value,
     details: details.value.trim(),
+    hideContent: props.source === 'voice' && hideContent.value,
     alsoBlock: block,
     targetType: props.source === 'voice' ? 'voice' : 'user',
     voiceID: props.source === 'voice' ? props.person.voiceClip?.id || '' : '',
@@ -83,6 +85,12 @@ onMounted(() => page.value?.focus())
       <label class="report-block-details">
         <span class="sr-only">{{ copy.details }}</span>
         <textarea v-model="details" maxlength="500" rows="1" :placeholder="copy.details" />
+      </label>
+
+      <label v-if="source === 'voice'" class="report-block-toggle">
+        <input v-model="hideContent" type="checkbox">
+        <i aria-hidden="true" />
+        <span>{{ copy.hideContent }}</span>
       </label>
 
       <label class="report-block-toggle">

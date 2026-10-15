@@ -11,6 +11,7 @@ import { syncNativeLanguage, useI18n } from './i18n'
 import { installKeyboardViewport } from './keyboardViewport'
 import { oivoxAccountApi } from './services/oivoxAccountApi'
 import { mergeAccountUserWithLocalCache } from './services/accountUserCache'
+import { readEulaConsent } from './services/eulaPreference'
 import { attachProfileAvatarPreview } from './services/profileAvatar'
 
 const { t } = useI18n()
@@ -21,6 +22,7 @@ const launchTransitionActive = ref(false)
 const mainHubIntroRequested = ref(false)
 const registrationDraft = ref(null)
 const authRouteDirection = ref('forward')
+const resumeAuthenticatedAfterEula = ref(false)
 const isAuthFlowScreen = computed(() => ['welcome', 'auth', 'registration'].includes(screen.value))
 let removeContentInteractionGuard = () => {}
 let removeKeyboardViewport = () => {}
@@ -37,9 +39,12 @@ onMounted(async () => {
     if (hadSessionAtLaunch) {
       user.value = await attachProfileAvatarPreview(mergeAccountUserWithLocalCache(await oivoxAccountApi.getProfile()))
       mainHubIntroRequested.value = true
-      screen.value = 'authenticated'
+      if (readEulaConsent().accepted) screen.value = 'authenticated'
+      else resumeAuthenticatedAfterEula.value = true
     }
   } catch {
+    hadSessionAtLaunch = false
+    resumeAuthenticatedAfterEula.value = false
     await oivoxAccountApi.logout().catch(() => {})
   } finally {
     restoring.value = false
@@ -88,6 +93,13 @@ function openAuth() {
   screen.value = 'auth'
 }
 
+function eulaAccepted() {
+  if (!resumeAuthenticatedAfterEula.value || !user.value) return
+  resumeAuthenticatedAfterEula.value = false
+  launchTransitionActive.value = false
+  screen.value = 'authenticated'
+}
+
 function registered(profile) {
   const merged = mergeAccountUserWithLocalCache(profile)
   user.value = merged
@@ -108,6 +120,7 @@ function profileUpdated(profile) {
 async function logout() {
   await oivoxAccountApi.logout().catch(() => {})
   user.value = null
+  resumeAuthenticatedAfterEula.value = false
   registrationDraft.value = null
   launchTransitionActive.value = false
   screen.value = 'welcome'
@@ -140,6 +153,7 @@ function completeLaunchTransition() {
           :aria-hidden="launchTransitionActive ? 'true' : undefined"
           :defer-initial-eula="launchTransitionActive"
           @open-auth="openAuth"
+          @eula-accepted="eulaAccepted"
         />
         <FirstLaunchTransition v-if="launchTransitionActive" @complete="completeLaunchTransition" />
       </div>

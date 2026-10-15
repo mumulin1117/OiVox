@@ -12,10 +12,10 @@ import {
   encodeSessionEnvelope,
 } from '../../src/services/oivoxSignalContract.js'
 
-const TERMS_VERSION = '2026-09-oivox-legal-v2'
+const TERMS_VERSION = '2026-10-oivox-legal-v3'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const SUPPORTED_LANGUAGES = new Set(['en', 'ar', 'he', 'tr', 'fr', 'de', 'ja', 'ko'])
-const AGE_RANGES = new Set(['17-24', '25-34', '35+'])
+const AGE_RANGES = new Set(['18-24', '25-34', '35+'])
 const PRESET_AVATAR_KEYS = new Set(['portrait-02', 'portrait-03', 'portrait-04', 'portrait-07', 'portrait-09'])
 const AVATAR_ASSET_ID_PATTERN = /^avatar_[A-Za-z0-9_-]{8,100}$/
 const INTERESTS = new Set(['food', 'travel', 'movies', 'music', 'photography', 'sports', 'books', 'games', 'pets', 'festivals', 'city-life', 'languages'])
@@ -163,7 +163,7 @@ function validateProfilePatch(body) {
     patch.preferredLanguage = body.preferredLanguage
   }
   if ('ageRange' in body) {
-    if (!AGE_RANGES.has(body.ageRange)) throw new ApiError(400, 'AGE_RESTRICTED', 'OiVox accounts require an age range of 17 or older.')
+    if (!AGE_RANGES.has(body.ageRange)) throw new ApiError(400, 'AGE_RESTRICTED', 'OiVox accounts require an age range of 18 or older.')
     patch.ageRange = body.ageRange
   }
   if ('interests' in body) {
@@ -178,7 +178,7 @@ function validateRegistrationData(body) {
   const email = normalizeEmail(body.email)
   const password = validatePassword(body.password)
   if (body.acceptedTerms !== true || body.termsVersion !== TERMS_VERSION) throw new ApiError(400, 'TERMS_REQUIRED', 'Accept the current Terms and Privacy Policy.')
-  if (!AGE_RANGES.has(body.ageRange)) throw new ApiError(400, 'AGE_RESTRICTED', 'OiVox accounts require an age range of 17 or older.')
+  if (!AGE_RANGES.has(body.ageRange)) throw new ApiError(400, 'AGE_RESTRICTED', 'OiVox accounts require an age range of 18 or older.')
 
   if (!body.profile || typeof body.profile !== 'object' || Array.isArray(body.profile)) throw new ApiError(400, 'INVALID_DISPLAY_NAME', 'Display name must contain 1 to 32 characters.')
   if (typeof body.profile.displayName !== 'string' || !body.profile.displayName.trim() || body.profile.displayName.trim().length > 32) throw new ApiError(400, 'INVALID_DISPLAY_NAME', 'Display name must contain 1 to 32 characters.')

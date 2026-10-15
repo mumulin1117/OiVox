@@ -16,6 +16,8 @@ describe('Blue Lake privacy and account contract', () => {
       for (const key of keys) expect(copy[key], `${locale}.${key}`).toBeTruthy()
       expect(copy.ruleItems).toHaveLength(5)
       expect(copy.deleteItems).toHaveLength(4)
+      expect(copy.termsBody, `${locale}.termsBody`).toMatch(/18/)
+      expect(copy.enforcementBody, `${locale}.enforcementBody`).toMatch(/24/)
     }
   })
 
@@ -28,6 +30,7 @@ describe('Blue Lake privacy and account contract', () => {
     expect(component).toContain('activeLegalDocument.sections')
     expect(component).toContain('legalCopy.labels.effective')
     expect(component).toContain('legalCopy.labels.version')
+    expect(component).toContain('mailto:${legalCopy.labels.supportEmail}?subject=OiVox%20Safety%20Report')
   })
 
   it('routes the profile settings button to the privacy screen and preserves language return context', () => {

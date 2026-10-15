@@ -6,7 +6,7 @@ import { discoveryPeople, firstDayFreeDiscoveryIDs } from '../data/discoveryFixt
 import { legalDocuments } from '../data/legalDocuments'
 import { formatVoiceDuration } from '../services/voicePlaybackService'
 
-const emit = defineEmits(['open-auth'])
+const emit = defineEmits(['open-auth', 'eula-accepted'])
 const props = defineProps({ deferInitialEula: { type: Boolean, default: false } })
 const { locale, t } = useI18n()
 const accepted = ref(readEulaConsent().accepted)
@@ -45,6 +45,7 @@ watch(() => props.deferInitialEula, (isDeferred, wasDeferred) => {
 function toggleConsent() {
   accepted.value = !accepted.value
   setEulaAccepted(accepted.value)
+  if (accepted.value) emit('eula-accepted')
 }
 
 function openLegal(mode) {
@@ -64,6 +65,7 @@ function agree() {
   setEulaAccepted(true)
   eulaEntryMode.value = 'none'
   showEula.value = false
+  emit('eula-accepted')
 }
 
 function closeEula() {
@@ -210,7 +212,7 @@ function continueToAuth() {
             <h2>{{ item.title }}</h2>
             <p>{{ item.body }}</p>
           </article>
-          <p class="eula-standalone-contact">{{ legalCopy.labels.contact }}</p>
+          <a class="eula-standalone-contact" :href="`mailto:${legalCopy.labels.supportEmail}?subject=OiVox%20Safety%20Report`">{{ legalCopy.labels.contact }}</a>
         </div>
         <footer class="eula-standalone-action">
           <button class="secondary-pill" type="button" @click="closeEula">{{ t('cancel') }}</button>
@@ -248,7 +250,7 @@ function continueToAuth() {
             <h3>{{ item.title }}</h3>
             <p>{{ item.body }}</p>
           </article>
-          <p class="legal-contact">{{ legalCopy.labels.contact }}</p>
+          <a class="legal-contact" :href="`mailto:${legalCopy.labels.supportEmail}?subject=OiVox%20Safety%20Report`">{{ legalCopy.labels.contact }}</a>
         </div>
         <div class="eula-actions legal-document-actions">
           <button v-if="accepted" class="secondary-pill" type="button" @click="closeEula">{{ t('close') }}</button>

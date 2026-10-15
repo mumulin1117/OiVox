@@ -13,6 +13,14 @@ describe('unauthenticated launch transition contract', () => {
     expect(app).toContain('v-if="launchTransitionActive"')
   })
 
+  it('gates a restored session on acceptance of the current EULA version', () => {
+    expect(app).toContain("import { readEulaConsent } from './services/eulaPreference'")
+    expect(app).toContain('if (readEulaConsent().accepted)')
+    expect(app).toContain('resumeAuthenticatedAfterEula.value = true')
+    expect(app).toContain('@eula-accepted="eulaAccepted"')
+    expect(app).toContain("screen.value = 'authenticated'")
+  })
+
   it('resolves the native language before mounting the localized transition', () => {
     const languageSyncIndex = app.indexOf('await syncNativeLanguage().catch(() => {})')
     const sessionCheckIndex = app.indexOf('hadSessionAtLaunch = await oivoxAccountApi.hasSession()')

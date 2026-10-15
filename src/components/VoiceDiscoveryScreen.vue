@@ -742,6 +742,7 @@ async function submitReport(payload) {
   const target = currentProfile.value
   const transaction = reportTransaction.value || {
     reportID: operationID('discovery-report'),
+    hideID: operationID('discovery-report-hide'),
     blockID: operationID('discovery-block'),
   }
   reportTransaction.value = transaction
@@ -756,6 +757,19 @@ async function submitReport(payload) {
     }
     await nativeBridge.reportUser(target.id, payload.reason, context, { pageInstanceID: 'voice-discovery-safety' })
     socialStore.reportUser(target.id, payload.reason, transaction.reportID, context)
+    let removedFromFeed = false
+    if (payload.hideContent) {
+      stopVoice()
+      discoverySnapshot.value = discoveryStore.decide({
+        userID: target.id,
+        kind: 'pass',
+        operationID: transaction.hideID,
+        walletSnapshot: walletStore.getSnapshot(),
+        relationships: socialSnapshot.value.relationshipsByUserID,
+        heardVoiceIDs: voiceActivityStore.getSnapshot().heardVoices.map((item) => item.voiceID),
+      })
+      removedFromFeed = true
+    }
     if (payload.alsoBlock) {
       stopVoice()
       await nativeBridge.blockUser(target.id, transaction.blockID, { pageInstanceID: 'voice-discovery-safety' })
@@ -766,12 +780,12 @@ async function submitReport(payload) {
         throw storeError
       }
       refreshDiscoverySnapshot()
-      const nextUserID = discoverySnapshot.value.remainingUserIDs[0]
-      if (nextUserID) showProfile(nextUserID)
     }
+    const nextUserID = discoverySnapshot.value.remainingUserIDs[0]
+    if ((removedFromFeed || payload.alsoBlock) && nextUserID) showProfile(nextUserID)
     activePanel.value = 'discovery'
     reportTransaction.value = null
-    showNotice(copy.value.reportSaved)
+    showNotice(removedFromFeed ? copy.value.reportHidden : copy.value.reportSaved)
   } catch {
     reportError.value = copy.value.reportFailed
   } finally {
