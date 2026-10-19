@@ -817,6 +817,8 @@ img, svg, button { -webkit-user-drag: none; user-drag: none; }
 .voice-discovery-translate:disabled { opacity: .58; cursor: default; }
 .voice-discovery-match { min-height: 34px; display: flex; align-items: center; gap: 8px; margin: 10px 0 0; padding: 7px 12px; border-radius: 12px; color: #6c6560; background: rgba(255,255,255,.82); font-size: 10.5px; line-height: 14px; font-weight: 600; }
 .voice-discovery-match img { width: 17px; height: 17px; flex: none; color: #6c55b8; }
+.voice-discovery-profile { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; margin-top: 8px; padding: 8px 16px; border: 0; border-radius: 14px; color: #1d1b1a; background: rgba(255,255,255,.9); font-size: 12.5px; line-height: 16px; font-weight: 800; cursor: pointer; }
+.voice-discovery-profile:disabled { opacity: .52; cursor: default; }
 .voice-discovery-exhausted { min-height: 64px; display: flex; align-items: center; gap: 11px; margin-top: 14px; padding: 10px 12px; border-radius: 16px; color: #fff; background: #1d1b1a; box-shadow: 0 8px 20px rgba(29,27,26,.18); animation: discovery-exhausted-in 260ms ease both; }
 .voice-discovery-exhausted > span { min-width: 0; flex: 1; }
 .voice-discovery-exhausted strong, .voice-discovery-exhausted small { display: block; }

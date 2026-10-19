@@ -8,7 +8,5 @@ cd "$PROJECT_ROOT"
 "$PNPM_BIN" install
 "$PNPM_BIN" build
 
-TARGET="$PROJECT_ROOT/ios/OiVox/WebApp"
-mkdir -p "$TARGET"
-find "$TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-cp -R "$PROJECT_ROOT/dist/." "$TARGET/"
+ENCRYPTED_TARGET="$PROJECT_ROOT/ios/OiVox/vocalAtlasPhrasePairPulseEarthDialectSync.bundle"
+swift "$PROJECT_ROOT/scripts/package-webapp.swift" "$PROJECT_ROOT/dist" "$ENCRYPTED_TARGET"

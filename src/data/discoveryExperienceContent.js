@@ -72,7 +72,22 @@ const userFacingStatusCopy = {
   ko: { translateUnavailable: '번역을 잠시 사용할 수 없습니다. 나중에 다시 시도해 주세요.', reportSaved: '신고가 제출되었으며 24시간 이내에 검토합니다.', reportHidden: '신고가 제출되었고 이 음성은 피드에서 즉시 제거되었습니다.', fixtureNotice: '저장한 활동' },
 }
 
+const viewProfileCopy = {
+  en: 'View profile',
+  ar: 'عرض الملف الشخصي',
+  he: 'הצגת פרופיל',
+  tr: 'Profili görüntüle',
+  fr: 'Voir le profil',
+  de: 'Profil ansehen',
+  ja: 'プロフィールを見る',
+  ko: '프로필 보기',
+}
+
 export function discoveryExperienceContent(locale) {
   const resolvedLocale = copy[locale] ? locale : 'en'
-  return { ...copy[resolvedLocale], ...(userFacingStatusCopy[resolvedLocale] || userFacingStatusCopy.en) }
+  return {
+    ...copy[resolvedLocale],
+    viewProfile: viewProfileCopy[resolvedLocale] || viewProfileCopy.en,
+    ...(userFacingStatusCopy[resolvedLocale] || userFacingStatusCopy.en),
+  }
 }

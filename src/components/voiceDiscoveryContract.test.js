@@ -110,6 +110,16 @@ describe('single-card voice discovery contract', () => {
 
   it('opens the profile and uses explicit coin-confirmed translation and StoreKit screens', () => {
     expect(component).toContain("emit('open-profile', currentProfile.value.id)")
+    expect(component).toContain('class="voice-discovery-profile"')
+    expect(component).toContain('data-discovery-swipe-ignore')
+    expect(component).toContain('@click.stop="openProfile"')
+    expect(css).toContain('.voice-discovery-profile { width: 100%; min-height: 44px;')
+    expect(component.indexOf('voice-discovery-match')).toBeLessThan(component.indexOf('voice-discovery-profile'))
+    expect(component.indexOf('voice-discovery-profile')).toBeLessThan(component.indexOf('voice-discovery-actions'))
+    const supportedLocales = ['en', 'ar', 'he', 'tr', 'fr', 'de', 'ja', 'ko']
+    supportedLocales.forEach((locale) => {
+      expect(discoveryExperienceContent(locale).viewProfile).toBeTruthy()
+    })
     expect(component).toContain("translationModal.value = walletBalance.value < 5 ? 'insufficient' : 'confirm'")
     expect(component).toContain("translationModal.value = 'insufficient'")
     expect(component).toContain("import insufficientWarningArt from '../assets/slices/coin-insufficient-warning@2x.png'")

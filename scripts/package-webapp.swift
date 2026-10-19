@@ -44,7 +44,7 @@ var archive = Data("OIVOX-BUNDLE-1".utf8)
 appendUInt32(UInt32(files.count), to: &archive)
 for relativePath in files {
     let fileURL = source.appendingPathComponent(relativePath)
-    var pathData = Data(relativePath.utf8)
+    let pathData = Data(relativePath.utf8)
     let content = try Data(contentsOf: fileURL)
     appendUInt32(UInt32(pathData.count), to: &archive)
     archive.append(pathData)

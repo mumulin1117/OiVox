@@ -950,6 +950,7 @@ onBeforeUnmount(() => {
         </section>
         <button class="voice-discovery-translate" type="button" :disabled="translationBusy || !canTranslate" @click="openTranslationConfirmation"><span><img :src="sparkleIcon" alt="">{{ translateLabel }}</span><b v-if="canTranslate" dir="ltr"><img :src="coinIcon" alt="">5</b></button>
         <p class="voice-discovery-match"><img :src="infoIcon" alt=""><span>{{ copy.matchReason }}</span></p>
+        <button class="voice-discovery-profile" type="button" data-discovery-swipe-ignore :disabled="decisionBusy || entryPhase !== 'ready'" @click.stop="openProfile">{{ copy.viewProfile }}</button>
         <section v-if="exhausted" class="voice-discovery-exhausted" aria-live="polite">
           <span><strong>{{ cardPackCopy.exhaustedTitle }}</strong><small>{{ cardPackCopy.exhaustedSubtitle }}</small></span>
           <button ref="cardPackTrigger" type="button" :disabled="cardPackBusy" @click="openCardPackConfirmation"><img :src="coinIcon" alt=""><b dir="ltr">50 · +5</b></button>
