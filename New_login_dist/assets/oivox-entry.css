@@ -1,0 +1,184 @@
+/* Voice Earth opening, adapted from the main OiVox bundle to the entry's artwork area. */
+.welcome { position: relative; }
+
+.oivox-entry-art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.oivox-entry-stage {
+  position: relative;
+  inline-size: min(88%, 410px);
+  inline-size: min(88%, 93cqh, 410px);
+  aspect-ratio: 1;
+  margin: 0;
+  container-type: inline-size;
+}
+
+.oivox-entry-orb {
+  position: absolute;
+  inline-size: 54%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.oivox-entry-orb--lavender {
+  inset-block-start: 5%;
+  inset-inline-end: 4%;
+  background: rgba(226, 216, 248, .64);
+}
+
+.oivox-entry-orb--peach {
+  inset-block-end: 4%;
+  inset-inline-start: 1%;
+  background: rgba(248, 222, 210, .66);
+}
+
+.oivox-entry-core,
+.oivox-entry-world {
+  position: absolute;
+  inset-block-start: 44%;
+  left: 50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.oivox-entry-core {
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  inline-size: 37%;
+  background: rgba(255, 253, 249, .96);
+  box-shadow: 0 20px 44px rgba(96, 91, 121, .2);
+  color: #605b79;
+  transform: translate(-50%, -50%) scale(.58);
+}
+
+.oivox-entry-core b {
+  position: absolute;
+  inset-block-end: 15%;
+  font-size: clamp(9px, 4cqw, 14px);
+}
+
+.oivox-entry-ring {
+  position: absolute;
+  inset: -10%;
+  border: 2px solid rgba(195, 71, 120, .42);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.oivox-entry-wave {
+  display: flex;
+  align-items: center;
+  gap: clamp(1px, 1cqw, 3px);
+  color: #a93a63;
+}
+
+.oivox-entry-wave i {
+  display: block;
+  inline-size: clamp(1px, 1cqw, 3px);
+  block-size: clamp(4px, var(--bar-height), 45px);
+  border-radius: 99px;
+  background: currentColor;
+  --bar-height: 4.7cqw;
+}
+.oivox-entry-wave i:nth-child(2), .oivox-entry-wave i:nth-child(6) { --bar-height: 7.8cqw; }
+.oivox-entry-wave i:nth-child(3), .oivox-entry-wave i:nth-child(5) { --bar-height: 10.8cqw; }
+.oivox-entry-wave i:nth-child(4) { --bar-height: 13.5cqw; }
+
+.oivox-entry-core .oivox-entry-wave { transform: translateY(-2.5cqw); }
+
+.oivox-entry-world {
+  z-index: 1;
+  inline-size: 60%;
+  background: radial-gradient(circle at 35% 28%, #fff, #e2d8f8);
+  box-shadow: 0 22px 48px rgba(96, 91, 121, .18);
+  transform: translate(-50%, -55%) rotate(-8deg);
+}
+
+.oivox-entry-latitude,
+.oivox-entry-meridian {
+  position: absolute;
+  border: 1px solid rgba(96, 91, 121, .27);
+  border-radius: 50%;
+}
+
+.oivox-entry-latitude--upper { inset: 22% 4%; }
+.oivox-entry-latitude--lower { inset: 39% 1%; }
+.oivox-entry-meridian--wide { inset: 3% 26%; }
+.oivox-entry-meridian--narrow { inset: 3% 40%; }
+
+.oivox-entry-country {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  inline-size: clamp(13px, 9cqw, 35px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: #2b2d4b;
+  background: #fffdf9;
+  box-shadow: 0 7px 16px rgba(96, 91, 121, .2);
+  font-size: clamp(6px, 2.8cqw, 11px);
+  font-weight: 800;
+}
+
+.oivox-entry-country:nth-of-type(1) { left: 4%; top: 8%; --country-delay: 2.32s; }
+.oivox-entry-country:nth-of-type(2) { right: 2%; top: 17%; --country-delay: 2.46s; }
+.oivox-entry-country:nth-of-type(3) { left: -5%; top: 46%; --country-delay: 2.60s; }
+.oivox-entry-country:nth-of-type(4) { right: -5%; top: 50%; --country-delay: 2.74s; }
+.oivox-entry-country:nth-of-type(5) { left: 13%; bottom: 2%; --country-delay: 2.88s; }
+.oivox-entry-country:nth-of-type(6) { right: 14%; bottom: -2%; --country-delay: 3.02s; }
+.oivox-entry-country:nth-of-type(7) { left: 42%; top: -8%; --country-delay: 3.16s; }
+.oivox-entry-country:nth-of-type(8) { left: 42%; bottom: -8%; --country-delay: 3.30s; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .oivox-entry-art--playing .oivox-entry-core {
+    animation: oivox-entry-voice 5.45s cubic-bezier(.2,.82,.24,1) both;
+  }
+  .oivox-entry-art--playing .oivox-entry-ring {
+    animation: oivox-entry-ripple 1.05s ease-out 1.3s 3;
+  }
+  .oivox-entry-wave i {
+    animation: oivox-entry-pulse 1.6s ease-in-out -.25s infinite paused;
+  }
+  .oivox-entry-wave i:nth-child(2n) { animation-delay: -.52s; }
+  .oivox-entry-wave i:nth-child(3n) { animation-delay: -.8s; }
+  .oivox-entry-art--visible .oivox-entry-wave i { animation-play-state: running; }
+  .oivox-entry-art--playing .oivox-entry-world {
+    animation: oivox-entry-earth 3.3s cubic-bezier(.2,.82,.24,1) 1.8s both;
+  }
+  .oivox-entry-art--playing .oivox-entry-country {
+    animation: oivox-entry-country-pop .42s cubic-bezier(.2,1.4,.4,1) var(--country-delay) both;
+  }
+  @keyframes oivox-entry-voice {
+    0%, 10% { opacity: 0; transform: translate(-50%, -50%) scale(.25); }
+    22%, 62% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(.58); }
+  }
+  @keyframes oivox-entry-ripple {
+    from { opacity: .75; transform: scale(.8); }
+    to { opacity: 0; transform: scale(1.75); }
+  }
+  @keyframes oivox-entry-pulse {
+    0%, 100% { transform: scaleY(.72); }
+    30% { transform: scaleY(1.06); }
+    63% { transform: scaleY(.82); }
+  }
+  @keyframes oivox-entry-earth {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(.35) rotate(-12deg); }
+    28%, 69% { opacity: 1; transform: translate(-50%, -50%); }
+    to { opacity: 1; transform: translate(-50%, -55%) rotate(-8deg); }
+  }
+  @keyframes oivox-entry-country-pop {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}

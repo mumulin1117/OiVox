@@ -103,8 +103,6 @@ final class AaveEarthZoneMingle: NSObject, WKScriptMessageHandler {
         case (vocalAtlasPhrasePairPulseEarthDialectSync("SSeOcSuirrelSVtHoIrDe"), vocalAtlasPhrasePairPulseEarthDialectSync("doeelFeotue")):
             guard let vocalAtlasPhrasePair = waveEarthSync[vocalAtlasPhrasePairPulseEarthDialectSync("kbezy")] as? String else { throw BilingualstressTempo(.waveAtlasPair) }
             SmoothLightForestRaster.swiftParol(vocalAtlasPhrasePair); return [vocalAtlasPhrasePairPulseEarthDialectSync("dZeflKegteedd"): true]
-        case (vocalAtlasPhrasePairPulseEarthDialectSync("AmcCcdoeuNnTt"), vocalAtlasPhrasePairPulseEarthDialectSync("rqeJqruBevsOt")):
-            return try NuancedFlacEfficiency.toneOrbitDictionFuse(waveEarthSync)
         case (vocalAtlasPhrasePairPulseEarthDialectSync("PiheoHtnoKPDikcAkoeWr"), vocalAtlasPhrasePairPulseEarthDialectSync("sGeHlJevcntrSqumpfpKoorptbSqcgrOeyeWnHsGhxoWt")): return try await echoLocaleMerge.audioRegionMelodyGreet()
         case (vocalAtlasPhrasePairPulseEarthDialectSync("ACvmaTtgaBrcPlipcLkIevr"), vocalAtlasPhrasePairPulseEarthDialectSync("cphhoFofsPe")):
             return try await echoLocaleMerge.waveLocaleTempoMerge(flowBuzz: waveEarthSync)

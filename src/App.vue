@@ -9,7 +9,7 @@ import WelcomeScreen from './components/WelcomeScreen.vue'
 import { installContentInteractionGuard } from './contentInteractionGuard'
 import { syncNativeLanguage, useI18n } from './i18n'
 import { installKeyboardViewport } from './keyboardViewport'
-import { oivoxAccountApi } from './services/oivoxAccountApi'
+import { oivoxAccountApi, postShowingAccountEvent } from './services/oivoxAccountApi'
 import { mergeAccountUserWithLocalCache } from './services/accountUserCache'
 import { readEulaConsent } from './services/eulaPreference'
 import { attachProfileAvatarPreview } from './services/profileAvatar'
@@ -32,6 +32,16 @@ onMounted(async () => {
   removeKeyboardViewport = installKeyboardViewport(window, document)
 
   await syncNativeLanguage().catch(() => {})
+
+  if (window.__OIVOX_SHOWING_ACCOUNT__) {
+    try {
+      authenticated(await oivoxAccountApi.ensureProfileCached())
+      restoring.value = false
+    } catch {
+      postShowingAccountEvent('accountUnavailable')
+    }
+    return
+  }
 
   let hadSessionAtLaunch = false
   try {

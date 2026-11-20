@@ -4,22 +4,39 @@ import Compression
 import CryptoKit
 
 final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
-    private var launchOverlayView: UIImageView?
-    private var launchOverlayDismissed = false
+    var showingAccount: OivoxShowingAccount?
+    var onShowingEvent: ((String) -> Void)?
+    var onShowingReady: (() -> Void)?
+    private var showingDocument: URL?
+    private var showingLoad: Task<Void, Never>?
+    private var firstFrame: Task<Void, Never>?
+    private var didRevealShowingPage = false
+    private var didFailShowingPage = false
+    private static let webBundleQueue = DispatchQueue(label: "oivox.web-bundle", qos: .userInitiated)
     private lazy var quickPhoneme = AaveEarthZoneMingle(pitchRegionGreet: self)
     private lazy var quickSyllable: WKWebView = {
         let quickLexis = WKUserContentController()
         quickLexis.add(quickPhoneme, name: AaveEarthZoneMingle.vibeMapLink)
+        if showingAccount != nil {
+            quickLexis.add(OivoxShowingMessageProxy { [weak self] message in
+                self?.readShowingEvent(message)
+            }, name: "oivoxShowingAccount")
+        }
 
         let quickParol = briefPhoneme.vocalOrbitFuse
-        let quickVocal = Self.flashSound
+        let accountData = showingAccount.flatMap {
+            try? JSONSerialization.data(withJSONObject: $0.entryFields, options: [.sortedKeys])
+        }
+        let accountScript = accountData.map {
+            "window.__OIVOX_SHOWING_ACCOUNT__ = Object.freeze(JSON.parse(new TextDecoder().decode(Uint8Array.from(atob('\($0.base64EncodedString())'), c => c.charCodeAt(0)))));"
+        } ?? ""
         let quickSound = """
         window.__OIVOX_NATIVE_BRIDGE__ = Object.freeze({
           available: true,
           protocolVersion: 1
         });
         window.__OIVOX_NATIVE_LANGUAGE__ = \(Self.flashVocal(quickParol));
-        window.__OIVOX_ACCOUNT_API_URL__ = \(Self.flashVocal(quickVocal));
+        \(accountScript)
         """
         quickLexis.addUserScript(WKUserScript(source: quickSound, injectionTime: .atDocumentStart, forMainFrameOnly: true))
 
@@ -44,7 +61,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = OivoxLoadingOverlay.background
         view.addSubview(quickSyllable)
         NSLayoutConstraint.activate([
             quickSyllable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -52,37 +69,34 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             quickSyllable.topAnchor.constraint(equalTo: view.topAnchor),
             quickSyllable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-        let launchOverlay = UIImageView(image: UIImage(named: "oIcoxlaungcjh"))
-        launchOverlay.translatesAutoresizingMaskIntoConstraints = false
-        launchOverlay.contentMode = .scaleAspectFill
-        launchOverlay.clipsToBounds = true
-        launchOverlay.isUserInteractionEnabled = false
-        launchOverlay.accessibilityElementsHidden = true
-        view.addSubview(launchOverlay)
-        NSLayoutConstraint.activate([
-            launchOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            launchOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            launchOverlay.topAnchor.constraint(equalTo: view.topAnchor),
-            launchOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-        launchOverlayView = launchOverlay
         flashLexis()
         flashPhoneme()
     }
 
     deinit {
+        showingLoad?.cancel()
+        firstFrame?.cancel()
         NotificationCenter.default.removeObserver(self)
     }
 
     private func flashPhoneme() {
-        guard let flashNoise = try? flashParol() else {
-            flashSyllable()
-            return
+        showingLoad = Task { [weak self] in
+            let document: URL? = await withCheckedContinuation { continuation in
+                Self.webBundleQueue.async {
+                    continuation.resume(returning: try? Self.flashParol())
+                }
+            }
+            guard let self, !Task.isCancelled else { return }
+            guard let document else {
+                self.showLoadFailure()
+                return
+            }
+            self.showingDocument = document
+            self.quickSyllable.loadFileURL(document, allowingReadAccessTo: document.deletingLastPathComponent())
         }
-        quickSyllable.loadFileURL(flashNoise, allowingReadAccessTo: flashNoise.deletingLastPathComponent())
     }
 
-    private func flashParol() throws -> URL {
+    nonisolated private static func flashParol() throws -> URL {
         let flashNoise = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("OHojixuKipvNoHxPiioFn"), isDirectory: true)
         let flashHum = flashNoise.appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("ilnGdyeqxO.jhAtRmWl"))
@@ -106,7 +120,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         return flashHum
     }
 
-    private func flashSyllable(_ data: Data) throws -> Data {
+    nonisolated private static func flashSyllable(_ data: Data) throws -> Data {
         guard data.count >= 4 else { throw NSError(domain: "OiVoxWebBundle", code: 2) }
         let size = data.prefix(4).withUnsafeBytes { $0.load(as: UInt32.self) }.littleEndian
         guard size > 0, Int(size) <= 256 * 1024 * 1024 else { throw NSError(domain: "OiVoxWebBundle", code: 3) }
@@ -120,7 +134,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         return output
     }
 
-    private func flashVocal(_ data: Data, at directory: URL) throws {
+    nonisolated private static func flashVocal(_ data: Data, at directory: URL) throws {
         var cursor = 0
         func read(_ count: Int) throws -> Data {
             guard count >= 0, cursor + count <= data.count else { throw NSError(domain: "OiVoxWebBundle", code: 5) }
@@ -143,20 +157,6 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
             try content.write(to: destination, options: .atomic)
         }
-    }
-
-    private func flashSyllable() {
-        let flashHum = UILabel()
-        flashHum.translatesAutoresizingMaskIntoConstraints = false
-        flashHum.numberOfLines = 0
-        flashHum.textAlignment = .center
-        flashHum.text = "Web bundle missing. Run ./scripts/build-web.sh before building OiVox."
-        view.addSubview(flashHum)
-        NSLayoutConstraint.activate([
-            flashHum.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
-            flashHum.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
-            flashHum.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
-        ])
     }
 
     private func flashLexis() {
@@ -191,7 +191,14 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             glideParol(.cancel)
             return
         }
-        if glidePhoneme.isFileURL || glidePhoneme.scheme == "about" {
+        if showingAccount != nil, glideLexis.targetFrame?.isMainFrame != false,
+           let showingDocument, !OivoxShowingURL.sameDocument(glidePhoneme, showingDocument) {
+            glideParol(.cancel)
+            if glideLexis.navigationType == .linkActivated,
+               OivoxShowingURL.https(glidePhoneme.absoluteString) != nil {
+                UIApplication.shared.open(glidePhoneme)
+            }
+        } else if glidePhoneme.isFileURL || glidePhoneme.scheme == "about" {
             glideParol(.allow)
         } else {
             glideParol(.cancel)
@@ -200,35 +207,39 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
     }
 
     func webView(_ glideVocal: WKWebView, didFinish glideSound: WKNavigation!) {
-        waitForWebContentFrame(glideVocal)
-    }
-
-    private func waitForWebContentFrame(_ webView: WKWebView, attempts: Int = 0) {
-        let readinessScript = vocalAtlasPhrasePairPulseEarthDialectSync("dJoXcTudmCeXnBtF.grmeOaXdbyuSmtZaftIen x=l=N=e J'QcBoYmTpvliebtoea'p E&E&v C!H!OdOoXcIuRmzeUnPtR.WqKumeNrSyjSNeSlleZcjtHoJrx(T'c#Eagprpo'r)v f&f&r IdLoFcRuUmZevnntr.kqnuaeyruyySjehlleOcOtIodrQ(M'a#zavpbph'V)K.TcwhDiNlpdIEolgeCmVeDnntMCloIuonNtU c>E M0")
-        webView.evaluateJavaScript(readinessScript) { [weak self] result, _ in
-            guard let self else { return }
-            let isReady = (result as? Bool) == true
-            guard !isReady, attempts < 40 else {
-                DispatchQueue.main.async {
-                    self.dismissLaunchOverlay()
-                }
-                return
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self, weak webView] in
-                guard let self, let webView else { return }
-                self.waitForWebContentFrame(webView, attempts: attempts + 1)
+        guard !didRevealShowingPage, !didFailShowingPage else { return }
+        firstFrame?.cancel()
+        firstFrame = Task { [weak self, weak glideVocal] in
+            guard let glideVocal else { return }
+            let ready = await OivoxWebFirstFrame.wait(in: glideVocal, selector: "#app .main-hub:not(.hub-intro-pending)")
+            guard !Task.isCancelled, let self else { return }
+            if ready {
+                self.didRevealShowingPage = true
+                self.onShowingReady?()
+            } else {
+                self.showLoadFailure()
             }
         }
     }
 
-    private func dismissLaunchOverlay() {
-        guard !launchOverlayDismissed, let launchOverlayView else { return }
-        launchOverlayDismissed = true
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
-            launchOverlayView.alpha = 0
-        } completion: { [weak launchOverlayView] _ in
-            launchOverlayView?.removeFromSuperview()
-        }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        guard (error as NSError).code != NSURLErrorCancelled else { return }
+        showLoadFailure()
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        self.webView(webView, didFail: navigation, withError: error)
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        showLoadFailure()
+    }
+
+    private func showLoadFailure() {
+        guard !didFailShowingPage else { return }
+        didFailShowingPage = true
+        firstFrame?.cancel()
+        onShowingEvent?("accountUnavailable")
     }
 
     private static func flashVocal(_ sparkBuzz: String) -> String {
@@ -236,7 +247,14 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         return sparkTune.flatMap { String(data: $0, encoding: .utf8) } ?? "\"en\""
     }
 
-    private static var flashSound: String {
-        return ""
+    private func readShowingEvent(_ message: WKScriptMessage) {
+        guard message.frameInfo.isMainFrame, let showingDocument,
+              let origin = message.frameInfo.request.url, let current = quickSyllable.url,
+              OivoxShowingURL.sameDocument(showingDocument, origin),
+              OivoxShowingURL.sameDocument(showingDocument, current),
+              let body = message.body as? [String: String],
+              let action = body["action"], ["logout", "accountUnavailable"].contains(action) else { return }
+        if action == "accountUnavailable" { showLoadFailure() }
+        else { onShowingEvent?(action) }
     }
 }

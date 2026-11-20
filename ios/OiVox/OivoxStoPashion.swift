@@ -8,6 +8,8 @@ final class OivoxStoPashion {
         vocalAtlasPhrasePairPulseEarthDialectSync("hXsVvtnpuLalvCcDkziDaioklxvlbqu"), vocalAtlasPhrasePairPulseEarthDialectSync("uAuOeSrazVkeaNuejjloaIkuebznbSw"),
     ])
 
+    func allowsProduct(_ productID: String) -> Bool { vibeMapLink.contains(productID) }
+
     func pulseAtlasPair(vocalOrbitFuse: [String]) async throws -> [String: Any] {
         let sonicSphereBlend = vocalOrbitFuse.filter { vibeMapLink.contains($0) }
         let echoLocaleMerge = try await Product.products(for: sonicSphereBlend)

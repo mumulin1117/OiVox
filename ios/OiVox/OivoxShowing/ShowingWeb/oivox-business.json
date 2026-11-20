@@ -1,0 +1,38 @@
+{
+  "receipt": {
+    "enabled": true,
+    "url": "https://oiv.fenneldrift93.bid/oivox/checkorder",
+    "transactionID": "streamPhoneme",
+    "receiptData": "flowLexis",
+    "orderID": "quickSyllable"
+  },
+  "incoming": {
+    "data": "data",
+    "purchaseSelector": "vibeMapLink",
+    "purchaseAction": "vocalOrbitFuse",
+    "closeSelector": "soundHeart",
+    "closeAction": "soundStar",
+    "openSelector": "soundMark",
+    "openAction": "soundSave",
+    "forwardSelector": "soundHold",
+    "forwardAction": "streamPhoneme",
+    "productID": "TempoMerge",
+    "orderID": "quickSound",
+    "externalURL": "quickNoise",
+    "directCloseHandler": "Close"
+  },
+  "outgoing": {
+    "event": "event",
+    "purchaseEvent": "payResult",
+    "orderID": "callbackResult",
+    "productID": "productId",
+    "success": "success",
+    "status": "status",
+    "message": "message",
+    "reason": "reason",
+    "openEvent": "nativeOpenState",
+    "openState": "state",
+    "source": "source",
+    "nativeSource": "native"
+  }
+}

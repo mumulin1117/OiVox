@@ -1,0 +1,395 @@
+Social Replica 人脸认证接入文档
+
+项目名称：Oivox
+App ID：42618403
+项目类型：FACE_ONLY
+历史配置版本（不作为人脸准入限制）：1.0.0
+人脸服务域名：https://clientapi.oivoxvoice.online
+混淆 Revision：1
+生成范围：以七秒语音为起点的全球交友与语言交流社区
+导出时间：2026-11-19 10:46:38
+
+
+接入说明
+本项目共 6 个接口，原始与混淆 URL 是同一个接口的两种入口。正式接入使用混淆 URL。
+接入顺序：Open启动 → 输入邮箱密码并点击下一步 → 新老用户校验 → 下方三种模式对应步骤；三种模式共用本项目的6个接口及同一套路径、字段、Header混淆。取消时调用拒绝或取消认证。
+项目认证方式由后台配置，创建会话时固定；接口不返回verificationMode，前端按项目预先约定流程。仅活体模式跳过照片上传，Result无需referenceImageId，仅判断AWS完成状态和活体阈值；照片比对模式保持原流程；仅人像模式上传正脸照片并通过质量检查即可完成，不创建AWS活体会话、不做人脸比对。两种活体模式的AWS参考人像自动保存为活体抓拍，与用户上传照片一起展示，重复查询不重复存图；图片保存重试与认证判定分开。
+AWS SDK 操作在客户端完成，不是新增的后端接口。全流程保持同一 appId、deviceNo；版本记录本次客户端值，升级不要求重新认证。
+
+三种认证模式接入指南
+模式由后台项目开关控制，创建会话时保存模式快照；客户端请求不传verificationMode，创建响应也不返回该字段。前端须事先与项目配置约定模式；切换只影响新会话，已有会话继续按创建时的模式完成。无需生成第二套混淆方案，已有别名保持不变；完整方案重新下载TXT即可取得本说明。
+统一入口顺序：Open（启动，不带邮箱）→ 显示返回H5 → 用户输入邮箱、密码并点击下一步 → user-status（新老用户校验）→ 新用户进入下面对应模式；老用户调用带邮箱的Open登录入口。认证成功后的Result已交付H5/token，无需立即再请求Open。
+本说明保留现有业务：user-status只判断本项目内设备号是否命中成功历史，并优先匹配配置测试账号；不验证密码、不按账号值匹配普通用户成功历史、不把当前新设备写成VERIFIED。Open仍按设备真实认证、测试账号及版本/兜底规则返回，普通账号换到新设备仍按新用户处理；以实际返回为准。Open的isNewUser也可能来自版本拦截或第三方兜底，不要据此反复要求已认证设备重做认证，避免循环跳转。
+
+模式一：活体＋照片比对（LIVENESS_AND_COMPARE）
+1. 应用启动调用Open：POST https://clientapi.oivoxvoice.online/moment8/hear/personality，JSON {}；此时不带email/password，pushToken可选。携带公共Header hearSparkSimple=<本项目appId>、messageExploreDialog=<本次客户端实际版本，不带v>、sevenSparkHeart=<固定设备号>。按返回h5Url展示页面，longtoken内部第三方字段不改写。
+2. 输入账号（邮箱或用户名）、密码后点击下一步，先校验新老用户：POST https://clientapi.oivoxvoice.online/local8/welcome/city/chat；沿用相同appId/appVersion/deviceNo，JSON：
+{
+  "linkSparkHuman" : "user@example.com"
+}
+该请求不传password，也不传verificationId；该阶段尚未创建认证。响应示例（新用户）：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "translationChatDistant" : true
+}
+普通非空账号（邮箱或用户名）登记或更新设备注册资料和进度，只录入邮箱不算认证成功；测试账号跳过普通登记。
+分支A：code非0或HTTP失败，显示英文message，停留当前页面，不继续创建认证。
+分支B：isNewUser=false（老用户或测试账号），跳过后续人脸步骤，调用Open登录入口：POST https://clientapi.oivoxvoice.online/moment8/hear/personality，JSON：
+{
+  "linkSparkHuman" : "user@example.com"
+}
+pushToken可选，依旧不传password；以本次Open实际h5Url/longtoken为准。相同账号换到新设备仍需要认证；Open可能仍返回本地页，不在前端自行绕过认证或无限循环调用。
+分支C：isNewUser=true，经用户明确同意后才按下方步骤创建认证；邮箱、密码只在页面内存暂存，后续Result提交email/password（password沿用可选规则），不放入URL/localStorage/日志。Open/user-status不校验密码，老用户分支不通过这两个接口保存密码；Result只保存密码哈希，不实现账号密码登录。
+3. 创建认证：POST https://clientapi.oivoxvoice.online/tone9/chat/friendship/global，JSON：
+{
+  "connectIntroMessage" : true
+}
+保存verificationId，sessionId/region/identityPoolId交给AWS SDK。
+4. 上传正脸照片：POST https://clientapi.oivoxvoice.online/curious9/conversation/country/world/language，Content-Type=multipart/form-data；额外Header countryMessageSeven=<verificationId>；表单 casualLocalListen=<本项目appId>、sparkLanguageTranslation=<客户端实际版本>、connectSceneMessage=<正面单人照片文件>。保留images中的imageId；照片质量检查未通过时重新拍摄上传。
+5. 客户端使用AWS SDK完成视频活体（不是后端HTTP接口）。
+6. 查询Result：POST https://clientapi.oivoxvoice.online/culture5/community/connect/local/dialog，首次Result JSON最小示例：
+{
+  "communityCountryDiscovery" : "<创建返回的认证ID>",
+  "echoMeetingRhythm" : "<上传返回的imageId>",
+  "linkSparkHuman" : "<下一步时填写的邮箱>",
+  "translationOpenSimple" : "<页面暂存的密码，可选>"
+}
+必须使用用户上传照片的imageId，不能用AWS活体抓拍代替；绑定成功后重查可省略referenceImageId。后端检查活体并比对用户照片与AWS参考人像，两项均通过才认证通过。
+
+模式二：仅活体（LIVENESS_ONLY）
+1. 应用启动调用Open：POST https://clientapi.oivoxvoice.online/moment8/hear/personality，JSON {}；此时不带email/password，pushToken可选。携带公共Header hearSparkSimple=<本项目appId>、messageExploreDialog=<本次客户端实际版本，不带v>、sevenSparkHeart=<固定设备号>。按返回h5Url展示页面，longtoken内部第三方字段不改写。
+2. 输入账号（邮箱或用户名）、密码后点击下一步，先校验新老用户：POST https://clientapi.oivoxvoice.online/local8/welcome/city/chat；沿用相同appId/appVersion/deviceNo，JSON：
+{
+  "linkSparkHuman" : "user@example.com"
+}
+该请求不传password，也不传verificationId；该阶段尚未创建认证。响应示例（新用户）：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "translationChatDistant" : true
+}
+普通非空账号（邮箱或用户名）登记或更新设备注册资料和进度，只录入邮箱不算认证成功；测试账号跳过普通登记。
+分支A：code非0或HTTP失败，显示英文message，停留当前页面，不继续创建认证。
+分支B：isNewUser=false（老用户或测试账号），跳过后续人脸步骤，调用Open登录入口：POST https://clientapi.oivoxvoice.online/moment8/hear/personality，JSON：
+{
+  "linkSparkHuman" : "user@example.com"
+}
+pushToken可选，依旧不传password；以本次Open实际h5Url/longtoken为准。相同账号换到新设备仍需要认证；Open可能仍返回本地页，不在前端自行绕过认证或无限循环调用。
+分支C：isNewUser=true，经用户明确同意后才按下方步骤创建认证；邮箱、密码只在页面内存暂存，后续Result提交email/password（password沿用可选规则），不放入URL/localStorage/日志。Open/user-status不校验密码，老用户分支不通过这两个接口保存密码；Result只保存密码哈希，不实现账号密码登录。
+3. 创建认证：POST https://clientapi.oivoxvoice.online/tone9/chat/friendship/global，JSON：
+{
+  "connectIntroMessage" : true
+}
+保存verificationId及AWS会话参数，与模式一相同。
+4. 客户端使用AWS SDK完成视频活体；跳过照片上传接口，不需要reportId上传Header或imageId。
+5. 查询Result：POST https://clientapi.oivoxvoice.online/culture5/community/connect/local/dialog，JSON最小示例：
+{
+  "communityCountryDiscovery" : "<创建返回的认证ID>",
+  "linkSparkHuman" : "<下一步时填写的邮箱>",
+  "translationOpenSimple" : "<页面暂存的密码，可选>"
+}
+不传referenceImageId；后端只判断AWS活体完成状态及活体分数，不调用CompareFaces。AWS返回参考人像时自动留存活体抓拍；抓拍保存不要求前端另传图片。
+
+模式三：仅人像（PHOTO_ONLY）
+1. 应用启动调用Open：POST https://clientapi.oivoxvoice.online/moment8/hear/personality，JSON {}；此时不带email/password，pushToken可选。携带公共Header hearSparkSimple=<本项目appId>、messageExploreDialog=<本次客户端实际版本，不带v>、sevenSparkHeart=<固定设备号>。按返回h5Url展示页面，longtoken内部第三方字段不改写。
+2. 输入账号（邮箱或用户名）、密码后点击下一步，先校验新老用户：POST https://clientapi.oivoxvoice.online/local8/welcome/city/chat；沿用相同appId/appVersion/deviceNo，JSON：
+{
+  "linkSparkHuman" : "user@example.com"
+}
+该请求不传password，也不传verificationId；该阶段尚未创建认证。响应示例（新用户）：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "translationChatDistant" : true
+}
+普通非空账号（邮箱或用户名）登记或更新设备注册资料和进度，只录入邮箱不算认证成功；测试账号跳过普通登记。
+分支A：code非0或HTTP失败，显示英文message，停留当前页面，不继续创建认证。
+分支B：isNewUser=false（老用户或测试账号），跳过后续人脸步骤，调用Open登录入口：POST https://clientapi.oivoxvoice.online/moment8/hear/personality，JSON：
+{
+  "linkSparkHuman" : "user@example.com"
+}
+pushToken可选，依旧不传password；以本次Open实际h5Url/longtoken为准。相同账号换到新设备仍需要认证；Open可能仍返回本地页，不在前端自行绕过认证或无限循环调用。
+分支C：isNewUser=true，经用户明确同意后才按下方步骤创建认证；邮箱、密码只在页面内存暂存，后续Result提交email/password（password沿用可选规则），不放入URL/localStorage/日志。Open/user-status不校验密码，老用户分支不通过这两个接口保存密码；Result只保存密码哈希，不实现账号密码登录。
+3. 创建认证：POST https://clientapi.oivoxvoice.online/tone9/chat/friendship/global，JSON：
+{
+  "connectIntroMessage" : true
+}
+只生成verificationId，创建返回示例：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "communityCountryDiscovery" : "<认证ID>",
+  "personalityDialogEarth" : "ACTION_REQUIRED",
+  "naturalSparkVoice" : "NONE"
+}
+不返回sessionId/region/identityPoolId/expiresInSeconds，不创建AWS活体会话，前端不启动视频活体SDK。
+4. 上传正脸照片：POST https://clientapi.oivoxvoice.online/curious9/conversation/country/world/language，multipart/form-data；Header countryMessageSeven=<verificationId>；表单 casualLocalListen=<本项目appId>、sparkLanguageTranslation=<客户端实际版本>、connectSceneMessage=<正面单人照片文件>。照片必须通过现有单人脸、正面姿态、清晰度、亮度和遮挡检查，通过后返回imageId。检查失败返回原非零code与英文message；质量检测服务异常返回50301，不接收图片或放行认证。
+5. 查询Result：POST https://clientapi.oivoxvoice.online/culture5/community/connect/local/dialog，首次JSON：
+{
+  "communityCountryDiscovery" : "<认证ID>",
+  "echoMeetingRhythm" : "<上传返回的imageId>",
+  "linkSparkHuman" : "<下一步时填写的邮箱>",
+  "translationOpenSimple" : "<页面暂存的密码，可选>"
+}
+仅接受同项目、同认证下已通过质量检查的用户上传照片，不能引用其他认证照片或AWS抓拍。通过后记录VERIFIED并沿用原成功交付；不调用视频活体或CompareFaces，不产生活体分/相似度，也不生成AWS抓拍。只证明照片质量合格，不证明本人或真人现场拍摄。
+
+三种模式的Result均可另传email/password/nickname/birthday/pushToken（均可选，详见接口4），全流程保持相同appId和deviceNo；公共appVersion为本次真实版本，不带v。以上JSON和表单示例已使用当前项目混淆字段，公共Header使用下方混淆Header对照。verificationId是创建返回的认证ID；sessionId是AWS会话ID，二者不能混用。
+Result处理中code=0/status=PENDING，稍后重查；专用项目终态成功返回code/message/isNewUser/h5Url/longtoken，不再返回PENDING状态结构；认证失败code非0及英文message，不返回isNewUser/h5Url/longtoken，按提示重新创建会话。上传错误时先重拍，不继续提交无效imageId。
+三种模式取消均POST https://clientapi.oivoxvoice.online/conversation5/video/global，示例：
+{
+  "openDistantExchange" : "USER_CANCELLED",
+  "communityCountryDiscovery" : "<已创建的认证ID>"
+}
+未创建会话可不传verificationId；reason枚举值不混淆。
+
+公共 Header 对照（原名称 | 混淆名称 | 要求与说明）
+appId | hearSparkSimple | 必填；值=42618403
+appVersion | messageExploreDialog | 必填；本次客户端版本，无需后台预建，不带 v
+deviceNo | sevenSparkHeart | 必填；同一设备使用固定设备号
+pushToken | countrySimpleSpark | 可选；JSON 同字段优先，仅转发本次值，未传不补历史值
+公共 Header 示例：
+hearSparkSimple: 42618403
+messageExploreDialog: <客户端实际版本>
+sevenSparkHeart: <设备号>
+图片上传额外的 reportId Header 见接口 3。Content-Type、Origin、Accept 等 HTTP 标准 Header 不变。
+混淆路径使用任意已配置别名 Header 或字段即返回别名字段；全原 Header + 原字段保持旧响应。原始 /client/ 路径使用原 Header 和字段。
+Header 名称大小写不敏感。同一字段或 Header 不能同时提交原名和别名；项目身份必须匹配。映射全部版本共用，再次生成保留现有路径和映射。
+
+============================================================
+1. 登录入口路由
+============================================================
+方法：POST
+原始完整 URL：https://clientapi.oivoxvoice.online/client/face-verification/open
+混淆完整 URL：https://clientapi.oivoxvoice.online/moment8/hear/personality
+Content-Type：application/json
+Header：使用公共 Header
+用途：按项目和设备返回H5入口及Token；每次先实时获取Token，失败或无效才读有效缓存。测试账号优先于版本拦截，Open命中版本拦截返回isNewUser=true及本地第一个页面；Result认证成功命中拦截返回isNewUser=true及本地第二个页面。两者均实时优先，不使用缓存URL。不校验邮箱/密码，不作为独立账号登录认证。
+请求字段（JSON）（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+pushToken | simplePersonalityIntro | string | 请求可选；有值才转发第三方 | 可选
+email | linkSparkHuman | string | 可选，最多254字符；兼容邮箱或用户名；Open保存登录账号并匹配测试邮箱，result保存注册账号；不转发第三方 | 可选，保存设备登录邮箱，并匹配该项目配置的Apple测试账号邮箱
+Open email按appId+deviceNo保存为独立登录账号；未传/null/空白保留原值，不覆盖注册资料或认证快照。配置测试账号忽略首尾空白和大小写匹配，命中返回isNewUser=false、本地第二个欢迎页；Token始终实时优先，失败才用有效缓存，两者皆无则503。忽略第三方URL，不写VERIFIED，不触发AWS。普通账号不证明设备已认证；Result email用于绑定注册资料，二者用途不同。
+混淆请求示例（公共 Header 已携带身份，可直接传空 JSON）：
+{}
+返回字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+code | naturalWarmGlobal | integer | 返回；0表示处理成功，非认证结论 | 总是返回
+message | communityDialogGreeting | string | 返回；提示文本，不可代替认证判定 | 总是返回
+isNewUser | translationChatDistant | boolean | 返回；本次入口标记；测试账号false，版本拦截和老用户重试后的兜底true，正常实时老用户false；不等于数据库认证状态 | 总是返回
+h5Url | dialogWelcomeSignal | string | 终态/Open返回；加载页、欢迎页或第三方URL | 总是返回
+longtoken | warmGreetingCulture | object（成功时非空） | 返回；无有效Token时返回503；外层混淆，第三方对象内部保持原样 | 总是返回
+未认证设备：isNewUser=true、本地第一个注册页面、实时Token优先；实时失败才用有效缓存Token，无有效Token返回503。
+普通老设备：最多3次失败重试，共用本次幂等键；取得有效Token就停止，缺URL不重试。实时URL和Token均有效返回false及本次URL/Token；实时Token有效但无URL返回true、本地第一页及本次Token。实时失败仅有效缓存Token兜底，返回true及本地第一页；没有有效Token返回503。不使用缓存URL，不删除VERIFIED。
+混淆响应示例（未认证设备）：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "Please register and complete face verification.",
+  "translationChatDistant" : true,
+  "dialogWelcomeSignal" : "<配置的加载页>",
+  "warmGreetingCulture" : {
+    "clientId" : "<第三方原值>",
+    "capability" : "<第三方原值>"
+  }
+}
+
+============================================================
+2. 创建认证会话
+============================================================
+方法：POST
+原始完整 URL：https://clientapi.oivoxvoice.online/client/face-verification/session
+混淆完整 URL：https://clientapi.oivoxvoice.online/tone9/chat/friendship/global
+Content-Type：application/json
+Header：使用公共 Header
+用途：用户明确同意后创建认证流水；仅人像不创建AWS活体会话，另外两种模式同时创建AWS会话。
+请求字段（JSON）（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+consent | connectIntroMessage | boolean | 请求；明确同意生物识别，必须true | 必填，必须 true
+pushToken | simplePersonalityIntro | string | 请求可选；有值才转发第三方 | 可选
+混淆请求示例：
+{
+  "connectIntroMessage" : true
+}
+返回字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+code | naturalWarmGlobal | integer | 返回；0表示处理成功，非认证结论 | 总是返回
+message | communityDialogGreeting | string | 返回；提示文本，不可代替认证判定 | 总是返回
+verificationId | communityCountryDiscovery | string | 会话返回/结果请求；认证记录ID | 认证流水
+status | personalityDialogEarth | string | 非终态/上传返回；PENDING、ACTION_REQUIRED等，枚举值不混淆 | ACTION_REQUIRED 或 ALREADY_VERIFIED
+accessMode | naturalSparkVoice | string | 状态返回；NONE/FULL/LIMITED，专用终态不对外返回 | NONE 或 FULL
+sessionId | simplePersonalitySeven | string | 会话返回；交给AWS SDK的会话ID | 非仅人像模式新会话时返回
+region | echoCommunityConversation | string | 会话返回；交给AWS SDK，值不改写 | 非仅人像模式新会话时返回
+identityPoolId | sparkSparkOpen | string | 会话返回；交给AWS SDK，值不改写 | 非仅人像模式新会话时返回
+expiresInSeconds | hearCommunityCommunity | integer | 返回；会话有效秒数 | 非仅人像模式新会话时返回
+混淆响应示例（新会话）：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "communityCountryDiscovery" : "<认证ID>",
+  "personalityDialogEarth" : "ACTION_REQUIRED",
+  "naturalSparkVoice" : "NONE",
+  "simplePersonalitySeven" : "<AWS会话ID>",
+  "echoCommunityConversation" : "ap-northeast-1",
+  "sparkSparkOpen" : "<身份池ID>",
+  "hearCommunityCommunity" : 180
+}
+同项目设备已有 VERIFIED 时返回 ALREADY_VERIFIED，不再创建 AWS 会话；直接调用登录入口路由。sessionId/region/identityPoolId 的值解出后原样交给 AWS SDK。
+
+============================================================
+3. 上传照片
+============================================================
+方法：POST
+原始完整 URL：https://clientapi.oivoxvoice.online/client/app-environment/report/image
+混淆完整 URL：https://clientapi.oivoxvoice.online/curious9/conversation/country/world/language
+Content-Type：multipart/form-data
+Header：使用公共 Header
+用途：上传用于人脸比对的已授权照片；允许分批追加，不覆盖已有图片。
+额外 Header 对照（原名称 | 混淆名称 | 要求）：
+reportId | countryMessageSeven | 必填，值=创建会话返回的 verificationId
+请求字段（文件表单）（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+appId | casualLocalListen | string | 项目ID；JSON/表单可混淆，Header名称见Header对照表 | 必填，与公共 Header 同项目
+version | sparkLanguageTranslation | string | 客户端版本（无需预建）；不带展示用v，上传表单用version | 必填，客户端实际版本
+files | connectSceneMessage | file[] | 上传表单；最多100张，每张200KB以内 | 必填，可重复表示多张图片
+混淆表单示例：
+casualLocalListen=42618403
+sparkLanguageTranslation=<客户端实际版本>
+connectSceneMessage=@<图片文件>（可重复）
+每批最多 100 张，每张不超过 200KB；支持后端可解码的图片格式。浏览器自动设置 multipart boundary。
+返回字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+code | naturalWarmGlobal | integer | 返回；0表示处理成功，非认证结论 | 总是返回
+message | communityDialogGreeting | string | 返回；提示文本，不可代替认证判定 | 总是返回
+reportId | globalEarthTranslation | string | 上传响应；Header reportId=verificationId，Header名称见Header对照表 | 认证ID
+acceptedCount | welcomeHumanExchange | integer | 返回；接收的图片数量 | 本批接收数
+status | personalityDialogEarth | string | 非终态/上传返回；PENDING、ACTION_REQUIRED等，枚举值不混淆 | PENDING
+images | translationChatRhythm | array<object> | 上传响应；每项imageId/status也按本表混淆 | 图片数组
+imageId | translationCultureVoice | string | 上传返回；留存照片ID | images 每项的图片ID
+混淆响应示例：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "accepted",
+  "globalEarthTranslation" : "<认证ID>",
+  "welcomeHumanExchange" : 1,
+  "personalityDialogEarth" : "PENDING",
+  "translationChatRhythm" : [ {
+    "translationCultureVoice" : "<图片ID>",
+    "personalityDialogEarth" : "PENDING"
+  } ]
+}
+校验并持久化本地暂存成功即返回 HTTP 200，OSS 异步处理。保留 imageId，用于下一步 referenceImageId。人脸用途图片在保存前检查单人脸、正面姿态、尺寸、清晰度、亮度及遮挡；整批通过才保存。HTTP422/code42201~42208表示照片不合格，HTTP503/code50301表示质量检查暂不可用；均仅返回code和英文message，无imageId。
+
+============================================================
+4. 查询认证结果
+============================================================
+方法：POST
+原始完整 URL：https://clientapi.oivoxvoice.online/client/face-verification/result
+混淆完整 URL：https://clientapi.oivoxvoice.online/culture5/community/connect/local/dialog
+Content-Type：application/json
+Header：使用公共 Header
+用途：绑定留存照片、查询 AWS 活体及照片比对结果，并返回对应 H5。
+请求字段（JSON）（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+verificationId | communityCountryDiscovery | string | 会话返回/结果请求；认证记录ID | 必填
+referenceImageId | echoMeetingRhythm | string | 结果请求；仅活体模式不传；活体＋照片比对、仅人像模式用上传返回的imageId，首次绑定时必填 | 活体＋照片比对、仅人像模式首次必填，已绑定后可省略；仅活体模式无需传入
+email | linkSparkHuman | string | 可选，最多254字符；兼容邮箱或用户名；Open保存登录账号并匹配测试邮箱，result保存注册账号；不转发第三方 | 可选
+password | translationOpenSimple | string | 结果请求，可选；仅保存哈希，不回显 | 可选
+nickname | sceneTranslationCommunity | string | 结果请求，可选注册昵称 | 可选
+birthday | videoLanguageHuman | string | 结果请求，可选YYYY-MM-DD | 可选
+pushToken | simplePersonalityIntro | string | 请求可选；有值才转发第三方 | 可选
+混淆请求示例：
+{
+  "communityCountryDiscovery" : "<认证ID>",
+  "echoMeetingRhythm" : "<图片ID>",
+  "linkSparkHuman" : "demo@example.com"
+}
+返回字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+code | naturalWarmGlobal | integer | 返回；0表示处理成功，非认证结论 | 总是返回
+message | communityDialogGreeting | string | 返回；提示文本，不可代替认证判定 | 总是返回
+verificationId | communityCountryDiscovery | string | 会话返回/结果请求；认证记录ID | PENDING 时返回
+status | personalityDialogEarth | string | 非终态/上传返回；PENDING、ACTION_REQUIRED等，枚举值不混淆 | PENDING 时返回
+accessMode | naturalSparkVoice | string | 状态返回；NONE/FULL/LIMITED，专用终态不对外返回 | PENDING 时返回 NONE
+isNewUser | translationChatDistant | boolean | 返回；本次入口标记；测试账号false，版本拦截和老用户重试后的兜底true，正常实时老用户false；不等于数据库认证状态 | 终态返回
+h5Url | dialogWelcomeSignal | string | 终态/Open返回；加载页、欢迎页或第三方URL | 终态返回
+longtoken | warmGreetingCulture | object（成功时非空） | 返回；无有效Token时返回503；外层混淆，第三方对象内部保持原样 | 终态返回
+处理中：PENDING，稍后继续查询。混淆响应示例：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "communityCountryDiscovery" : "<认证ID>",
+  "personalityDialogEarth" : "PENDING",
+  "naturalSparkVoice" : "NONE"
+}
+认证成功：记录VERIFIED，每次优先实时请求第三方。版本拦截返回true、本地第二页及实时优先Token；无拦截且本次URL/Token有效返回false及本次URL/Token；本次有效Token无URL返回true、本地第二页及本次Token；实时失败仅有效缓存Token兜底，返回true、本地第二页。无有效Token返回503。混淆响应示例（实时URL和Token有效）：
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "translationChatDistant" : false,
+  "dialogWelcomeSignal" : "<第三方H5地址>",
+  "warmGreetingCulture" : {
+    "clientId" : "<第三方原值>",
+    "capability" : "<第三方原值>"
+  }
+}
+认证失败返回统一结构：仅code和英文message；code为42211过期、42212未完成、42213活体失败、42214人脸不匹配、42215参考照片不可用、42216取消、42218其他失败。HTTP200，提示创建新认证，不返回isNewUser/h5Url/longtoken。
+已认证终态重查重新请求第三方Open，不回放数据库中的URL/Token，不重复识别人脸；并发交付处理中提示503重试。缓存兜底或503均不撤销VERIFIED。Result没有测试账号免认证分支。
+注册资料：email <=254字符，兼容邮箱或用户名，无邮箱格式限制；仅绑定资料，不用于普通用户新老判断；同项目设备的新邮箱覆盖当前邮箱及本次记录，不改其他历史。password <=72 UTF-8字节，仅存 BCrypt 哈希，不回显；nickname <=128 UTF-16单元；birthday 为合法 YYYY-MM-DD，不接受未来日期或小于1000年份。
+资料各项独立可选，未传/null/空白不清空；邮箱不代表已验证身份，资料不用于登录校验，也不转发第三方。
+
+============================================================
+5. 拒绝或取消认证
+============================================================
+方法：POST
+原始完整 URL：https://clientapi.oivoxvoice.online/client/face-verification/decline
+混淆完整 URL：https://clientapi.oivoxvoice.online/conversation5/video/global
+Content-Type：application/json
+Header：使用公共 Header
+用途：用户拒绝授权或中途取消时调用。
+请求字段（JSON）（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+reason | openDistantExchange | string | 取消请求必填；关联项目失败响应的原因 | 必填：PRIVACY_CONCERN / CAMERA_UNAVAILABLE / USER_CANCELLED
+verificationId | communityCountryDiscovery | string | 会话返回/结果请求；认证记录ID | 已有会话时传入；未创建会话可省略
+pushToken | simplePersonalityIntro | string | 请求可选；有值才转发第三方 | 可选
+混淆请求示例：
+{
+  "openDistantExchange" : "USER_CANCELLED",
+  "communityCountryDiscovery" : "<认证ID>"
+}
+返回字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+code | naturalWarmGlobal | integer | 返回；0表示处理成功，非认证结论 | 非零业务码42216
+message | communityDialogGreeting | string | 返回；提示文本，不可代替认证判定 | 英文取消及重新认证提示
+混淆响应示例：
+{
+  "naturalWarmGlobal" : 42216,
+  "communityDialogGreeting" : "Verification was cancelled. Please start a new verification when you are ready."
+}
+取消不算认证通过。
+
+公共错误与接入注意
+HTTP400参数错误；404记录/项目不匹配；429频率限制（Open独立防护不扩展到Result）；503表示无有效Token、必要配置缺失或识别/交付暂不可用。HTTP状态码不混淆，识别到别名时code/message也使用别名。
+错误示例（HTTP400）：
+{
+  "naturalWarmGlobal" : 400,
+  "communityDialogGreeting" : "email must be a string"
+}
+code=0 仅表示接口处理成功，不等于认证通过；活体＋照片比对模式要求AWS活体和照片比对均通过；仅活体模式只要求AWS活体通过，不调用照片比对；仅人像模式只要求本次上传照片的人脸质量检查通过，不代表真人现场采集或身份匹配。
+普通设备 Open 下游异常兜底：实时失败/Token无效才使用同appId+deviceNo且版本、pushToken、第三方地址及参数配置匹配的有效缓存Token。Open普通用户兜底为true及本地第一页，测试账号仍false及第二页；Result认证成功后兜底为true及第二页。实时有效Token更新缓存，失败不覆盖，读取不续期，过期不用；无时间字段最多270秒，有时间字段提前30秒，最长缓存24小时。不存取缓存URL。实时和缓存均无有效Token则503，不返回null Token成功。isNewUser只是本次入口标记，不撤销认证成功历史，不据此循环要求已认证设备重新注册。必要页面缺失仍503。
+longtoken 只混淆外层名称，内部第三方 token 的 keyName、nonce、ttl、mac、capability、timestamp 等名称和取值保持原样。
+pushToken <=512字符；未传不补历史值，有值才转发第三方。项目停用后禁止访问人脸流程，历史版本状态不作为准入条件。
+
+============================================================
+6. 查询新老用户
+============================================================
+方法：POST
+原始完整 URL：https://clientapi.oivoxvoice.online/client/face-verification/user-status
+混淆完整 URL：https://clientapi.oivoxvoice.online/local8/welcome/city/chat
+Content-Type：application/json
+Header：使用公共 Header
+请求：公共Header appId/appVersion/deviceNo必填，JSON email可选；也支持JSON携带三个身份字段。email去首尾空白、忽略大小写，非法格式返回400。
+请求字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+appId | casualLocalListen | string | 项目ID；JSON/表单可混淆，Header名称见Header对照表 | 必填
+appVersion | messageNaturalTranslation | string | 客户端版本（无需预建）；不带展示用v，上传表单用version | 必填，记录用途，不限制版本
+deviceNo | sevenCityLanguage | string | 请求；同一设备标识，公共Header名称见Header对照表 | 必填
+email | linkSparkHuman | string | 可选，最多254字符；兼容邮箱或用户名；Open保存登录账号并匹配测试邮箱，result保存注册账号；不转发第三方 | 可选
+只判断本项目：测试账号邮箱命中为老用户并跳过普通注册登记；否则appId+设备号命中VERIFIED成功流水即为老用户，失败/取消记录不算。普通非空账号（邮箱或用户名）按appId+deviceNo登记或更新设备注册资料及进度，不写认证快照、不赋予认证成功；未传邮箱只查询。登记异常不阻断原判断。忽略版本拦截规则，响应仍仅code/message/isNewUser，不请求第三方。
+返回字段（原字段 | 混淆字段 | 类型 | 注释 | 要求）
+code | naturalWarmGlobal | integer | 返回；0表示处理成功，非认证结论 | 总是返回
+message | communityDialogGreeting | string | 返回；提示文本，不可代替认证判定 | 英文提示
+isNewUser | translationChatDistant | boolean | 返回；本次入口标记；测试账号false，版本拦截和老用户重试后的兜底true，正常实时老用户false；不等于数据库认证状态 | true为新用户，false为老用户或测试账号
+{
+  "naturalWarmGlobal" : 0,
+  "communityDialogGreeting" : "ok",
+  "translationChatDistant" : false
+}

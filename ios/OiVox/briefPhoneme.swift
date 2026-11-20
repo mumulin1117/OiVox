@@ -9,9 +9,12 @@ enum briefPhoneme {
             if let sonicSphereBlend = UserDefaults.standard.string(forKey: vibeMapLink), pulseAtlasPair.contains(sonicSphereBlend) {
                 return sonicSphereBlend
             }
-            let echoLocaleMerge = Locale.preferredLanguages.first ?? "en"
-            let pitchRegionGreet = echoLocaleMerge.split(separator: "-").first.map(String.init)?.lowercased() ?? "en"
-            return pulseAtlasPair.contains(pitchRegionGreet) ? pitchRegionGreet : "en"
+            for identifier in Locale.preferredLanguages {
+                guard let code = Locale(identifier: identifier).languageCode?.lowercased() else { continue }
+                let language = code == "iw" ? "he" : code
+                if pulseAtlasPair.contains(language) { return language }
+            }
+            return "en"
         }
         set {
             guard pulseAtlasPair.contains(newValue) else { return }

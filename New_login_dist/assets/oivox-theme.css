@@ -1,0 +1,182 @@
+:root {
+  color-scheme: light;
+  --color-bg: #f6f1f8;
+  --oivox-background: linear-gradient(170deg, #f4f0fa 0%, #f6f1f8 44%, #faf2ec 100%);
+  --oivox-orb: radial-gradient(circle 105px at calc(100% - 25px) 225px, rgba(226,216,248,.42) 99%, transparent 100%);
+  --oivox-input-shadow: 0 2px 8px rgba(74,63,117,.08);
+  --oivox-action-shadow: 0 10px 24px rgba(32,33,58,.2);
+  --color-nav-button: transparent;
+  --color-text: #1d1b1a;
+  --color-muted: #6c6560;
+  --color-surface: #fff;
+  --color-border: #dfd8e7;
+  --color-accent: #5b46a3;
+  --color-action-bg: #1d1b1a;
+  --color-on-accent: #fff;
+  --color-accent-soft: #f1ebfa;
+  --color-error: #a32b2b;
+  --color-scrim: rgba(35,29,52,.42);
+  --color-scene-shade: linear-gradient(90deg, rgba(74,63,117,.1), transparent);
+  --color-notice-surface: #fff;
+  --color-notice-detail: #6c6560;
+  --color-notice-shadow: rgba(74,63,117,.18);
+  --color-login-notice-surface: #fff;
+  --color-login-notice-border: #dfd8e7;
+  --color-login-notice-muted: #6c6560;
+  --color-login-notice-action: #1d1b1a;
+  --color-age-badge: #2b2d4b;
+  --color-face-surface: #f1ebfa;
+  --color-face-border: #dfd8e7;
+  --color-face-muted: #6c6560;
+  --color-face-paper: #fff;
+  --color-face-ink: #1d1b1a;
+  --color-face-placeholder: #f4f0fa;
+  --color-face-secondary: #6c6560;
+  --color-face-alert: #a32b2b;
+  --color-face-overlay: rgba(35,29,52,.35);
+}
+
+html, body, #app, .scene-stage {
+  background: var(--oivox-background);
+}
+
+.app-page[data-v-c80c9eb8]:where(:not(.scene-register-forward-enter-active, .scene-register-back-enter-active)) {
+  background: var(--oivox-orb), var(--oivox-background);
+}
+
+.app-page .app-page__footer {
+  background: linear-gradient(0deg, #faf2ec 68%, rgba(250,242,236,0));
+}
+
+.step-heading h1,
+.app-page .legal-document h1 {
+  color: var(--color-text);
+}
+
+.eyebrow {
+  color: var(--color-muted);
+}
+
+.app-page .app-button:not(:disabled) {
+  box-shadow: var(--oivox-action-shadow);
+}
+
+.app-page--no-header .app-button:not(.app-button--secondary) {
+  background: #2b2d4b;
+}
+
+.app-page .app-button--secondary:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(58,74,122,.1);
+}
+
+.auth-field .auth-field__surface {
+  background: rgba(255,255,255,.86);
+  box-shadow: var(--oivox-input-shadow);
+}
+
+.auth-field:not(.auth-field--invalid) .auth-field__surface:focus-within {
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(91,70,163,.1);
+}
+
+.auth-field .auth-field__input::placeholder {
+  color: #706983;
+}
+
+.gender-options .gender-option {
+  box-shadow: var(--oivox-input-shadow);
+}
+
+.app-page .legal-links button,
+.age-page .age-page__copy .text-button {
+  color: var(--color-accent);
+}
+
+.age-portraits .age-portraits__card span,
+.age-portraits .age-portraits__badge {
+  color: #fff;
+}
+
+.age-portraits .age-portraits__card span {
+  background: linear-gradient(180deg, rgba(29,27,26,.82), rgba(29,27,26,0));
+}
+
+/* Keep camera overlays and liveness detection colors under the SDK's control. */
+#app .face-runtime .amplify-liveness-cancel-button {
+  color: var(--color-face-ink);
+}
+
+/* Keep translated text inside the original layouts at every viewport. */
+html:not(:lang(en)) :is(.step-heading, .legal-document, .login-notice, .face-error-notice, .top-notice) {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+html[dir="rtl"] .app-page__scroller[data-v-c80c9eb8] {
+  padding-inline: var(--safe-right) var(--safe-left);
+}
+
+html[dir="rtl"] .back-button svg {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .auth-field__surface--sticker[data-v-1302b67b] {
+  padding-inline: min(4.267vw, 25.6px) min(12.8vw, 76.8px);
+}
+
+html[dir="rtl"] .input-sticker[data-v-a1deef5d] {
+  right: auto;
+  inset-inline-end: max(-2.133vw, -12.8px);
+}
+
+html[dir="rtl"] .face-error-notice__close[data-v-b89e992c] {
+  right: auto;
+  inset-inline-end: min(2.133vw, 12.8px);
+}
+
+html[dir="rtl"] .auth-field__input:is([autocomplete="username"], [autocomplete="email"], [type="email"], [name="Password"], [name="birthday"]) {
+  direction: ltr;
+  text-align: right;
+}
+
+html[dir="rtl"] .auth-field__input::placeholder {
+  direction: rtl;
+}
+
+/* The camera overlay uses the SDK's physical coordinate system. */
+html[dir="rtl"] .face-runtime {
+  direction: ltr;
+}
+
+html[dir="rtl"] .face-runtime :is(.amplify-liveness-hint__text, .amplify-liveness-toast__message, .amplify-liveness-error-modal, .amplify-liveness-landscape-error-modal) {
+  direction: rtl;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[dir="rtl"] .scene-forward-enter-from,
+  html[dir="rtl"] .scene-back-leave-to {
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  html[dir="rtl"] .scene-forward-leave-to,
+  html[dir="rtl"] .scene-back-enter-from {
+    transform: translate3d(22%, 0, 0);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .app-page .footer-actions {
+    gap: 8px;
+    padding-block: 8px;
+  }
+
+  .app-page .footer-actions .app-button {
+    min-block-size: 44px;
+    padding-block: 8px;
+  }
+
+  .app-page .footer-actions .legal-links {
+    margin-block-start: 2px;
+  }
+}
