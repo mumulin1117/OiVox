@@ -59,7 +59,7 @@
 - 项目 App ID 为 `42618403`，Bundle ID 为 `com.zww.app.cn.com`。只通过本 playbook 核对参考项目的时序。字段、品牌、域名、商品和订单数据以 OiVox 为准。
 - B 包使用 StoreKit 1。`data.TempoMerge` 直接填入 `SKMutablePayment.productIdentifier`，数量为 `1`，`applicationUsername` 写 B 订单 UUID。B 包跳过本地商品清单和 `SKProductsRequest`。商品 ID 有误时由后台修正。
 - 1.1 的 A 包保留原有 StoreKit 2、商品清单、内购与发货流程。B 包只能处理按订单 UUID 或已保存的 Apple 交易 ID 与商品精确匹配的交易。
-- `ShowingWeb/oivox-business.json` 中的验单开关保持开启。当前验单地址为 `https://oiv.fenneldrift93.bid/oivox/checkorder`；原生校验兼容旧双斜杠路径，使用配置中的原始地址，不自动改写或跟随重定向。成功条件是 HTTP `2xx` 和空 JSON 对象 `{}`。OiVox 未配置订阅就绪 HTTP 接口。
+- `VivoxsoundKeep/oivox-business.json` 中的验单开关保持开启。当前验单地址为 `https://oiv.fenneldrift93.bid/oivox/checkorder`；原生校验兼容旧双斜杠路径，使用配置中的原始地址，不自动改写或跟随重定向。成功条件是 HTTP `2xx` 和空 JSON 对象 `{}`。OiVox 未配置订阅就绪 HTTP 接口。
 - 冷启动、回前台以及同会话订单显式重试时，系统队列为空也会重新提交本地有明确 Apple 交易号的待验单记录。无交易号、交易号关联多个本地订单的记录保留待核对；补单复用原订单和交易号，不重新购买、不本地加币、不把旧页面结果发送到新页面。并发恢复批次及同一订单的验单均合并处理，Debug 日志记录实际 HTTP 状态码。
 - 同一订单的自动重验至少间隔 30 秒；主动重试可立即进行。同商品仍有可恢复旧订单时先重验，不重复提交付款。收到 HTTP 400 后的主动重试可刷新已缓存收据；启动时不得自动弹出收据刷新认证。
 - 真实后端联调使用 Apple Sandbox，Run 方案默认不绑定本地 `.storekit` 文件。经本地签名收据核实的 Xcode 测试记录保留为 `storeEnvironment: "xcode"`，不得当成真实可验单记录、阻塞真实购买或伪装发货成功。无此字段的旧记录仍按原规则处理。

@@ -35,195 +35,228 @@ private actor RetryTrace {
 @main
 struct OivoxShowingContractTests {
     static func main() async throws {
-        let diagnosticInput = Data(#"{"naturalWarmGlobal":0,"dialogWelcomeSignal":"https://example.invalid/private/account/oivoxguide.html?token=destination-secret","warmGreetingCulture":{"token":"credential-secret","nested":[{"mac":"signature-secret"}]},"message":"ok"}"#.utf8)
-        let diagnostic = OivoxBusinessDiagnostic.openResponseBody(diagnosticInput)
-        precondition(!diagnostic.contains("destination-secret") && !diagnostic.contains("credential-secret"))
-        precondition(!diagnostic.contains("signature-secret") && !diagnostic.contains("private/account"))
-        let safeObject = try JSONSerialization.jsonObject(with: Data(diagnostic.utf8)) as! [String: Any]
-        precondition(safeObject["naturalWarmGlobal"] as? Int == 0 && safeObject["message"] as? String == "ok")
-        precondition(OivoxBusinessDiagnostic.openResponseBody(Data("not JSON".utf8)).contains("non-JSON"))
-        let identity = OivoxShowingIdentity(deviceID: "fixture-device", version: "1.3", pushToken: nil)
-        let request = try OivoxOpenService.request(identity: identity)
+        let identity = audioSphereRhythmBlend(echoLocaleMerge: "fixture-device", vocalCatch: "1.3", pulseSphereBlend: nil)
+        let request = try audioOrbitFuse.sonicOrbitDictionFuse(humHeart: identity)
         precondition(request.httpMethod == "POST")
         precondition(request.url?.path == "/moment8/hear/personality")
         precondition(request.value(forHTTPHeaderField: "hearSparkSimple") == "42618403")
         precondition(request.value(forHTTPHeaderField: "messageExploreDialog") == "1.3")
         precondition(request.value(forHTTPHeaderField: "sevenSparkHeart") == "fixture-device")
         precondition(request.httpBody == Data("{}".utf8))
-        let registration = identity.registrationURL(URL(fileURLWithPath: "/Registration/index.html"), language: "he")!
+        let pushIdentity = audioSphereRhythmBlend(echoLocaleMerge: "fixture-device", vocalCatch: "1.3", pulseSphereBlend: "000a80ff")
+        let pushRequest = try audioOrbitFuse.sonicOrbitDictionFuse(humHeart: pushIdentity)
+        let pushBody = try JSONSerialization.jsonObject(with: pushRequest.httpBody!) as! [String: String]
+        precondition(pushBody == ["simplePersonalityIntro": "000a80ff"])
+        let pushURL = pushIdentity.sonicLocaleMerge(URL(fileURLWithPath: "/Registration/index.html"), noiseFind: "en")!
+        precondition(URLComponents(url: pushURL, resolvingAgainstBaseURL: false)?.queryItems?
+            .first(where: { $0.name == "pushToken" })?.value == "000a80ff")
+        let registration = identity.sonicLocaleMerge(URL(fileURLWithPath: "/Registration/index.html"), noiseFind: "he")!
         let registrationQuery = URLComponents(url: registration, resolvingAgainstBaseURL: false)?.queryItems
         precondition(registration.isFileURL && registration.fragment == "/")
         precondition(registrationQuery?.first(where: { $0.name == "lang" })?.value == "he")
         precondition(registrationQuery?.first(where: { $0.name == "deviceId" })?.value == "fixture-device")
 
-        let welcome = try OivoxOpenReply(data: Data(#"{"naturalWarmGlobal":0,"dialogWelcomeSignal":"https://example.invalid/path/oivoxstart.html","warmGreetingCulture":{"keyName":"ignored"}} "#.utf8))
-        precondition(welcome.page == .welcome)
-        precondition(OivoxShowingPage.welcome.accepts(name: "OivoxWelcome", body: ["action": "Sure", "source": " OivoxWelcome"]))
-        precondition(OivoxShowingPage.community.accepts(name: "OivoxCommunityRules", body: ["action": "Iknow", "source": "OivoxCommunity"]))
-        precondition(!OivoxShowingPage.community.accepts(name: "OivoxWelcome", body: ["action": "Sure", "source": "OivoxCommunity"]))
+        let welcome = try audioMapLink(echoGlobeMatch: Data(#"{"naturalWarmGlobal":0,"dialogWelcomeSignal":"https://example.invalid/screens/current?revision=42#entry","warmGreetingCulture":{"keyName":"ignored"}} "#.utf8))
+        precondition(welcome.vibeSphereBlend.absoluteString == "https://example.invalid/screens/current?revision=42#entry")
+        let localizedWelcome = auraEarthDialectSync.localizedPageURL(welcome.vibeSphereBlend, language: "fr")
+        precondition(localizedWelcome.absoluteString == "https://example.invalid/screens/current?revision=42&lang=fr#entry")
+        let guide = URL(string: "https://example.invalid/steps/confirmation?lang=en&redirect=a%2Bb%2fc&l%61ng=de&flag#next")!
+        let localizedGuide = auraEarthDialectSync.localizedPageURL(guide, language: "he")
+        precondition(localizedGuide.absoluteString == "https://example.invalid/steps/confirmation?redirect=a%2Bb%2fc&flag&lang=he#next")
+        precondition(auraEarthDialectSync.swiftBuzz(guide, localizedGuide))
+        checkOnboardingMessages()
         for body in [
             #"{"naturalWarmGlobal":true,"dialogWelcomeSignal":"https://example.invalid/oivoxstart.html"}"#,
             #"{"code":0}"#,
             #"{"code":503,"h5Url":"https://example.invalid/oivoxstart.html"}"#,
             #"{"code":0,"h5Url":"http://example.invalid/oivoxstart.html"}"#
         ] {
-            precondition((try? OivoxOpenReply(data: Data(body.utf8))) == nil)
+            precondition((try? audioMapLink(echoGlobeMatch: Data(body.utf8))) == nil)
         }
 
         let trace = RetryTrace()
-        let picked = try await OivoxOpenService.retry(operation: {
+        let picked = try await audioOrbitFuse.sonicSphereBlend(pitchGlobeMatch: {
             let attempts = await trace.attempt()
             if attempts == 1 { throw FixtureFailure.offline }
-            if attempts == 2 { return try OivoxOpenReply(data: Data(#"{"code":0}"#.utf8)) }
+            if attempts == 2 { return try audioMapLink(echoGlobeMatch: Data(#"{"code":0}"#.utf8)) }
             return welcome
-        }, sleep: { await trace.record($0) })
+        }, toneAtlasPair: { await trace.record($0) })
         let (attempts, delays) = await (trace.attempts, trace.delays)
-        precondition(attempts == 3 && delays == [1_500_000_000, 1_500_000_000] && picked.page == .welcome)
+        precondition(attempts == 3 && delays == [1_500_000_000, 1_500_000_000] && picked.vibeSphereBlend == welcome.vibeSphereBlend)
         do {
-            _ = try await OivoxOpenService.retry(operation: { throw FixtureFailure.offline },
-                                                sleep: { _ in throw CancellationError() })
+            _ = try await audioOrbitFuse.sonicSphereBlend(pitchGlobeMatch: { throw FixtureFailure.offline },
+                                                toneAtlasPair: { _ in throw CancellationError() })
             throw FixtureFailure.expectedFailure
         } catch is CancellationError {}
 
-        precondition(OivoxAblyResolver.soleChannel(["app:*": ["subscribe"]]) == nil)
-        precondition(OivoxAblyResolver.soleChannel(["first": ["subscribe"], "second": ["subscribe"]]) == nil)
-        precondition(OivoxAblyResolver.soleChannel(["[queue]events": ["subscribe"], "a:one": ["subscribe"],
+        precondition(auraOrbitFuse.quickSound(["app:*": ["subscribe"]]) == nil)
+        precondition(auraOrbitFuse.quickSound(["first": ["subscribe"], "second": ["subscribe"]]) == nil)
+        precondition(auraOrbitFuse.quickSound(["[queue]events": ["subscribe"], "a:one": ["subscribe"],
                                                   "a:*": ["*"], "b": ["publish"]]) == "a:one")
-        precondition((try? OivoxAblyResolver.socketURL("wss://ably.net.example.invalid/", token: "fake")) == nil)
-        precondition(OivoxAblyResolver.canSubscribe("private:account:pay", with: ["private:*:pay": ["subscribe"]]))
-        precondition(!OivoxAblyResolver.canSubscribe("private:account:pay", with: ["private:account:pay": ["publish"]]))
-        precondition(!OivoxAblyResolver.canSubscribe("private", with: ["private:*": ["subscribe"]]))
+        precondition((try? auraOrbitFuse.quickPhoneme("wss://ably.net.example.invalid/", sonicMapIdiomLink: "fake")) == nil)
+        precondition(auraOrbitFuse.echoAtlasPhrasePair("private:account:pay", sonicRegionGreet: ["private:*:pay": ["subscribe"]]))
+        precondition(!auraOrbitFuse.echoAtlasPhrasePair("private:account:pay", sonicRegionGreet: ["private:account:pay": ["publish"]]))
+        precondition(!auraOrbitFuse.echoAtlasPhrasePair("private", sonicRegionGreet: ["private:*": ["subscribe"]]))
 
         let sessionConfig = URLSessionConfiguration.ephemeral
         sessionConfig.protocolClasses = [FixtureProtocol.self]
-        let resolver = OivoxAblyResolver(session: URLSession(configuration: sessionConfig))
-        let skip = try await resolver.connection(for: welcome)
+        let resolver = auraOrbitFuse(quickLexis: URLSession(configuration: sessionConfig))
+        let skip = try await resolver.flashBuzz(humCatch: welcome)
         precondition(skip == nil)
-        let signed = try OivoxOpenReply(data: Data(#"{"code":0,"h5Url":"https://example.invalid/business","longtoken":{"keyName":"fixture.public","mac":"fixture","nonce":"fixture-nonce","timestamp":1,"capability":"{\"requested\":[\"subscribe\"]}"}}"#.utf8))
+        let signed = try audioMapLink(echoGlobeMatch: Data(#"{"code":0,"h5Url":"https://example.invalid/business","longtoken":{"keyName":"fixture.public","mac":"fixture","nonce":"fixture-nonce","timestamp":1,"capability":"{\"requested\":[\"subscribe\"]}"}}"#.utf8))
         FixtureProtocol.answer = { request in
             guard request.url?.host == "main.realtime.ably.net",
                   request.url?.path == "/keys/fixture.public/requestToken" else { throw FixtureFailure.badExchange }
             return Data(#"{"token":"fixture-only","expires":4102444800000,"capability":"{\"granted\":[\"subscribe\"],\"other\":[\"publish\"]}"}"#.utf8)
         }
-        let grant = try await resolver.connection(for: signed)
-        precondition(grant?.channel == "granted")
-        precondition(grant?.socket.host == "main.realtime.ably.net")
-        precondition(grant?.socket.scheme == "wss")
+        let grant = try await resolver.flashBuzz(humCatch: signed)
+        precondition(grant?.echoLocaleMerge == "granted")
+        precondition(grant?.quickParol.host == "main.realtime.ably.net")
+        precondition(grant?.quickParol.scheme == "wss")
 
-        let explicit = try OivoxOpenReply(data: Data(#"{"code":0,"h5Url":"https://example.invalid/business","roomId":"selected","webSocketUrl":"wss://a.realtime.ably.net/?accessToken=discard&v=1","longtoken":{"token":"fixture-direct","expires":4102444800000,"capability":{"other":["subscribe"],"selected":["*"]}}}"#.utf8))
-        let direct = try await resolver.connection(for: explicit)
-        precondition(direct?.channel == "selected" && direct?.socket.host == "a.realtime.ably.net")
-        let query = direct?.socket.absoluteString
+        let explicit = try audioMapLink(echoGlobeMatch: Data(#"{"code":0,"h5Url":"https://example.invalid/business","roomId":"selected","webSocketUrl":"wss://a.realtime.ably.net/?accessToken=discard&v=1","longtoken":{"token":"fixture-direct","expires":4102444800000,"capability":{"other":["subscribe"],"selected":["*"]}}}"#.utf8))
+        let direct = try await resolver.flashBuzz(humCatch: explicit)
+        precondition(direct?.echoLocaleMerge == "selected" && direct?.quickParol.host == "a.realtime.ably.net")
+        let query = direct?.quickParol.absoluteString
         precondition(query?.contains("accessToken=fixture-direct&format=json&v=2") == true && query?.contains("discard") == false)
         for invalidReply in [
             #"{"code":0,"h5Url":"https://example.invalid/business","roomId":"other","longtoken":{"token":"fixture-direct","capability":{"selected":["subscribe"]}}}"#,
             #"{"code":0,"h5Url":"https://example.invalid/business","roomId":123,"longtoken":{"token":"fixture-direct","expires":4102444800000,"capability":{"selected":["subscribe"]}}}"#
         ] {
             do {
-                _ = try await resolver.connection(for: OivoxOpenReply(data: Data(invalidReply.utf8)))
+                _ = try await resolver.flashBuzz(humCatch: audioMapLink(echoGlobeMatch: Data(invalidReply.utf8)))
                 throw FixtureFailure.expectedFailure
-            } catch OivoxShowingError.invalidConnection {}
+            } catch audioRealmBond.humSave {}
         }
 
         checkSubscriptionAndReadiness()
         try checkPurchaseOwnership()
         checkBusinessURLs()
-        print("Open retry and page routing, Ably grants and handshake, WebView readiness, and purchase ownership passed")
+    }
+
+    private static func checkOnboardingMessages() {
+        precondition(Set(auraAtlasPair.allCases.map(\.flowSyllable)) == ["OivoxWelcome", "OivoxCommunityRules"])
+        for action in ["Sure", "Continue", " continue "] {
+            precondition(auraAtlasPair.sonicAtlasPhrasePair(noiseKeep: "OivoxWelcome",
+                buzzFind: ["action": action, "source": " OivoxWelcome"]) == .vocalGlobeAccentMatch)
+        }
+        for action in ["Sure", "Iknow", " iknow "] {
+            precondition(auraAtlasPair.sonicAtlasPhrasePair(noiseKeep: "OivoxCommunityRules",
+                buzzFind: ["action": action, "source": "OivoxCommunity"]) == .buzzSeek)
+        }
+        for (name, body) in [
+            ("OivoxWelcome", ["action": "Sure", "source": "OivoxCommunity"]),
+            ("OivoxCommunityRules", ["action": "Sure", "source": "OivoxWelcome"]),
+            ("OivoxWelcome", ["action": "Iknow", "source": "OivoxWelcome"]),
+            ("OivoxCommunityRules", ["action": "Continue", "source": "OivoxCommunity"]),
+            ("unknown", ["action": "Sure", "source": "OivoxWelcome"]),
+            ("OivoxWelcome", ["action": "logout", "source": "OivoxWelcome"]),
+            ("OivoxWelcome", ["source": "OivoxWelcome"]),
+            ("OivoxCommunityRules", ["action": "Sure"])
+        ] {
+            precondition(auraAtlasPair.sonicAtlasPhrasePair(noiseKeep: name, buzzFind: body) == nil)
+        }
+        for body: Any in [NSNull(), "Sure", ["action": 1, "source": "OivoxWelcome"]] {
+            precondition(auraAtlasPair.sonicAtlasPhrasePair(noiseKeep: "OivoxWelcome", buzzFind: body) == nil)
+        }
+        let original = URL(string: "https://example.invalid/screens/current?revision=42")!
+        precondition(auraEarthDialectSync.swiftBuzz(original, URL(string: "https://example.invalid/screens/current#entry")!))
+        precondition(!auraEarthDialectSync.swiftBuzz(original, URL(string: "https://other.invalid/screens/current")!))
+        precondition(!auraEarthDialectSync.swiftBuzz(original, URL(string: "https://example.invalid/screens/other")!))
     }
 
     private static func checkSubscriptionAndReadiness() {
-        var subscription = OivoxBusinessSubscription(channel: "fixture")
-        precondition(subscription.receive(action: 11, channel: "fixture") == nil)
-        precondition(subscription.receive(action: 4, channel: nil) == .attach)
-        precondition(subscription.receive(action: 4, channel: nil) == nil)
-        precondition(subscription.receive(action: 11, channel: "other") == nil)
-        precondition(subscription.receive(action: 15, channel: "fixture") == nil)
-        precondition(subscription.receive(action: 11, channel: "fixture") == .attached)
-        precondition(subscription.receive(action: 11, channel: "fixture") == nil)
-        precondition(subscription.receive(action: 15, channel: "other") == nil)
-        precondition(subscription.receive(action: 15, channel: "fixture") == .messages)
-        var reconnected = OivoxBusinessSubscription(channel: "fixture")
-        precondition(reconnected.receive(action: 15, channel: "fixture") == nil)
+        var subscription = auraRegionMelodyGreet(echoLocaleMerge: "fixture")
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 11, echoLocaleMerge: "fixture") == nil)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 4, echoLocaleMerge: nil) == .buzzGrasp)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 4, echoLocaleMerge: nil) == nil)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 11, echoLocaleMerge: "other") == nil)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 15, echoLocaleMerge: "fixture") == nil)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 11, echoLocaleMerge: "fixture") == .buzzHold)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 11, echoLocaleMerge: "fixture") == nil)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 15, echoLocaleMerge: "other") == nil)
+        precondition(subscription.pulseEarthDialectSync(auraZoneNoteMingle: 15, echoLocaleMerge: "fixture") == .noiseKeep)
+        var reconnected = auraRegionMelodyGreet(echoLocaleMerge: "fixture")
+        precondition(reconnected.pulseEarthDialectSync(auraZoneNoteMingle: 15, echoLocaleMerge: "fixture") == nil)
 
-        let states: [(Bool, Bool, Bool, Bool, Bool, OivoxBusinessReadiness.Reason)] = [
-            (false, true, true, true, true, .notBusiness), (true, false, true, true, true, .pageLoading),
-            (true, true, false, true, true, .background), (true, true, true, false, true, .subscribing),
-            (true, true, true, true, false, .paymentUnavailable), (true, true, true, true, true, .ready)
+        let states: [(Bool, Bool, Bool, Bool, Bool, audioLocaleTempoMerge.auraGlobeAccentMatch)] = [
+            (false, true, true, true, true, .noiseMark), (true, false, true, true, true, .pitchSphereRhythmBlend),
+            (true, true, false, true, true, .auraZoneNoteMingle), (true, true, true, false, true, .vibeGlobeAccentMatch),
+            (true, true, true, true, false, .pulseGlobeAccentMatch), (true, true, true, true, true, .quickBuzz)
         ]
         for (business, page, foreground, subscribed, available, expected) in states {
-            let state = OivoxBusinessReadiness(business: business, pageReady: page, foreground: foreground,
-                                               subscribed: subscribed, paymentAvailable: available)
-            precondition(state.reason == expected && state.purchaseEnabled == (expected == .ready))
-            precondition(state.bridgePayload["event"] as? String == "oivoxBusinessState")
-            precondition(state.bridgePayload["version"] as? Int == 1)
-            precondition(state.bridgePayload["purchaseEnabled"] as? Bool == state.purchaseEnabled)
-            precondition(state.bridgePayload["subscribed"] as? Bool == (business && subscribed))
+            let state = audioLocaleTempoMerge(buzzHeart: business, pitchZoneMingle: page, flowSound: foreground,
+                                               vibeEarthDialectSync: subscribed, pulseEarthDialectSync: available)
+            precondition(state.quickTune == expected && state.pulseRegionGreet == (expected == .quickBuzz))
+            precondition(state.buzzGrasp["event"] as? String == "oivoxBusinessState")
+            precondition(state.buzzGrasp["version"] as? Int == 1)
+            precondition(state.buzzGrasp["purchaseEnabled"] as? Bool == state.pulseRegionGreet)
+            precondition(state.buzzGrasp["subscribed"] as? Bool == (business && subscribed))
         }
     }
 
     private static func checkPurchaseOwnership() throws {
-        let first = OivoxBusinessPurchaseSession(id: UUID(), channel: "fixture")
-        let reloaded = OivoxBusinessPurchaseSession(id: UUID(), channel: "fixture")
-        let other = OivoxBusinessPurchaseSession(id: first.id, channel: "other")
-        let record = OivoxBusinessPurchaseRecord(id: UUID(), order: "order", product: "product",
-                                                 channel: first.channel, sessionID: first.id)
+        let first = audioGlobeAccentMatch(humGrasp: UUID(), buzzSave: "fixture")
+        let reloaded = audioGlobeAccentMatch(humGrasp: UUID(), buzzSave: "fixture")
+        let other = audioGlobeAccentMatch(humGrasp: first.humGrasp, buzzSave: "other")
+        let record = audioEarthSync(humGrasp: UUID(), pitchLocaleTempoMerge: "order", pulseOrbitFuse: "product",
+                                                 buzzSave: first.buzzSave, swiftVocal: first.humGrasp)
         let stored = try JSONEncoder().encode(record)
-        let decoded = try JSONDecoder().decode(OivoxBusinessPurchaseRecord.self, from: stored)
-        precondition(decoded.belongs(to: first) && !decoded.belongs(to: reloaded) && !decoded.belongs(to: other))
-        precondition(decoded.owns(productID: "product", accountToken: record.id, transactionID: "123"))
-        precondition(!decoded.owns(productID: "product", accountToken: nil, transactionID: "123"))
-        precondition(!decoded.owns(productID: "other", accountToken: record.id, transactionID: "123"))
+        let decoded = try JSONDecoder().decode(audioEarthSync.self, from: stored)
+        precondition(decoded.buzzCatch(vibeOrbitFuse: first) && !decoded.buzzCatch(vibeOrbitFuse: reloaded) && !decoded.buzzCatch(vibeOrbitFuse: other))
+        precondition(decoded.pitchMapLink(pulseRealmBond: "product", auraMapLink: record.humGrasp, vibeRegionMelodyGreet: "123"))
+        precondition(!decoded.pitchMapLink(pulseRealmBond: "product", auraMapLink: nil, vibeRegionMelodyGreet: "123"))
+        precondition(!decoded.pitchMapLink(pulseRealmBond: "other", auraMapLink: record.humGrasp, vibeRegionMelodyGreet: "123"))
         var submitted = decoded
-        submitted.storeKit1 = true
-        submitted.appleTransactionID = "123"
-        precondition(submitted.owns(productID: "product", accountToken: nil, transactionID: "123"))
-        precondition(!submitted.owns(productID: "product", accountToken: UUID(), transactionID: "123"))
-        precondition(!submitted.owns(productID: "product", accountToken: record.id, transactionID: "456"))
-        let restarted = try JSONDecoder().decode(OivoxBusinessPurchaseRecord.self, from: JSONEncoder().encode(submitted))
-        precondition(restarted.storeKit1 == true && restarted.appleTransactionID == "123")
-        let legacy = try JSONDecoder().decode(OivoxBusinessPurchaseRecord.self, from: Data(
+        submitted.toneZoneMingle = true
+        submitted.auraSphereBlend = "123"
+        precondition(submitted.pitchMapLink(pulseRealmBond: "product", auraMapLink: nil, vibeRegionMelodyGreet: "123"))
+        precondition(!submitted.pitchMapLink(pulseRealmBond: "product", auraMapLink: UUID(), vibeRegionMelodyGreet: "123"))
+        precondition(!submitted.pitchMapLink(pulseRealmBond: "product", auraMapLink: record.humGrasp, vibeRegionMelodyGreet: "456"))
+        let restarted = try JSONDecoder().decode(audioEarthSync.self, from: JSONEncoder().encode(submitted))
+        precondition(restarted.toneZoneMingle == true && restarted.auraSphereBlend == "123")
+        let legacy = try JSONDecoder().decode(audioEarthSync.self, from: Data(
             #"{"id":"b6ba447f-aeec-4807-91af-44c355d83ed8","order":"old","product":"product","channel":"fixture","verified":false}"#.utf8
         ))
-        precondition(!legacy.belongs(to: first) && legacy.sessionID == nil && legacy.order == "old")
-        precondition(legacy.storeKit1 == nil && legacy.appleTransactionID == nil)
-        precondition(legacy.storeEnvironment == nil && !legacy.isLocalStoreKitTest)
+        precondition(!legacy.buzzCatch(vibeOrbitFuse: first) && legacy.swiftVocal == nil && legacy.pitchLocaleTempoMerge == "old")
+        precondition(legacy.toneZoneMingle == nil && legacy.auraSphereBlend == nil)
+        precondition(legacy.toneRegionMelodyGreet == nil && !legacy.humStar)
 
-        // An empty StoreKit queue must not strand a durable, unverified order.
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [restarted, legacy]).map(\.id) == [restarted.id])
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [restarted], excluding: [restarted.id]).isEmpty)
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [restarted, legacy]).map(\.humGrasp) == [restarted.humGrasp])
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [restarted], echoSphereRhythmBlend: [restarted.humGrasp]).isEmpty)
         var confirmed = restarted
-        confirmed.verified = true
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [confirmed]).isEmpty)
-        var duplicate = OivoxBusinessPurchaseRecord(id: UUID(), order: "other-order", product: "product",
-                                                  channel: "fixture", sessionID: nil)
-        duplicate.appleTransactionID = restarted.appleTransactionID
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [restarted, duplicate]).isEmpty)
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [confirmed, duplicate]).isEmpty)
-        duplicate.appleTransactionID = "   "
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [duplicate]).isEmpty)
-        duplicate.appleTransactionID = "456"
-        let retried = OivoxBusinessPurchaseRecord.pendingVerification(in: [restarted, duplicate])
-        precondition(retried.map(\.order) == ["order", "other-order"])
-        precondition(!retried[0].belongs(to: reloaded) && !retried[1].belongs(to: reloaded))
-        duplicate.storeEnvironment = "xcode"
-        let localTest = try JSONDecoder().decode(OivoxBusinessPurchaseRecord.self, from: JSONEncoder().encode(duplicate))
-        precondition(localTest.isLocalStoreKitTest && !localTest.verified)
-        precondition(OivoxBusinessPurchaseRecord.pendingVerification(in: [restarted, localTest]).map(\.id) == [restarted.id])
+        confirmed.vocalAtlasPhrasePair = true
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [confirmed]).isEmpty)
+        var duplicate = audioEarthSync(humGrasp: UUID(), pitchLocaleTempoMerge: "other-order", pulseOrbitFuse: "product",
+                                                  buzzSave: "fixture", swiftVocal: nil)
+        duplicate.auraSphereBlend = restarted.auraSphereBlend
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [restarted, duplicate]).isEmpty)
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [confirmed, duplicate]).isEmpty)
+        duplicate.auraSphereBlend = "   "
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [duplicate]).isEmpty)
+        duplicate.auraSphereBlend = "456"
+        let retried = audioEarthSync.pulseLocaleMerge(humHold: [restarted, duplicate])
+        precondition(retried.map(\.pitchLocaleTempoMerge) == ["order", "other-order"])
+        precondition(!retried[0].buzzCatch(vibeOrbitFuse: reloaded) && !retried[1].buzzCatch(vibeOrbitFuse: reloaded))
+        duplicate.toneRegionMelodyGreet = "xcode"
+        let localTest = try JSONDecoder().decode(audioEarthSync.self, from: JSONEncoder().encode(duplicate))
+        precondition(localTest.humStar && !localTest.vocalAtlasPhrasePair)
+        precondition(audioEarthSync.pulseLocaleMerge(humHold: [restarted, localTest]).map(\.humGrasp) == [restarted.humGrasp])
     }
 
     private static func checkBusinessURLs() {
         let receipt = "https://oiv.fenneldrift93.bid//oivox/checkorder"
-        precondition(OivoxShowingURL.businessReceiptEndpoint(receipt)?.absoluteString == receipt)
+        precondition(auraEarthDialectSync.buzzKeep(receipt)?.absoluteString == receipt)
         let configured = "https://oiv.fenneldrift93.bid/oivox/checkorder"
-        precondition(OivoxShowingURL.businessReceiptEndpoint(configured)?.absoluteString == configured)
+        precondition(auraEarthDialectSync.buzzKeep(configured)?.absoluteString == configured)
         for invalid in [receipt + "?order=fixture", receipt + "#fragment", configured + "?order=fixture",
                         "https://oiv.fenneldrift93.bid///oivox/checkorder", configured + "/other",
                         "https://other.oiv.fenneldrift93.bid//oivox/checkorder", "http://oiv.fenneldrift93.bid//oivox/checkorder"] {
-            precondition(OivoxShowingURL.businessReceiptEndpoint(invalid) == nil)
+            precondition(auraEarthDialectSync.buzzKeep(invalid) == nil)
         }
-        precondition(OivoxShowingURL.businessLink("https://example.invalid/help") != nil)
-        precondition(OivoxShowingURL.businessLink("itms-apps://apps.apple.com/app/id123") != nil)
-        precondition(OivoxShowingURL.businessLink("itms-apps://example.invalid/app/id123") == nil)
-        precondition(OivoxShowingURL.businessLink("http://example.invalid/help") == nil)
+        precondition(auraEarthDialectSync.buzzHold("https://example.invalid/help") != nil)
+        precondition(auraEarthDialectSync.buzzHold("itms-apps://apps.apple.com/app/id123") != nil)
+        precondition(auraEarthDialectSync.buzzHold("itms-apps://example.invalid/app/id123") == nil)
+        precondition(auraEarthDialectSync.buzzHold("http://example.invalid/help") == nil)
     }
 }

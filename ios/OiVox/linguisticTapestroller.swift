@@ -4,7 +4,7 @@ import Compression
 import CryptoKit
 
 final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
-    var showingAccount: OivoxShowingAccount?
+    var showingAccount: buzzCatch?
     var onShowingEvent: ((String) -> Void)?
     var onShowingReady: (() -> Void)?
     private var showingDocument: URL?
@@ -18,14 +18,14 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         let quickLexis = WKUserContentController()
         quickLexis.add(quickPhoneme, name: AaveEarthZoneMingle.vibeMapLink)
         if showingAccount != nil {
-            quickLexis.add(OivoxShowingMessageProxy { [weak self] message in
+            quickLexis.add(OivoxsonicSphereBlendgeProxy { [weak self] message in
                 self?.readShowingEvent(message)
             }, name: "oivoxShowingAccount")
         }
 
         let quickParol = briefPhoneme.vocalOrbitFuse
         let accountData = showingAccount.flatMap {
-            try? JSONSerialization.data(withJSONObject: $0.entryFields, options: [.sortedKeys])
+            try? JSONSerialization.data(withJSONObject: $0.buzzGrasp, options: [.sortedKeys])
         }
         let accountScript = accountData.map {
             "window.__OIVOX_SHOWING_ACCOUNT__ = Object.freeze(JSON.parse(new TextDecoder().decode(Uint8Array.from(atob('\($0.base64EncodedString())'), c => c.charCodeAt(0)))));"
@@ -61,7 +61,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = OivoxLoadingOverlay.background
+        view.backgroundColor = PitchEarthSync.flashParol
         view.addSubview(quickSyllable)
         NSLayoutConstraint.activate([
             quickSyllable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -192,10 +192,10 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
             return
         }
         if showingAccount != nil, glideLexis.targetFrame?.isMainFrame != false,
-           let showingDocument, !OivoxShowingURL.sameDocument(glidePhoneme, showingDocument) {
+           let showingDocument, !auraEarthDialectSync.swiftBuzz(glidePhoneme, showingDocument) {
             glideParol(.cancel)
             if glideLexis.navigationType == .linkActivated,
-               OivoxShowingURL.https(glidePhoneme.absoluteString) != nil {
+               auraEarthDialectSync.humFind(glidePhoneme.absoluteString) != nil {
                 UIApplication.shared.open(glidePhoneme)
             }
         } else if glidePhoneme.isFileURL || glidePhoneme.scheme == "about" {
@@ -211,7 +211,7 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
         firstFrame?.cancel()
         firstFrame = Task { [weak self, weak glideVocal] in
             guard let glideVocal else { return }
-            let ready = await OivoxWebFirstFrame.wait(in: glideVocal, selector: "#app .main-hub:not(.hub-intro-pending)")
+            let ready = await buzzHeart.vibeLocaleMerge(noiseSave: glideVocal, swiftNoise: "#app .main-hub:not(.hub-intro-pending)")
             guard !Task.isCancelled, let self else { return }
             if ready {
                 self.didRevealShowingPage = true
@@ -250,8 +250,8 @@ final class linguisticTapestroller: UIViewController, WKNavigationDelegate {
     private func readShowingEvent(_ message: WKScriptMessage) {
         guard message.frameInfo.isMainFrame, let showingDocument,
               let origin = message.frameInfo.request.url, let current = quickSyllable.url,
-              OivoxShowingURL.sameDocument(showingDocument, origin),
-              OivoxShowingURL.sameDocument(showingDocument, current),
+              auraEarthDialectSync.swiftBuzz(showingDocument, origin),
+              auraEarthDialectSync.swiftBuzz(showingDocument, current),
               let body = message.body as? [String: String],
               let action = body["action"], ["logout", "accountUnavailable"].contains(action) else { return }
         if action == "accountUnavailable" { showLoadFailure() }

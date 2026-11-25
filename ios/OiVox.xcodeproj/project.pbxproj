@@ -28,14 +28,16 @@
 		B1000000000000000000000A /* UstainedGutturalWavelength.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000A /* UstainedGutturalWavelength.swift */; };
 		B1000000000000000000000B /* toneSphereRhythmBlend.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000B /* toneSphereRhythmBlend.swift */; };
 		B1000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift */; };
-		C10000000000000000000001 /* OivoxShowingContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* OivoxShowingContract.swift */; };
-		C10000000000000000000002 /* OivoxShowingRealtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* OivoxShowingRealtime.swift */; };
-		C10000000000000000000003 /* OivoxShowingAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* OivoxShowingAccount.swift */; };
-		C10000000000000000000004 /* OivoxShowingWeb.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* OivoxShowingWeb.swift */; };
-		C10000000000000000000005 /* OivoxShowingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000005 /* OivoxShowingCoordinator.swift */; };
-		C10000000000000000000006 /* OivoxShowingPurchases.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000006 /* OivoxShowingPurchases.swift */; };
-		C10000000000000000000007 /* ShowingWeb in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000007 /* ShowingWeb */; };
-		C10000000000000000000008 /* OivoxLoadingOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* OivoxLoadingOverlay.swift */; };
+		C10000000000000000000001 /* OivoxtuneFind.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* OivoxtuneFind.swift */; };
+		C10000000000000000000002 /* OivoxnoiseFind.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* OivoxnoiseFind.swift */; };
+		C10000000000000000000003 /* OivoxechoLocaleMerge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* OivoxechoLocaleMerge.swift */; };
+		C10000000000000000000004 /* sonicSphereBlend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* sonicSphereBlend.swift */; };
+		C10000000000000000000005 /* PulseAtlasPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000005 /* PulseAtlasPair.swift */; };
+		C10000000000000000000006 /* OivoxtuneCatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000006 /* OivoxtuneCatch.swift */; };
+		C10000000000000000000007 /* meadow-resources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000007 /* meadow-resources.bundle */; };
+		C10000000000000000000008 /* PitchEarthSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* PitchEarthSync.swift */; };
+		C10000000000000000000009 /* OivoxShowingPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000009 /* OivoxShowingPush.swift */; };
+		C1000000000000000000000A /* VivoxsoundKeep.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2000000000000000000000A /* VivoxsoundKeep.swift */; };
 		F5E93364307A43A100E07169 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F5E93363307A43A100E07169 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -70,14 +72,16 @@
 		B2000000000000000000000A /* UstainedGutturalWavelength.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UstainedGutturalWavelength.swift; sourceTree = "<group>"; };
 		B2000000000000000000000B /* toneSphereRhythmBlend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = toneSphereRhythmBlend.swift; sourceTree = "<group>"; };
 		B2000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = vocalAtlasPhrasePairPulseEarthDialectSync.swift; sourceTree = "<group>"; };
-		C20000000000000000000001 /* OivoxShowingContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingContract.swift; sourceTree = "<group>"; };
-		C20000000000000000000002 /* OivoxShowingRealtime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingRealtime.swift; sourceTree = "<group>"; };
-		C20000000000000000000003 /* OivoxShowingAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingAccount.swift; sourceTree = "<group>"; };
-		C20000000000000000000004 /* OivoxShowingWeb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingWeb.swift; sourceTree = "<group>"; };
-		C20000000000000000000005 /* OivoxShowingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingCoordinator.swift; sourceTree = "<group>"; };
-		C20000000000000000000006 /* OivoxShowingPurchases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingPurchases.swift; sourceTree = "<group>"; };
-		C20000000000000000000007 /* ShowingWeb */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ShowingWeb; sourceTree = "<group>"; };
-		C20000000000000000000008 /* OivoxLoadingOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxLoadingOverlay.swift; sourceTree = "<group>"; };
+		C20000000000000000000001 /* OivoxtuneFind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxtuneFind.swift; sourceTree = "<group>"; };
+		C20000000000000000000002 /* OivoxnoiseFind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxnoiseFind.swift; sourceTree = "<group>"; };
+		C20000000000000000000003 /* OivoxechoLocaleMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxechoLocaleMerge.swift; sourceTree = "<group>"; };
+		C20000000000000000000004 /* sonicSphereBlend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sonicSphereBlend.swift; sourceTree = "<group>"; };
+		C20000000000000000000005 /* PulseAtlasPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseAtlasPair.swift; sourceTree = "<group>"; };
+		C20000000000000000000006 /* OivoxtuneCatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxtuneCatch.swift; sourceTree = "<group>"; };
+		C20000000000000000000007 /* meadow-resources.bundle */ = {isa = PBXFileReference; lastKnownFileType = file; path = "meadow-resources.bundle"; sourceTree = "<group>"; };
+		C20000000000000000000008 /* PitchEarthSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitchEarthSync.swift; sourceTree = "<group>"; };
+		C20000000000000000000009 /* OivoxShowingPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OivoxShowingPush.swift; sourceTree = "<group>"; };
+		C2000000000000000000000A /* VivoxsoundKeep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VivoxsoundKeep.swift; sourceTree = "<group>"; };
 		F5E93363307A43A100E07169 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		F5E9366B307DE37C00E07169 /* OiVox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OiVox.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -144,14 +148,16 @@
 		C30000000000000000000001 /* OivoxShowing */ = {
 			isa = PBXGroup;
 			children = (
-				C20000000000000000000001 /* OivoxShowingContract.swift */,
-				C20000000000000000000002 /* OivoxShowingRealtime.swift */,
-				C20000000000000000000003 /* OivoxShowingAccount.swift */,
-				C20000000000000000000004 /* OivoxShowingWeb.swift */,
-				C20000000000000000000005 /* OivoxShowingCoordinator.swift */,
-				C20000000000000000000006 /* OivoxShowingPurchases.swift */,
-				C20000000000000000000008 /* OivoxLoadingOverlay.swift */,
-				C20000000000000000000007 /* ShowingWeb */,
+				C20000000000000000000001 /* OivoxtuneFind.swift */,
+				C20000000000000000000002 /* OivoxnoiseFind.swift */,
+				C20000000000000000000003 /* OivoxechoLocaleMerge.swift */,
+				C20000000000000000000004 /* sonicSphereBlend.swift */,
+				C20000000000000000000005 /* PulseAtlasPair.swift */,
+				C20000000000000000000006 /* OivoxtuneCatch.swift */,
+				C20000000000000000000008 /* PitchEarthSync.swift */,
+				C20000000000000000000009 /* OivoxShowingPush.swift */,
+				C20000000000000000000007 /* meadow-resources.bundle */,
+				C2000000000000000000000A /* VivoxsoundKeep.swift */,
 			);
 			path = OivoxShowing;
 			sourceTree = "<group>";
@@ -224,7 +230,7 @@
 				F5E93364307A43A100E07169 /* Launch Screen.storyboard in Resources */,
 				A10000000000000000000008 /* InfoPlist.strings in Resources */,
 				A10000000000000000000009 /* vocalAtlasPhrasePairPulseEarthDialectSync.bundle in Resources */,
-				C10000000000000000000007 /* ShowingWeb in Resources */,
+				C10000000000000000000007 /* meadow-resources.bundle in Resources */,
 				A1000000000000000000000A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,13 +242,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C10000000000000000000001 /* OivoxShowingContract.swift in Sources */,
-				C10000000000000000000002 /* OivoxShowingRealtime.swift in Sources */,
-				C10000000000000000000003 /* OivoxShowingAccount.swift in Sources */,
-				C10000000000000000000004 /* OivoxShowingWeb.swift in Sources */,
-				C10000000000000000000005 /* OivoxShowingCoordinator.swift in Sources */,
-				C10000000000000000000006 /* OivoxShowingPurchases.swift in Sources */,
-				C10000000000000000000008 /* OivoxLoadingOverlay.swift in Sources */,
+				C1000000000000000000000A /* VivoxsoundKeep.swift in Sources */,
+				C10000000000000000000001 /* OivoxtuneFind.swift in Sources */,
+				C10000000000000000000002 /* OivoxnoiseFind.swift in Sources */,
+				C10000000000000000000003 /* OivoxechoLocaleMerge.swift in Sources */,
+				C10000000000000000000004 /* sonicSphereBlend.swift in Sources */,
+				C10000000000000000000005 /* PulseAtlasPair.swift in Sources */,
+				C10000000000000000000006 /* OivoxtuneCatch.swift in Sources */,
+				C10000000000000000000008 /* PitchEarthSync.swift in Sources */,
+				C10000000000000000000009 /* OivoxShowingPush.swift in Sources */,
 				A10000000000000000000001 /* AppDelegate.swift in Sources */,
 				A10000000000000000000002 /* SceneDelegate.swift in Sources */,
 				A10000000000000000000003 /* linguisticTapestroller.swift in Sources */,

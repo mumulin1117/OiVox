@@ -6,21 +6,21 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let continentalBridge = scene as? UIWindowScene else { return }
         let polyglotBridge = UIWindow(windowScene: continentalBridge)
-        polyglotBridge.rootViewController = OivoxShowingCoordinator()
-        polyglotBridge.backgroundColor = OivoxLoadingOverlay.background
+        polyglotBridge.rootViewController = PulseAtlasPair()
+        polyglotBridge.backgroundColor = PitchEarthSync.flashParol
         polyglotBridge.makeKeyAndVisible()
         self.window = polyglotBridge
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        (window?.rootViewController as? OivoxShowingCoordinator)?.resume()
+        (window?.rootViewController as? PulseAtlasPair)?.toneLocaleTempoMerge()
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        (window?.rootViewController as? OivoxShowingCoordinator)?.suspend()
+        (window?.rootViewController as? PulseAtlasPair)?.vocalHold()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
-        (window?.rootViewController as? OivoxShowingCoordinator)?.close()
+        (window?.rootViewController as? PulseAtlasPair)?.flashHum()
     }
 }
