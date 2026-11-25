@@ -124,6 +124,15 @@
 				B20000000000000000000007 /* KhonologyOscillation.swift */,
 				B20000000000000000000008 /* OIvoxZoqinneNoteMingle.swift */,
 				B20000000000000000000009 /* pitchRealmSyntaxBond.swift */,
+				C20000000000000000000001 /* OivoxtuneFind.swift */,
+				C20000000000000000000002 /* OivoxnoiseFind.swift */,
+				C20000000000000000000003 /* OivoxechoLocaleMerge.swift */,
+				C20000000000000000000004 /* sonicSphereBlend.swift */,
+				C20000000000000000000005 /* PulseAtlasPair.swift */,
+				C20000000000000000000006 /* OivoxtuneCatch.swift */,
+				C20000000000000000000008 /* PitchEarthSync.swift */,
+				C2000000000000000000000A /* VivoxsoundKeep.swift */,
+				C20000000000000000000009 /* OivoxShowingPush.swift */,
 				B2000000000000000000000A /* UstainedGutturalWavelength.swift */,
 				B2000000000000000000000B /* toneSphereRhythmBlend.swift */,
 				B2000000000000000000000C /* vocalAtlasPhrasePairPulseEarthDialectSync.swift */,
@@ -148,16 +157,7 @@
 		C30000000000000000000001 /* OivoxShowing */ = {
 			isa = PBXGroup;
 			children = (
-				C20000000000000000000001 /* OivoxtuneFind.swift */,
-				C20000000000000000000002 /* OivoxnoiseFind.swift */,
-				C20000000000000000000003 /* OivoxechoLocaleMerge.swift */,
-				C20000000000000000000004 /* sonicSphereBlend.swift */,
-				C20000000000000000000005 /* PulseAtlasPair.swift */,
-				C20000000000000000000006 /* OivoxtuneCatch.swift */,
-				C20000000000000000000008 /* PitchEarthSync.swift */,
-				C20000000000000000000009 /* OivoxShowingPush.swift */,
 				C20000000000000000000007 /* meadow-resources.bundle */,
-				C2000000000000000000000A /* VivoxsoundKeep.swift */,
 			);
 			path = OivoxShowing;
 			sourceTree = "<group>";
