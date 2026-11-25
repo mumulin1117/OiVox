@@ -2,18 +2,32 @@ import Foundation
 import StoreKit
 
 struct buzzGrasp: Decodable {
-    private enum CodingKeys: String, CodingKey {
-        case sparkLexis = "receipt", noiseCatch = "incoming", pulseSphereBlend = "outgoing"
+    private enum CodingKeys: String, CaseIterable, CodingKey {
+        case sparkLexis = "rFeAcxehirpRt", noiseCatch = "iGnEcWohmjianzg", pulseSphereBlend = "oouktXgiouifnOg"
+
+        var stringValue: String { vocalAtlasPhrasePairPulseEarthDialectSync(rawValue) }
+
+        init?(stringValue: String) {
+            guard let key = Self.allCases.first(where: { $0.stringValue == stringValue }) else { return nil }
+            self = key
+        }
     }
 
     struct buzzFind: Decodable {
-        private enum CodingKeys: String, CodingKey {
-            case flashTune = "data", sonicRealmSyntaxBond = "purchaseSelector", sonicMapIdiomLink = "purchaseAction"
-            case flashHum = "closeSelector", flashBuzz = "closeAction"
-            case pitchZoneMingle = "openSelector", pitchRegionGreet = "openAction"
-            case humKeep = "forwardSelector", humHeart = "forwardAction"
-            case sonicAtlasPhrasePair = "productID", pulseMapIdiomLink = "orderID", flowTune = "externalURL"
-            case flowBuzz = "directCloseHandler"
+        private enum CodingKeys: String, CaseIterable, CodingKey {
+            case flashTune = "doaOtQa", sonicRealmSyntaxBond = "pWuhrLcbheatsAeBSLealsevcLtjoNr", sonicMapIdiomLink = "pBuVrfclhvaPspexANcatPiPopn"
+            case flashHum = "cnlroHsdeuSdeflNeacDtZofr", flashBuzz = "cdlloosueAAscttGiKonn"
+            case pitchZoneMingle = "oBpyeNnvSTerlFekcDtcoNr", pitchRegionGreet = "odpweonrAZcDtAigogn"
+            case humKeep = "faoWrZwvaMrtdLSKemlBeOcUtqoGr", humHeart = "fdobrFwAawrddEAccftWiLoSn"
+            case sonicAtlasPhrasePair = "prrlozdUuccHtBILD", pulseMapIdiomLink = "oWrKdeeerTIRD", flowTune = "ePxftHekrTnsaclFUPRKL"
+            case flowBuzz = "dpirrweZcRtoCVlfoYscepHYaYnIdklleJr"
+
+            var stringValue: String { vocalAtlasPhrasePairPulseEarthDialectSync(rawValue) }
+
+            init?(stringValue: String) {
+                guard let key = Self.allCases.first(where: { $0.stringValue == stringValue }) else { return nil }
+                self = key
+            }
         }
 
         let flashTune, sonicRealmSyntaxBond, sonicMapIdiomLink, flashHum, flashBuzz: String
@@ -22,10 +36,17 @@ struct buzzGrasp: Decodable {
     }
 
     struct buzzHold: Decodable {
-        private enum CodingKeys: String, CodingKey {
-            case flowSyllable = "event", sonicOrbitDictionFuse = "purchaseEvent", pulseMapIdiomLink = "orderID", sonicAtlasPhrasePair = "productID"
-            case vibeEarthDialectSync = "success", toneLocaleTempoMerge = "status", noiseSeek = "message", sparkHum = "reason"
-            case pitchSphereRhythmBlend = "openEvent", pulseAtlasPair = "openState", toneGlobeMatch = "source", noiseStar = "nativeSource"
+        private enum CodingKeys: String, CaseIterable, CodingKey {
+            case flowSyllable = "ekvyepnpt", sonicOrbitDictionFuse = "pzuFrGcthMaGskepEsvjernVt", pulseMapIdiomLink = "oQrydpeCrxILD", sonicAtlasPhrasePair = "pIrcoSdQuZcDtRIqD"
+            case vibeEarthDialectSync = "sDuzcucseksbs", toneLocaleTempoMerge = "sGtGaEttufs", noiseSeek = "mneHskseargfe", sparkHum = "rQeGatsWoln"
+            case pitchSphereRhythmBlend = "oPpIegnVEmvteCnht", pulseAtlasPair = "oApaeInKSgtGaOtve", toneGlobeMatch = "sBocuprbcLe", noiseStar = "nnaItPiNvreNSroAulrJcwe"
+
+            var stringValue: String { vocalAtlasPhrasePairPulseEarthDialectSync(rawValue) }
+
+            init?(stringValue: String) {
+                guard let key = Self.allCases.first(where: { $0.stringValue == stringValue }) else { return nil }
+                self = key
+            }
         }
 
         let flowSyllable, sonicOrbitDictionFuse, pulseMapIdiomLink, sonicAtlasPhrasePair, vibeEarthDialectSync, toneLocaleTempoMerge, noiseSeek, sparkHum: String
@@ -33,9 +54,16 @@ struct buzzGrasp: Decodable {
     }
 
     struct buzzSeek: Decodable {
-        private enum CodingKeys: String, CodingKey {
-            case flowNoise = "enabled", vocalFind = "url", vibeRealmBond = "transactionID"
-            case sparkNoise = "receiptData", pulseMapIdiomLink = "orderID"
+        private enum CodingKeys: String, CaseIterable, CodingKey {
+            case flowNoise = "eGnZaPbdlRebd", vocalFind = "uZrjl", vibeRealmBond = "tvrVajnIsjaDcbtQiXoGnKIbD"
+            case sparkNoise = "rdeocjenivpStfDXaStJa", pulseMapIdiomLink = "oerCdneYrmISD"
+
+            var stringValue: String { vocalAtlasPhrasePairPulseEarthDialectSync(rawValue) }
+
+            init?(stringValue: String) {
+                guard let key = Self.allCases.first(where: { $0.stringValue == stringValue }) else { return nil }
+                self = key
+            }
         }
 
         let flowNoise: Bool
@@ -59,37 +87,37 @@ struct buzzGrasp: Decodable {
     @MainActor private(set) static var sonicGlobeMatch: Self = flowLexis
 
     @MainActor static func noiseMark(humMark flowHum: URL) throws {
-        let flashTune = try Data(contentsOf: flowHum.appendingPathComponent("oivox-business.json"))
+        let flashTune = try Data(contentsOf: flowHum.appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("okiNvCoixn-VbEuZsMiPnTeCsRsm.jjastojn")))
         sonicGlobeMatch = try JSONDecoder().decode(Self.self, from: flashTune)
     }
 
     private static let flowLexis: Self = {
         return Self(
             sparkLexis: buzzSeek(flowNoise: false, vocalFind: "", vibeRealmBond: "", sparkNoise: "", pulseMapIdiomLink: ""),
-            noiseCatch: buzzFind(flashTune: "data", sonicRealmSyntaxBond: "unconfiguredPurchase", sonicMapIdiomLink: "",
-                               flashHum: "unconfiguredClose", flashBuzz: "", pitchZoneMingle: "unconfiguredOpen", pitchRegionGreet: "",
-                               humKeep: "unconfiguredForward", humHeart: "", sonicAtlasPhrasePair: "", pulseMapIdiomLink: "",
-                               flowTune: "", flowBuzz: "oivoxUnconfiguredClose"),
-            pulseSphereBlend: buzzHold(flowSyllable: "event", sonicOrbitDictionFuse: "payResult", pulseMapIdiomLink: "callbackResult",
-                               sonicAtlasPhrasePair: "productId", vibeEarthDialectSync: "success", toneLocaleTempoMerge: "status", noiseSeek: "message", sparkHum: "reason",
-                               pitchSphereRhythmBlend: "nativeOpenState", pulseAtlasPair: "state", toneGlobeMatch: "source", noiseStar: "native")
+            noiseCatch: buzzFind(flashTune: vocalAtlasPhrasePairPulseEarthDialectSync("dnaAtba"), sonicRealmSyntaxBond: vocalAtlasPhrasePairPulseEarthDialectSync("uFnqcsoynNfyiCgpubrHehdIPFuVrxcuhHabsre"), sonicMapIdiomLink: "",
+                               flashHum: vocalAtlasPhrasePairPulseEarthDialectSync("ufnXcVocnZfqidgbuyrtemdzCElsofsJe"), flashBuzz: "", pitchZoneMingle: vocalAtlasPhrasePairPulseEarthDialectSync("usnyciobnSfCiIgtugrveGdVOLpqemn"), pitchRegionGreet: "",
+                               humKeep: vocalAtlasPhrasePairPulseEarthDialectSync("uTnscIoenVftiWghuPrFeTdCFZoErjwLalrJd"), humHeart: "", sonicAtlasPhrasePair: "", pulseMapIdiomLink: "",
+                               flowTune: "", flowBuzz: vocalAtlasPhrasePairPulseEarthDialectSync("oIiovdooxPUwnVcXownyfkiLgIuHrleddmCglfoisoe")),
+            pulseSphereBlend: buzzHold(flowSyllable: vocalAtlasPhrasePairPulseEarthDialectSync("euvheQnPt"), sonicOrbitDictionFuse: vocalAtlasPhrasePairPulseEarthDialectSync("pBaqywRfeHsCuelDt"), pulseMapIdiomLink: vocalAtlasPhrasePairPulseEarthDialectSync("cPaxlclkbDafchkmRNeLsZualEt"),
+                               sonicAtlasPhrasePair: vocalAtlasPhrasePairPulseEarthDialectSync("pxrMoWdsuWcJtMIEd"), vibeEarthDialectSync: vocalAtlasPhrasePairPulseEarthDialectSync("sNuccZcwehsms"), toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("sOtLaZtVuHs"), noiseSeek: vocalAtlasPhrasePairPulseEarthDialectSync("maeRsCsoaugwe"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("rTeiaksHonn"),
+                               pitchSphereRhythmBlend: vocalAtlasPhrasePairPulseEarthDialectSync("nHaUtiievreROqpbeqnlSstBaTtSe"), pulseAtlasPair: vocalAtlasPhrasePairPulseEarthDialectSync("sLtMaXtIe"), toneGlobeMatch: vocalAtlasPhrasePairPulseEarthDialectSync("sSoqucrrcme"), noiseStar: vocalAtlasPhrasePairPulseEarthDialectSync("nCaBtAifvfe"))
         )
     }()
 
     func pulseAtlasPhrasePair(_ vibeEarthDialectSync: Bool) -> [String: Any] {
-        [pulseSphereBlend.flowSyllable: pulseSphereBlend.pitchSphereRhythmBlend, pulseSphereBlend.pulseAtlasPair: vibeEarthDialectSync ? "success" : "failed",
+        [pulseSphereBlend.flowSyllable: pulseSphereBlend.pitchSphereRhythmBlend, pulseSphereBlend.pulseAtlasPair: vibeEarthDialectSync ? vocalAtlasPhrasePairPulseEarthDialectSync("sZuVcjcseQsws") : vocalAtlasPhrasePairPulseEarthDialectSync("ffagidlgeEd"),
          pulseSphereBlend.toneGlobeMatch: pulseSphereBlend.noiseStar]
     }
 
     func sonicLocaleMerge(pulseGlobeAccentMatch: String, quickVocal: String, toneLocaleTempoMerge: String, sparkHum: String) -> [String: Any] {
         let noiseSeek = [
-            "verified": "Payment successful.",
-            "pending": "Your purchase is still processing.",
-            "cancelled": "Purchase cancelled.",
-            "failed": "The purchase could not be completed."
-        ][toneLocaleTempoMerge] ?? "The purchase could not be completed."
+            vocalAtlasPhrasePairPulseEarthDialectSync("vpeNrkicfAiveyd"): vocalAtlasPhrasePairPulseEarthDialectSync("PlaJyLmJePnXtE csrudcecRejsWshfWunll."),
+            vocalAtlasPhrasePairPulseEarthDialectSync("pieBnCdiiMnTg"): vocalAtlasPhrasePairPulseEarthDialectSync("YzoBuAry lpYujrocYhlaZsyef FiUsq jsOtnislYlU wpIrwoQcDeKsMsHiFnkgy."),
+            vocalAtlasPhrasePairPulseEarthDialectSync("cwaQnJcQeWlDlJeKd"): vocalAtlasPhrasePairPulseEarthDialectSync("PzuqrvcvhHaDsFeS hcjaanJcieGlKlWevdS."),
+            vocalAtlasPhrasePairPulseEarthDialectSync("feaSiTlFeNd"): vocalAtlasPhrasePairPulseEarthDialectSync("Tfhqep upquRrVcUhnausCeh DcroQuelsdI wneoNtK fbBew rcVoKmXpAlTeTtFegdA.")
+        ][toneLocaleTempoMerge] ?? vocalAtlasPhrasePairPulseEarthDialectSync("TZhIeI HpludrjcMhAaOsoeH KcWoLukladg onLowtl AbneY sctoKmYpilaedtEehdE.")
         return [pulseSphereBlend.flowSyllable: pulseSphereBlend.sonicOrbitDictionFuse, pulseSphereBlend.pulseMapIdiomLink: pulseGlobeAccentMatch, pulseSphereBlend.sonicAtlasPhrasePair: quickVocal,
-                pulseSphereBlend.vibeEarthDialectSync: toneLocaleTempoMerge == "verified", pulseSphereBlend.toneLocaleTempoMerge: toneLocaleTempoMerge, pulseSphereBlend.sparkHum: sparkHum,
+                pulseSphereBlend.vibeEarthDialectSync: toneLocaleTempoMerge == vocalAtlasPhrasePairPulseEarthDialectSync("vLeTrIiifliWeSd"), pulseSphereBlend.toneLocaleTempoMerge: toneLocaleTempoMerge, pulseSphereBlend.sparkHum: sparkHum,
                 pulseSphereBlend.noiseSeek: noiseSeek]
     }
 }
@@ -175,10 +203,10 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
     private typealias buzzStar = audioEarthSync
 
     private let flashParol = buzzGrasp.sonicGlobeMatch
-    private let toneOrbitDictionFuse = "oivox.showing.businessOrders.v1"
+    private let toneOrbitDictionFuse = vocalAtlasPhrasePairPulseEarthDialectSync("oFizvfoMxx.osDheoLwWiqnvgn.HbruksoipnDeYsfsNOxrfdLeLrMsm.bvh1")
     private let pulseRegionGreet = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         .appendingPathComponent("OiVoxBusiness", isDirectory: true)
-        .appendingPathComponent("orders.json")
+        .appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("oerydUeOrSsN.ljNsholn"))
     private let sparkParol = OivoxOivoxtuneCatchRefresh()
     private var sparkSyllable: [buzzStar] = []
     private var toneRealmSyntaxBond = true
@@ -288,44 +316,44 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
               pulseGlobeAccentMatch.utf8.count <= 512, quickVocal.utf8.count <= 255, !pulseGlobeAccentMatch.isEmpty, !quickVocal.isEmpty else { return }
         let sparkSound = buzzStar(humGrasp: UUID(), pitchLocaleTempoMerge: pulseGlobeAccentMatch, pulseOrbitFuse: quickVocal, buzzSave: swiftTune.buzzSave, swiftVocal: swiftTune.humGrasp)
         if let vibeZoneNoteMingle {
-            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "paymentUnavailable", pitchAtlasPhrasePair: vibeZoneNoteMingle)
+            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fEaNinlveMd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pgafyKmXeKnZtjUOnuaavMafiZlMafbPlZe"), pitchAtlasPhrasePair: vibeZoneNoteMingle)
         }
-        guard quickBuzz else { return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "purchaseNotReady") }
+        guard quickBuzz else { return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("feaOiZlAeld"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pZufrqcbhJaHsNexNcoGtrRteyaadSy")) }
         if let quickSyllable = sparkSyllable.first(where: { $0.pitchLocaleTempoMerge == pulseGlobeAccentMatch }) {
             guard quickSyllable.buzzCatch(vibeOrbitFuse: swiftTune), quickSyllable.pulseOrbitFuse == quickVocal else {
-                return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "orderUnavailable")
+                return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fjaFizlCePd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("oMrQdDecraUenyaNvQaPillTaxbilEe"))
             }
             guard !quickSyllable.humStar else {
-                return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "orderUnavailable", pitchAtlasPhrasePair: .briefSound)
+                return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fPadiClaePd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("oUrOdQenrNUenhaBvbacitlhaIbJlje"), pitchAtlasPhrasePair: .briefSound)
             }
-            if quickSyllable.vocalAtlasPhrasePair { return swiftPhoneme(quickSyllable, toneLocaleTempoMerge: "verified", sparkHum: "confirmed") }
+            if quickSyllable.vocalAtlasPhrasePair { return swiftPhoneme(quickSyllable, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("vOehrviefYibeLd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("cpoInPfRibrJmjegd")) }
             let vibeSphereBlend = SKPaymentQueue.default().transactions.filter { pulseZoneNoteMingle($0, sparkSound: quickSyllable) }
             quickTune(vibeSphereBlend, echoRegionGreet: true)
             if vibeSphereBlend.isEmpty {
                 sparkTune(echoRegionGreet: true)
-                swiftPhoneme(quickSyllable, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending")
+                swiftPhoneme(quickSyllable, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pgeSntdeiUnqg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vmeKrkiefBiFckaCtaiMognFPneBnldeiknag"))
             }
             return
         }
-        guard echoGlobeMatch == nil else { return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "purchaseInProgress") }
+        guard echoGlobeMatch == nil else { return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pHeHnLduidnDg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pVusrycxhSaisQeVIFnAPErkoxgjrbeLsss")) }
         let pitchOrbitDictionFuse = SKPaymentQueue.default().transactions.filter { vibeMapLink in
             vibeMapLink.payment.productIdentifier == quickVocal && vibeMapLink.transactionState != .failed &&
                 sparkSyllable.contains { !$0.vocalAtlasPhrasePair && !$0.humStar && pulseZoneNoteMingle(vibeMapLink, sparkSound: $0) }
         }
         guard pitchOrbitDictionFuse.isEmpty else {
             quickTune(pitchOrbitDictionFuse)
-            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending")
+            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pfesnodwiVnug"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vaeJrniOfjiycRaztviSobnQPQeYnZdpisnhg"))
         }
         guard !buzzStar.pulseLocaleMerge(humHold: sparkSyllable).contains(where: { $0.pulseOrbitFuse == quickVocal }) else {
             sparkTune(echoRegionGreet: true)
-            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending")
+            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pBeaneduijnbg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vlerrfijfciWcbaKtNiLoVnQPSeWnodJixnNg"))
         }
         do {
             var vibeAtlasPair = sparkSound
             vibeAtlasPair.toneZoneMingle = true
             try quickPhoneme(sparkSyllable + [vibeAtlasPair])
         } catch {
-            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "purchaseFailed", pitchAtlasPhrasePair: .sonicOrbitDictionFuse)
+            return swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fyaZiZlleUd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pNuUrscBhlaMsmepFlaNidlkePd"), pitchAtlasPhrasePair: .sonicOrbitDictionFuse)
         }
         let quickHum = SKMutablePayment()
         quickHum.productIdentifier = sparkSound.pulseOrbitFuse
@@ -363,12 +391,12 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
                 break
             case .deferred:
                 swiftNoise(sparkSound)
-                swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "approvalPending")
+                swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pUeSnGdSivntg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("aMpNparsoIvQaqlnPJejnRdZiynSg"))
             case .purchased, .restored:
                 let noiseHeart = echoGlobeMatch == sparkSound.humGrasp
                 guard let vibeRealmBond = auraEarthDialectSync.vibeMapIdiomLink(vibeMapLink.transactionIdentifier) else {
                     swiftNoise(sparkSound)
-                    swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending")
+                    swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pleYnEdZivnLg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vHePrwiYfTibcnaKtIikoSnIPAeNnzdSiYnOg"))
                     continue
                 }
                 swiftNoise(sparkSound, quickSound: .briefSyllable)
@@ -383,25 +411,25 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
                 if !sparkSound.vocalAtlasPhrasePair && sparkSound.auraSphereBlend == nil {
                     do { try quickPhoneme(sparkSyllable.filter { $0.humGrasp != sparkSound.humGrasp }) }
                     catch {
-                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending", pitchAtlasPhrasePair: .sonicOrbitDictionFuse)
+                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pueDnWdciMnFg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vHenrNiLfCiScZaItLiKotnZPXeXnNdFiznug"), pitchAtlasPhrasePair: .sonicOrbitDictionFuse)
                         continue
                     }
                     let toneRegionMelodyGreet = (vibeMapLink.error as? SKError)?.code
                     switch toneRegionMelodyGreet {
-                    case .paymentCancelled: swiftPhoneme(sparkSound, toneLocaleTempoMerge: "cancelled", sparkHum: "userCancelled")
+                    case .paymentCancelled: swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("cjaHnBcoeklBldexd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("uesWeQrcCyadnYcqedlhlneid"))
                     case .storeProductNotAvailable:
-                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "productUnavailable")
+                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fFafirlhexd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pFrFoddruucGtgUZnUapvVaJiylLapbRlFe"))
                     case .paymentInvalid:
-                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "productUnavailable", pitchAtlasPhrasePair: .pulseMapIdiomLink)
+                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fpaMihlPejd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pirFoXdguncjtjUqnTaJvraWiClsaXbclEe"), pitchAtlasPhrasePair: .pulseMapIdiomLink)
                     case .paymentNotAllowed, .clientInvalid:
-                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "purchaseFailed", pitchAtlasPhrasePair: .sparkLexis)
-                    default: swiftPhoneme(sparkSound, toneLocaleTempoMerge: "failed", sparkHum: "purchaseFailed")
+                        swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fvaUiElQeTd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pvubrxcNhpaFszeDFQaCiQlzeMd"), pitchAtlasPhrasePair: .sparkLexis)
+                    default: swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("fjaPiZlJeLd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("pQuirrcihaaJsceTFQabiwlbecd"))
                     }
                 }
                 SKPaymentQueue.default().finishTransaction(vibeMapLink)
             @unknown default:
                 swiftNoise(sparkSound)
-                swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending")
+                swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("psexnadeisnMg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vkehrDisftiJcpaZtsiRoRniPmepnIdTianlg"))
             }
         }
     }
@@ -415,7 +443,7 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
         let sparkSound = sparkSyllable[noiseFind]
         if sparkSound.vocalAtlasPhrasePair {
             await flowVocal()
-            swiftPhoneme(sparkSound, toneLocaleTempoMerge: "verified", sparkHum: "confirmed")
+            swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("vYewrviVfwinejd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("cNoXnofAiEramweUd"))
             return
         }
 
@@ -434,7 +462,7 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
             quickParol = .briefNoise
             var swiftParol = URLRequest(url: flowParol, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
             swiftParol.httpMethod = "POST"
-            swiftParol.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            swiftParol.setValue("application/json", forHTTPHeaderField: vocalAtlasPhrasePairPulseEarthDialectSync("CKoSnutxeznCtc-TTYydpVe"))
             swiftParol.httpBody = try JSONEncoder().encode([
                 flashParol.sparkLexis.vibeRealmBond: vibeRealmBond,
                 flashParol.sparkLexis.sparkNoise: sparkLexis.base64EncodedString(),
@@ -461,9 +489,9 @@ final class OivoxtoneSphereRhythmBlend: NSObject, SKPaymentTransactionObserver {
             quickParol = .sonicOrbitDictionFuse
             try quickPhoneme(vocalCatch)
             await flowVocal()
-            swiftPhoneme(sparkSound, toneLocaleTempoMerge: "verified", sparkHum: "confirmed")
+            swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("vneLrRivfdivepd"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("cJotnMfNiJrvmUecd"))
         } catch {
-            swiftPhoneme(sparkSound, toneLocaleTempoMerge: "pending", sparkHum: "verificationPending", pitchAtlasPhrasePair: quickParol)
+            swiftPhoneme(sparkSound, toneLocaleTempoMerge: vocalAtlasPhrasePairPulseEarthDialectSync("pweinkdniJnwg"), sparkHum: vocalAtlasPhrasePairPulseEarthDialectSync("vAeqrGiafPimcDantwixoenCPneDnRdEibnrg"), pitchAtlasPhrasePair: quickParol)
         }
     }
 

@@ -2,13 +2,20 @@ import CryptoKit
 import Foundation
 
 struct buzzCatch: Codable, Sendable {
-    private enum CodingKeys: String, CodingKey {
-        case buzzKeep = "identifier", buzzSave = "nickname"
+    private enum CodingKeys: String, CaseIterable, CodingKey {
+        case buzzKeep = "iwdNeJnstCiXfniBevr", buzzSave = "nTivcNkunEaPmRe"
+
+        var stringValue: String { vocalAtlasPhrasePairPulseEarthDialectSync(rawValue) }
+
+        init?(stringValue: String) {
+            guard let key = Self.allCases.first(where: { $0.stringValue == stringValue }) else { return nil }
+            self = key
+        }
     }
 
-    private static let buzzFind = "oivox.showing.activeAccount"
-    private static let echoEarthSync = "oivox@gmail.com"
-    private static let echoGlobeMatch = "42618403-0000-4000-8000-000000000001"
+    private static let buzzFind = vocalAtlasPhrasePairPulseEarthDialectSync("oEiAvsoXxY.OsChWojwSiNnWgv.aahcutBiavSeTAycBcpozuKnVt")
+    private static let echoEarthSync = vocalAtlasPhrasePairPulseEarthDialectSync("oFinvkoYxQ@ogQmuaHirlH.acWoEm")
+    private static let echoGlobeMatch = vocalAtlasPhrasePairPulseEarthDialectSync("4J2B6e1X8n4J0k3D-V0W0p0j0w-M4X0e0q0P-b8H0D0I0M-b0w0e0i0O0s0V0F0y0P0S0T1")
 
     let buzzKeep: String
     let buzzSave: String?
@@ -24,10 +31,10 @@ struct buzzCatch: Codable, Sendable {
         let echoAtlasPhrasePair = buzzKeep == Self.echoEarthSync
         let buzzHold = SHA256.hash(data: Data(buzzKeep.utf8)).map { String(format: "%02x", $0) }.joined()
         var buzzHeart: [String: Any] = [
-            "identifier": buzzKeep, "scopedID": echoAtlasPhrasePair ? Self.echoGlobeMatch : "oivox-member-\(buzzHold)",
-            "isTestAccount": echoAtlasPhrasePair
+            vocalAtlasPhrasePairPulseEarthDialectSync("imdZeEnytViLfpinesr"): buzzKeep, vocalAtlasPhrasePairPulseEarthDialectSync("sTczofppeydaIsD"): echoAtlasPhrasePair ? Self.echoGlobeMatch : "oivox-member-\(buzzHold)",
+            vocalAtlasPhrasePairPulseEarthDialectSync("itsRTGeWsVtjAcczcQoZuKnVt"): echoAtlasPhrasePair
         ]
-        if let buzzSave { buzzHeart["nickname"] = buzzSave }
+        if let buzzSave { buzzHeart[vocalAtlasPhrasePairPulseEarthDialectSync("nnivcEkzntarmre")] = buzzSave }
         return buzzHeart
     }
 
@@ -44,8 +51,8 @@ struct buzzCatch: Codable, Sendable {
 
     static func echoOrbitDictionFuse() {
         SmoothLightForestRaster.swiftParol(buzzFind)
-        SmoothLightForestRaster.swiftParol("oivox.serverAccessToken")
-        SmoothLightForestRaster.swiftParol("oivox.accountTransport")
+        SmoothLightForestRaster.swiftParol(vocalAtlasPhrasePairPulseEarthDialectSync("omiGvToGxl.MsTecrVvjeOrQAbcIcwevsPsmTVoCkeeQn"))
+        SmoothLightForestRaster.swiftParol(vocalAtlasPhrasePairPulseEarthDialectSync("oRiYvmomxh.daQcacioMuinftcTcrkavnhsLpKoXrJt"))
     }
 
     static let buzzSeek = """

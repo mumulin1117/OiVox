@@ -13,7 +13,7 @@ enum echoMapIdiomLink {
         case flowTune, flowVocal, noiseCatch, humMark
 
         static var errorDomain: String {
-            String(reflecting: Self.self).split(separator: ".").dropLast(2).joined(separator: ".") + ".OivoxWebArchive.Failure"
+            String(reflecting: Self.self).split(separator: ".").dropLast(2).joined(separator: ".") + vocalAtlasPhrasePairPulseEarthDialectSync(".VOwikvQoYxUWqeHbcAXrBcghYiXvDes.fFlaUiTlSuqrFe")
         }
 
         var errorCode: Int {
@@ -27,16 +27,16 @@ enum echoMapIdiomLink {
 
         var description: String {
             switch self {
-            case .flowTune: return "invalidArchive"
-            case .flowVocal: return "invalidPath"
-            case .noiseCatch: return "oversized"
-            case .humMark: return "missingResource"
+            case .flowTune: return vocalAtlasPhrasePairPulseEarthDialectSync("ianMvcaIlhizdVAZruchhwiAvGe")
+            case .flowVocal: return vocalAtlasPhrasePairPulseEarthDialectSync("irntvTailZiQdkPVabtfh")
+            case .noiseCatch: return vocalAtlasPhrasePairPulseEarthDialectSync("oyvXenrlsUiLzXeVd")
+            case .humMark: return vocalAtlasPhrasePairPulseEarthDialectSync("mCivseshidnrgjRQejsOoNuKrbcoe")
             }
         }
 
         var debugDescription: String { Self.errorDomain + "." + description }
     }
-    private static let flowSound = Data("OIVOX-BUNDLE-1".utf8)
+    private static let flowSound = Data(vocalAtlasPhrasePairPulseEarthDialectSync("OEIYVZOcXL-rBZUlNhDnLJEd-s1").utf8)
     private static let humHeart = 256 * 1024 * 1024
 
     static func pulseGlobeAccentMatch(pitchRegionGreet: URL, humStar: URL, noiseSave: String) throws {
@@ -191,16 +191,16 @@ enum echoMapIdiomLink {
 
 actor echoOrbitDictionFuse {
     static let pitchMapLink = echoOrbitDictionFuse()
-    static let noiseGrasp = "meadow-resources"
-    static let humFind = "002ddea87d7964f9bee2a0676bd9f39183b59eab5db3510ded73c7d34d7bbbd1"
-    static let pitchAtlasPhrasePair = ["Pages/oivoxstart.html", "Pages/oivoxguide.html", "Registration/index.html", "oivox-business.json"]
+    static let noiseGrasp = vocalAtlasPhrasePairPulseEarthDialectSync("myeuaXdSohwV-nraecshohukrfcKeus")
+    static let humFind = vocalAtlasPhrasePairPulseEarthDialectSync("0V0W2odLdHehaf8F7ads7K9Q6H4GfV9fbAeDeY2Gae0r6j7F6bbbdG9gfZ3l9U1A8M3MbG5I9zeEaobr5Udybm3j5O1u0jdwegdF7j3lcG7mdp3Z4Bdz7pbvbDbBdT1")
+    static let pitchAtlasPhrasePair = [vocalAtlasPhrasePairPulseEarthDialectSync("PvangXeRsp/booisvvoixTsHtWadrotC.OhatPmEl"), vocalAtlasPhrasePairPulseEarthDialectSync("PWaMgketsa/uoeitvvoExigcuniYdZen.ZhAtimol"), vocalAtlasPhrasePairPulseEarthDialectSync("REeOgQiasTtvrUastDiKoInv/qignWdjeGxG.MhatCmol"), vocalAtlasPhrasePairPulseEarthDialectSync("ouifvboLxk-UbLuxskiinGeRsosO.EjTsfosn")]
 
     func noiseSeek() throws -> URL {
         guard let noiseFind = Bundle.main.url(forResource: Self.noiseGrasp, withExtension: "bundle") else {
             throw echoMapIdiomLink.echoLocaleMerge.humMark
         }
         let flashBuzz = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("VivoxsoundKeep", isDirectory: true)
+            .appendingPathComponent(vocalAtlasPhrasePairPulseEarthDialectSync("VqiSvqoLxhsxoEudnidXKwemeMp"), isDirectory: true)
         return try echoMapIdiomLink.noiseSeek(noiseFind: noiseFind, flashBuzz: flashBuzz, noiseSave: Self.humFind, pitchAtlasPhrasePair: Self.pitchAtlasPhrasePair)
     }
 }
